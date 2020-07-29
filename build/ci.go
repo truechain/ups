@@ -1,4 +1,4 @@
-// +build none
+// build none
 
 /*
 The ci command is called from Continuous Integration scripts.

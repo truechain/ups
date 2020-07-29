@@ -1832,7 +1832,7 @@ require = (function e(t, n, r) {
             'Gtrue',
             'Ttrue',
             'Ptrue',
-            'Etrue',
+            'Ups',
             'Ztrue',
             'Ytrue',
             'Ntrue',
@@ -2563,7 +2563,7 @@ require = (function e(t, n, r) {
 
         var RequestManager = require('./web3/requestmanager');
         var Iban = require('./web3/iban');
-        var Etrue = require('./web3/methods/ups');
+        var Ups = require('./web3/methods/ups');
         var DB = require('./web3/methods/db');
         var Shh = require('./web3/methods/shh');
         var Net = require('./web3/methods/net');
@@ -2584,7 +2584,7 @@ require = (function e(t, n, r) {
         function Web3(provider) {
             this._requestManager = new RequestManager(provider);
             this.currentProvider = provider;
-            this.ups = new Etrue(this);
+            this.ups = new Ups(this);
             this.db = new DB(this);
             this.shh = new Shh(this);
             this.net = new Net(this);
@@ -5405,7 +5405,7 @@ require = (function e(t, n, r) {
             return (utils.isString(args[0]) && args[0].indexOf('0x') === 0) ? 'etrue_getUncleCountByBlockHash' : 'etrue_getUncleCountByBlockNumber';
         };
 
-        function Etrue(web3) {
+        function Ups(web3) {
             this._requestManager = web3._requestManager;
 
             var self = this;
@@ -5425,7 +5425,7 @@ require = (function e(t, n, r) {
             this.sendIBANTransaction = transfer.bind(null, this);
         }
 
-        Object.defineProperty(Etrue.prototype, 'defaultBlock', {
+        Object.defineProperty(Ups.prototype, 'defaultBlock', {
             get: function () {
                 return c.defaultBlock;
             },
@@ -5435,7 +5435,7 @@ require = (function e(t, n, r) {
             }
         });
 
-        Object.defineProperty(Etrue.prototype, 'defaultAccount', {
+        Object.defineProperty(Ups.prototype, 'defaultAccount', {
             get: function () {
                 return c.defaultAccount;
             },
@@ -5770,28 +5770,28 @@ require = (function e(t, n, r) {
             ];
         };
 
-        Etrue.prototype.contract = function (abi) {
+        Ups.prototype.contract = function (abi) {
             var factory = new Contract(this, abi);
             return factory;
         };
 
-        Etrue.prototype.filter = function (options, callback, filterCreationErrorCallback) {
+        Ups.prototype.filter = function (options, callback, filterCreationErrorCallback) {
             return new Filter(options, 'ups', this._requestManager, watches.ups(), formatters.outputLogFormatter, callback, filterCreationErrorCallback);
         };
 
-        Etrue.prototype.namereg = function () {
+        Ups.prototype.namereg = function () {
             return this.contract(namereg.global.abi).at(namereg.global.address);
         };
 
-        Etrue.prototype.icapNamereg = function () {
+        Ups.prototype.icapNamereg = function () {
             return this.contract(namereg.icap.abi).at(namereg.icap.address);
         };
 
-        Etrue.prototype.isSyncing = function (callback) {
+        Ups.prototype.isSyncing = function (callback) {
             return new IsSyncing(this._requestManager, callback);
         };
 
-        module.exports = Etrue;
+        module.exports = Ups;
 
     }, {
         "../../utils/config": 18,

@@ -59,7 +59,7 @@ type etruestatsConfig struct {
 }
 
 type gethConfig struct {
-	Etrue      ups.Config
+	Ups      ups.Config
 	Node       node.Config
 	Etruestats etruestatsConfig
 	Dashboard  dashboard.Config
@@ -93,17 +93,17 @@ func defaultNodeConfig() node.Config {
 func makeConfigNode(ctx *cli.Context) (*node.Node, gethConfig) {
 	// Load defaults.
 	cfg := gethConfig{
-		Etrue:     ups.DefaultConfig,
+		Ups:     ups.DefaultConfig,
 		Node:      defaultNodeConfig(),
 		Dashboard: dashboard.DefaultConfig,
 	}
 	if ctx.GlobalBool(utils.SingleNodeFlag.Name) {
 		// set etrueconfig
 		prikey, _ := crypto.HexToECDSA("c1581e25937d9ab91421a3e1a2667c85b0397c75a195e643109938e987acecfc")
-		cfg.Etrue.PrivateKey = prikey
-		cfg.Etrue.CommitteeKey = crypto.FromECDSA(prikey)
+		cfg.Ups.PrivateKey = prikey
+		cfg.Ups.CommitteeKey = crypto.FromECDSA(prikey)
 
-		//cfg.Etrue.NetworkId =400
+		//cfg.Ups.NetworkId =400
 		//set node config
 		cfg.Node.HTTPPort = 8888
 		cfg.Node.HTTPHost = "127.0.0.1"
@@ -124,7 +124,7 @@ func makeConfigNode(ctx *cli.Context) (*node.Node, gethConfig) {
 	if err != nil {
 		utils.Fatalf("Failed to create the protocol stack: %v", err)
 	}
-	utils.SetTruechainConfig(ctx, stack, &cfg.Etrue)
+	utils.SetTruechainConfig(ctx, stack, &cfg.Ups)
 	if ctx.GlobalIsSet(utils.EtrueStatsURLFlag.Name) {
 		cfg.Etruestats.URL = ctx.GlobalString(utils.EtrueStatsURLFlag.Name)
 	}
@@ -137,7 +137,7 @@ func makeConfigNode(ctx *cli.Context) (*node.Node, gethConfig) {
 func makeFullNode(ctx *cli.Context) *node.Node {
 	stack, cfg := makeConfigNode(ctx)
 
-	utils.RegisterEtrueService(stack, &cfg.Etrue)
+	utils.RegisterEtrueService(stack, &cfg.Ups)
 
 	if ctx.GlobalBool(utils.DashboardEnabledFlag.Name) {
 		utils.RegisterDashboardService(stack, &cfg.Dashboard, gitCommit)
@@ -155,8 +155,8 @@ func dumpConfig(ctx *cli.Context) error {
 	_, cfg := makeConfigNode(ctx)
 	comment := ""
 
-	if cfg.Etrue.Genesis != nil {
-		cfg.Etrue.Genesis = nil
+	if cfg.Ups.Genesis != nil {
+		cfg.Ups.Genesis = nil
 		comment += "# Note: this config doesn't contain the genesis block.\n\n"
 	}
 
