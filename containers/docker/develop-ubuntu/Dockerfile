@@ -6,10 +6,10 @@ RUN \
   apt-get update && apt-get upgrade -q -y && \
   apt-get install -y --no-install-recommends golang-1.9 git make gcc libc-dev ca-certificates && \
   git clone --depth 1 https://github.com/truechain/ups && \
-  (cd truechain-engineering-code && make gups) && \
-  cp truechain-engineering-code/build/bin/gups /gups && \
+  (cd ups && make gups) && \
+  cp ups/build/bin/gups /gups && \
   apt-get remove -y golang-1.9 git make gcc libc-dev && apt autoremove -y && apt-get clean && \
-  rm -rf /truechain-engineering-code
+  rm -rf /ups
 
 EXPOSE 8545
 EXPOSE 30303
