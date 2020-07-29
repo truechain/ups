@@ -18,7 +18,7 @@ import (
 	"github.com/truechain/ups/core/types"
 	"github.com/truechain/ups/core/vm"
 	"github.com/truechain/ups/crypto"
-	"github.com/truechain/ups/etruedb"
+	"github.com/truechain/ups/upsdb"
 	"github.com/truechain/ups/log"
 	"github.com/truechain/ups/params"
 )
@@ -195,7 +195,7 @@ type POSManager struct {
 
 var (
 	engine        = minerva.NewFaker()
-	db            = etruedb.NewMemDatabase()
+	db            = upsdb.NewMemDatabase()
 	gspec         = DefaulGenesisBlock()
 	abiStaking, _ = abi.JSON(strings.NewReader(vm.StakeABIJSON))
 	signer        = types.NewTIP1Signer(gspec.Config.ChainID)

@@ -20,7 +20,7 @@ import (
 	"reflect"
 
 	"github.com/truechain/ups/accounts"
-	"github.com/truechain/ups/etruedb"
+	"github.com/truechain/ups/upsdb"
 	"github.com/truechain/ups/event"
 	"github.com/truechain/ups/p2p"
 	"github.com/truechain/ups/rpc"
@@ -39,11 +39,11 @@ type ServiceContext struct {
 // OpenDatabase opens an existing database with the given name (or creates one
 // if no previous can be found) from within the node's data directory. If the
 // node is an ephemeral one, a memory database is returned.
-func (ctx *ServiceContext) OpenDatabase(name string, cache int, handles int) (etruedb.Database, error) {
+func (ctx *ServiceContext) OpenDatabase(name string, cache int, handles int) (upsdb.Database, error) {
 	if ctx.config.DataDir == "" {
-		return etruedb.NewMemDatabase(), nil
+		return upsdb.NewMemDatabase(), nil
 	}
-	db, err := etruedb.NewLDBDatabase(ctx.config.ResolvePath(name), cache, handles)
+	db, err := upsdb.NewLDBDatabase(ctx.config.ResolvePath(name), cache, handles)
 	if err != nil {
 		return nil, err
 	}

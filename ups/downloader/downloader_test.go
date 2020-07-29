@@ -29,7 +29,7 @@ import (
 	truechain "github.com/truechain/ups"
 	"github.com/truechain/ups/common"
 	"github.com/truechain/ups/core/types"
-	"github.com/truechain/ups/etruedb"
+	"github.com/truechain/ups/upsdb"
 	"github.com/truechain/ups/event"
 	"github.com/truechain/ups/trie"
 	"github.com/truechain/ups/log"
@@ -47,8 +47,8 @@ type downloadTester struct {
 	downloader *Downloader
 
 	genesis *types.Block   // Genesis blocks used by the tester and peers
-	stateDb etruedb.Database // Database used by the tester for syncing from peers
-	peerDb  etruedb.Database // Database of the peers containing all data
+	stateDb upsdb.Database // Database used by the tester for syncing from peers
+	peerDb  upsdb.Database // Database of the peers containing all data
 	peers   map[string]*downloadTesterPeer
 
 	ownHashes   []common.Hash                  // Hash chain belonging to the tester
@@ -83,7 +83,7 @@ func newTester() *downloadTester {
 		ancientReceipts: map[common.Hash]types.Receipts{testGenesis.Hash(): nil},
 		ancientChainTd:  map[common.Hash]*big.Int{testGenesis.Hash(): big.NewInt(0)},
 	}
-	tester.stateDb = etruedb.NewMemDatabase()
+	tester.stateDb = upsdb.NewMemDatabase()
 	tester.stateDb.Put(testGenesis.Root().Bytes(), []byte{0x00})
 
 	tester.downloader = New(0, tester.stateDb, trie.NewSyncBloom(1, tester.stateDb), new(event.TypeMux), tester, nil, tester.dropPeer)

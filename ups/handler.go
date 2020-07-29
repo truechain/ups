@@ -32,7 +32,7 @@ import (
 	"github.com/truechain/ups/core/types"
 	"github.com/truechain/ups/ups/downloader"
 	"github.com/truechain/ups/ups/fetcher"
-	"github.com/truechain/ups/etruedb"
+	"github.com/truechain/ups/upsdb"
 	"github.com/truechain/ups/event"
 	"github.com/truechain/ups/log"
 	"github.com/truechain/ups/p2p"
@@ -115,7 +115,7 @@ type ProtocolManager struct {
 // with the Truechain network.
 func NewProtocolManager(config *params.ChainConfig, checkpoint *params.TrustedCheckpoint, 
 	mode downloader.SyncMode, networkID uint64, mux *event.TypeMux, txpool txPool, 
-	engine consensus.Engine, blockchain *core.BlockChain, chaindb etruedb.Database, 
+	engine consensus.Engine, blockchain *core.BlockChain, chaindb upsdb.Database, 
 	agent *PbftAgent, cacheLimit int, whitelist map[uint64]common.Hash) (*ProtocolManager, error) {
 	// Create the protocol manager with the base fields
 	manager := &ProtocolManager{

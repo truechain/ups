@@ -31,7 +31,7 @@ import (
 	"github.com/truechain/ups/core/vm"
 	"github.com/truechain/ups/ups/downloader"
 	"github.com/truechain/ups/ups/gasprice"
-	"github.com/truechain/ups/etruedb"
+	"github.com/truechain/ups/upsdb"
 	"github.com/truechain/ups/event"
 	"github.com/truechain/ups/params"
 	"github.com/truechain/ups/rpc"
@@ -246,7 +246,7 @@ func (b *TrueAPIBackend) SuggestPrice(ctx context.Context) (*big.Int, error) {
 }
 
 // ChainDb returns tht database of fastchain
-func (b *TrueAPIBackend) ChainDb() etruedb.Database {
+func (b *TrueAPIBackend) ChainDb() upsdb.Database {
 	return b.ups.ChainDb()
 }
 

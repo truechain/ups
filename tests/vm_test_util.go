@@ -31,7 +31,7 @@ import (
 	"github.com/truechain/ups/core/state"
 	"github.com/truechain/ups/core/types"
 	"github.com/truechain/ups/core/vm"
-	"github.com/truechain/ups/etruedb"
+	"github.com/truechain/ups/upsdb"
 	"github.com/truechain/ups/params"
 )
 
@@ -81,7 +81,7 @@ type vmExecMarshaling struct {
 }
 
 func (t *VMTest) Run(vmconfig vm.Config) error {
-	statedb := MakePreState(etruedb.NewMemDatabase(), t.json.Pre)
+	statedb := MakePreState(upsdb.NewMemDatabase(), t.json.Pre)
 	ret, gasRemaining, err := t.exec(statedb, vmconfig)
 
 	if t.json.GasRemaining == nil {

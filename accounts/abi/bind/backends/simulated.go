@@ -20,7 +20,7 @@ import (
 	"github.com/truechain/ups/core/types"
 	"github.com/truechain/ups/core/vm"
 	"github.com/truechain/ups/ups/filters"
-	"github.com/truechain/ups/etruedb"
+	"github.com/truechain/ups/upsdb"
 	"github.com/truechain/ups/event"
 	"github.com/truechain/ups/params"
 	"github.com/truechain/ups/rpc"
@@ -37,7 +37,7 @@ var (
 // SimulatedBackend implements bind.ContractBackend, simulating a blockchain in
 // the background. Its main purpose is to allow easily testing contract bindings.
 type SimulatedBackend struct {
-	database   etruedb.Database // In memory database to store our testing data
+	database   upsdb.Database // In memory database to store our testing data
 	blockchain *core.BlockChain // Ethereum blockchain to handle the consensus
 
 	mu           sync.Mutex
@@ -51,7 +51,7 @@ type SimulatedBackend struct {
 
 // NewSimulatedBackendWithDatabase creates a new binding backend based on the given database
 // for testing purposes. for fast blockchain
-func NewSimulatedBackendWithDatabase(database etruedb.Database, alloc types.GenesisAlloc, gasLimit uint64) *SimulatedBackend {
+func NewSimulatedBackendWithDatabase(database upsdb.Database, alloc types.GenesisAlloc, gasLimit uint64) *SimulatedBackend {
 	genesis := core.Genesis{Config: params.AllMinervaProtocolChanges, GasLimit: gasLimit, Alloc: alloc}
 	genesis.MustFastCommit(database)
 	blockchain, _ := core.NewBlockChain(database, nil, genesis.Config, ethash.NewFaker(), vm.Config{})
@@ -69,7 +69,7 @@ func NewSimulatedBackendWithDatabase(database etruedb.Database, alloc types.Gene
 // NewSimulatedBackend creates a new binding backend using a simulated blockchain
 // for testing purposes.
 func NewSimulatedBackend(alloc types.GenesisAlloc, gasLimit uint64) *SimulatedBackend {
-	return NewSimulatedBackendWithDatabase(etruedb.NewMemDatabase(), alloc, gasLimit)
+	return NewSimulatedBackendWithDatabase(upsdb.NewMemDatabase(), alloc, gasLimit)
 }
 
 // Close terminates the underlying blockchain's update loop.
@@ -445,11 +445,11 @@ func (m callmsg) Data() []byte            { return m.CallMsg.Data }
 // filterBackend implements filters.Backend to support filtering for logs without
 // taking bloom-bits acceleration structures into account.
 type filterBackend struct {
-	db etruedb.Database
+	db upsdb.Database
 	bc *core.BlockChain
 }
 
-func (fb *filterBackend) ChainDb() etruedb.Database { return fb.db }
+func (fb *filterBackend) ChainDb() upsdb.Database { return fb.db }
 func (fb *filterBackend) EventMux() *event.TypeMux  { panic("not supported") }
 
 func (fb *filterBackend) HeaderByNumber(ctx context.Context, block rpc.BlockNumber) (*types.Header, error) {

@@ -36,7 +36,7 @@ import (
 	"github.com/truechain/ups/core/types"
 	"github.com/truechain/ups/core/vm"
 	"github.com/truechain/ups/crypto"
-	"github.com/truechain/ups/etruedb"
+	"github.com/truechain/ups/upsdb"
 	"github.com/truechain/ups/event"
 	"github.com/truechain/ups/log"
 	"github.com/truechain/ups/metrics"
@@ -102,7 +102,7 @@ type BlockChain struct {
 	chainConfig *params.ChainConfig // Chain & network configuration
 	cacheConfig *CacheConfig        // Cache configuration for pruning
 
-	db     etruedb.Database // Low level persistent database to store final content in
+	db     upsdb.Database // Low level persistent database to store final content in
 	triegc *prque.Prque     // Priority queue mapping block numbers to tries to gc
 	gcproc time.Duration    // Accumulates canonical block processing for trie dumping
 
@@ -151,7 +151,7 @@ type BlockChain struct {
 // NewBlockChain returns a fully initialised block chain using information
 // available in the database. It initialises the default Ethereum Validator and
 // Processor.
-func NewBlockChain(db etruedb.Database, cacheConfig *CacheConfig,
+func NewBlockChain(db upsdb.Database, cacheConfig *CacheConfig,
 	chainConfig *params.ChainConfig, engine consensus.Engine,
 	vmConfig vm.Config) (*BlockChain, error) {
 
@@ -935,7 +935,7 @@ func (bc *BlockChain) InsertReceiptChain(blockChain types.Blocks, receiptChain [
 
 		stats.processed++
 
-		if batch.ValueSize() >= etruedb.IdealBatchSize || len(block.SwitchInfos()) > 0 {
+		if batch.ValueSize() >= upsdb.IdealBatchSize || len(block.SwitchInfos()) > 0 {
 			if err := batch.Write(); err != nil {
 				return 0, err
 			}
@@ -1018,7 +1018,7 @@ func (bc *BlockChain) writeBlockWithState(block *types.Block, receipts []*types.
 				limit       = common.StorageSize(bc.cacheConfig.TrieNodeLimit) * 1024 * 1024
 			)
 			if nodes > limit || imgs > 4*1024*1024 {
-				triedb.Cap(limit - etruedb.IdealBatchSize)
+				triedb.Cap(limit - upsdb.IdealBatchSize)
 			}
 			// Find the next state trie we need to commit
 			header := bc.GetHeaderByNumber(current - TriesInMemory)

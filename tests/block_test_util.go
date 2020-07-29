@@ -35,7 +35,7 @@ import (
 	"github.com/truechain/ups/core"
 	"github.com/truechain/ups/core/state"
 	"github.com/truechain/ups/core/types"
-	"github.com/truechain/ups/etruedb"
+	"github.com/truechain/ups/upsdb"
 	"github.com/truechain/ups/params"
 )
 
@@ -100,7 +100,7 @@ func (t *BlockTest) Run() error {
 	}
 
 	// import pre accounts & construct test genesis block & state root
-	db := etruedb.NewMemDatabase()
+	db := upsdb.NewMemDatabase()
 	genesis := core.DefaultGenesisBlock()
 	gblock := genesis.MustFastCommit(db)
 

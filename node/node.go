@@ -29,7 +29,7 @@ import (
 	"github.com/truechain/ups/log"
 	"github.com/prometheus/prometheus/util/flock"
 	"github.com/truechain/ups/accounts"
-	"github.com/truechain/ups/etruedb"
+	"github.com/truechain/ups/upsdb"
 	"github.com/truechain/ups/event"
 	"github.com/truechain/ups/internal/debug"
 	"github.com/truechain/ups/p2p"
@@ -594,11 +594,11 @@ func (n *Node) Config() *Config {
 // OpenDatabase opens an existing database with the given name (or creates one if no
 // previous can be found) from within the node's instance directory. If the node is
 // ephemeral, a memory database is returned.
-func (n *Node) OpenDatabase(name string, cache, handles int) (etruedb.Database, error) {
+func (n *Node) OpenDatabase(name string, cache, handles int) (upsdb.Database, error) {
 	if n.config.DataDir == "" {
-		return etruedb.NewMemDatabase(), nil
+		return upsdb.NewMemDatabase(), nil
 	}
-	return etruedb.NewLDBDatabase(n.config.ResolvePath(name), cache, handles)
+	return upsdb.NewLDBDatabase(n.config.ResolvePath(name), cache, handles)
 }
 
 // ResolvePath returns the absolute path of a resource in the instance directory.

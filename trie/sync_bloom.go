@@ -28,7 +28,7 @@ import (
 	"github.com/truechain/ups/common"
 	"github.com/truechain/ups/log"
 	"github.com/truechain/ups/metrics"
-	"github.com/truechain/ups/etruedb"
+	"github.com/truechain/ups/upsdb"
 )
 
 var (
@@ -66,7 +66,7 @@ type SyncBloom struct {
 
 // NewSyncBloom creates a new bloom filter of the given size (in megabytes) and
 // initializes it from the database. The bloom is hard coded to use 3 filters.
-func NewSyncBloom(memory uint64, database etruedb.Iteratee) *SyncBloom {
+func NewSyncBloom(memory uint64, database upsdb.Iteratee) *SyncBloom {
 	// Create the bloom filter to track known trie nodes
 	bloom, err := bloomfilter.New(memory*1024*1024*8, 3)
 	if err != nil {
@@ -91,7 +91,7 @@ func NewSyncBloom(memory uint64, database etruedb.Iteratee) *SyncBloom {
 }
 
 // init iterates over the database, pushing every trie hash into the bloom filter.
-func (b *SyncBloom) init(database etruedb.Iteratee) {
+func (b *SyncBloom) init(database upsdb.Iteratee) {
 	// Iterate over the database, but restart every now and again to avoid holding
 	// a persistent snapshot since fast sync can push a ton of data concurrently,
 	// bloating the disk.

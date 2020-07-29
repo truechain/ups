@@ -9,7 +9,7 @@ import (
 	"github.com/truechain/ups/core/state"
 	"github.com/truechain/ups/core/types"
 	"github.com/truechain/ups/crypto"
-	"github.com/truechain/ups/etruedb"
+	"github.com/truechain/ups/upsdb"
 	"github.com/truechain/ups/log"
 	"github.com/truechain/ups/params"
 )
@@ -21,7 +21,7 @@ func TestDeposit(t *testing.T) {
 	pub := crypto.FromECDSAPub(&priKey.PublicKey)
 	value := big.NewInt(1000)
 
-	statedb, _ := state.New(common.Hash{}, state.NewDatabase(etruedb.NewMemDatabase()))
+	statedb, _ := state.New(common.Hash{}, state.NewDatabase(upsdb.NewMemDatabase()))
 	statedb.GetOrNewStateObject(types.StakingAddress)
 	evm := NewEVM(Context{}, statedb, params.TestChainConfig, Config{})
 

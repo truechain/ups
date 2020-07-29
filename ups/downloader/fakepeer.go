@@ -23,7 +23,7 @@ import (
 	"github.com/truechain/ups/core"
 	"github.com/truechain/ups/core/rawdb"
 	"github.com/truechain/ups/core/types"
-	"github.com/truechain/ups/etruedb"
+	"github.com/truechain/ups/upsdb"
 )
 
 // FakePeer is a mock downloader peer that operates on a local database instance
@@ -31,13 +31,13 @@ import (
 // sync commands from an existing local database.
 type FakePeer struct {
 	id string
-	db etruedb.Database
+	db upsdb.Database
 	hc *core.HeaderChain
 	dl *Downloader
 }
 
 // NewFakePeer creates a new mock downloader peer with the given data sources.
-func NewFakePeer(id string, db etruedb.Database, hc *core.HeaderChain, dl *Downloader) *FakePeer {
+func NewFakePeer(id string, db upsdb.Database, hc *core.HeaderChain, dl *Downloader) *FakePeer {
 	return &FakePeer{id: id, db: db, hc: hc, dl: dl}
 }
 

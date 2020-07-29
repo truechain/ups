@@ -34,7 +34,7 @@ import (
 	"github.com/truechain/ups/core/state"
 	"github.com/truechain/ups/core/types"
 	"github.com/truechain/ups/crypto"
-	"github.com/truechain/ups/etruedb"
+	"github.com/truechain/ups/upsdb"
 	"github.com/truechain/ups/log"
 	"github.com/truechain/ups/params"
 	"github.com/truechain/ups/rlp"
@@ -139,7 +139,7 @@ func (e *GenesisMismatchError) Error() string {
 // error is a *params.ConfigCompatError and the new, unwritten config is returned.
 //
 // The returned chain configuration is never nil.
-func SetupGenesisBlock(db etruedb.Database, genesis *Genesis) (*params.ChainConfig, common.Hash, error) {
+func SetupGenesisBlock(db upsdb.Database, genesis *Genesis) (*params.ChainConfig, common.Hash, error) {
 	if genesis != nil && genesis.Config == nil {
 		return params.AllMinervaProtocolChanges, common.Hash{}, errGenesisNoConfig
 	}
@@ -163,7 +163,7 @@ func SetupGenesisBlock(db etruedb.Database, genesis *Genesis) (*params.ChainConf
 // error is a *params.ConfigCompatError and the new, unwritten config is returned.
 //
 // The returned chain configuration is never nil.
-func setupFastGenesisBlock(db etruedb.Database, genesis *Genesis) (*params.ChainConfig, common.Hash, error) {
+func setupFastGenesisBlock(db upsdb.Database, genesis *Genesis) (*params.ChainConfig, common.Hash, error) {
 	if genesis != nil && genesis.Config == nil {
 		return params.AllMinervaProtocolChanges, common.Hash{}, errGenesisNoConfig
 	}
@@ -220,7 +220,7 @@ func setupFastGenesisBlock(db etruedb.Database, genesis *Genesis) (*params.Chain
 
 // CommitFast writes the block and state of a genesis specification to the database.
 // The block is committed as the canonical head block.
-func (g *Genesis) CommitFast(db etruedb.Database) (*types.Block, error) {
+func (g *Genesis) CommitFast(db upsdb.Database) (*types.Block, error) {
 	block := g.ToFastBlock(db)
 	if block.Number().Sign() != 0 {
 		return nil, fmt.Errorf("can't commit genesis block with number > 0")
@@ -242,9 +242,9 @@ func (g *Genesis) CommitFast(db etruedb.Database) (*types.Block, error) {
 
 // ToFastBlock creates the genesis block and writes state of a genesis specification
 // to the given database (or discards it if nil).
-func (g *Genesis) ToFastBlock(db etruedb.Database) *types.Block {
+func (g *Genesis) ToFastBlock(db upsdb.Database) *types.Block {
 	if db == nil {
-		db = etruedb.NewMemDatabase()
+		db = upsdb.NewMemDatabase()
 	}
 	statedb, _ := state.New(common.Hash{}, state.NewDatabase(db))
 	for addr, account := range g.Alloc {
@@ -313,7 +313,7 @@ func (g *Genesis) ToFastBlock(db etruedb.Database) *types.Block {
 
 // MustFastCommit writes the genesis block and state to db, panicking on error.
 // The block is committed as the canonical head block.
-func (g *Genesis) MustFastCommit(db etruedb.Database) *types.Block {
+func (g *Genesis) MustFastCommit(db upsdb.Database) *types.Block {
 	block, err := g.CommitFast(db)
 	if err != nil {
 		panic(err)
@@ -321,7 +321,7 @@ func (g *Genesis) MustFastCommit(db etruedb.Database) *types.Block {
 	return block
 }
 // GenesisBlockForTesting creates and writes a block in which addr has the given wei balance.
-func GenesisBlockForTesting(db etruedb.Database, addr common.Address, balance *big.Int) *types.Block {
+func GenesisBlockForTesting(db upsdb.Database, addr common.Address, balance *big.Int) *types.Block {
 	g := Genesis{Alloc: types.GenesisAlloc{addr: {Balance: balance}}, Config: params.AllMinervaProtocolChanges}
 	return g.MustFastCommit(db)
 }
@@ -408,7 +408,7 @@ func decodePrealloc(data string) types.GenesisAlloc {
 }
 
 // GenesisFastBlockForTesting creates and writes a block in which addr has the given wei balance.
-func GenesisFastBlockForTesting(db etruedb.Database, addr common.Address, balance *big.Int) *types.Block {
+func GenesisFastBlockForTesting(db upsdb.Database, addr common.Address, balance *big.Int) *types.Block {
 	g := Genesis{Alloc: types.GenesisAlloc{addr: {Balance: balance}}, Config: params.AllMinervaProtocolChanges}
 	return g.MustFastCommit(db)
 }

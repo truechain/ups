@@ -15,7 +15,7 @@ import (
 	"github.com/truechain/ups/log"
 	"github.com/truechain/ups/params"
 	"github.com/truechain/ups/rlp"
-	"github.com/truechain/ups/etruedb"
+	"github.com/truechain/ups/upsdb"
 	"github.com/truechain/ups/core/state"
 )
 
@@ -763,7 +763,7 @@ func TestCache(t *testing.T) {
 	addr := common.Address{'1'}
 	fmt.Println(addr)
 	fmt.Println(addr.String())
-	db := etruedb.NewMemDatabase()
+	db := upsdb.NewMemDatabase()
 	statedb, _ := state.New(common.Hash{}, state.NewDatabase(db))
 	impawn := NewImpawnImpl()
 	impawn.curEpochID,impawn.lastReward = 100,99

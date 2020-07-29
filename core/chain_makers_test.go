@@ -26,7 +26,7 @@ import (
 	"github.com/truechain/ups/core/state"
 	"github.com/truechain/ups/core/types"
 	"github.com/truechain/ups/core/vm"
-	"github.com/truechain/ups/etruedb"
+	"github.com/truechain/ups/upsdb"
 	"github.com/truechain/ups/params"
 	"math/big"
 	"os"
@@ -40,7 +40,7 @@ func init() {
 func ExampleGenerateChain() {
 	var (
 		chainId = big.NewInt(3)
-		db      = etruedb.NewMemDatabase()
+		db      = upsdb.NewMemDatabase()
 
 		key1, _ = crypto.HexToECDSA("b71c71a67e1177ad4e901695e1b4b9ee17ae16c6668d313eac2f96dbcda3f291")
 		key2, _ = crypto.HexToECDSA("8a1f9a8f95be41cd7ccb6168179afb4504aefe388d1e14474d32c45c72ce7b7a")
@@ -115,7 +115,7 @@ func TestTransactionCost(t *testing.T) {
 	}
 
 	var (
-		db    = etruedb.NewMemDatabase()
+		db    = upsdb.NewMemDatabase()
 		pow   = minerva.NewFaker()
 		gspec = &Genesis{
 			Config: params.TestChainConfig,
@@ -258,7 +258,7 @@ func getAddressBalance(addresses [] common.Address, statedb *state.StateDB) (bal
 //		addr2   = crypto.PubkeyToAddress(key2.PublicKey)
 //		addr3   = crypto.PubkeyToAddress(key3.PublicKey)
 //		addr4   = crypto.PubkeyToAddress(key4.PublicKey)
-//		db      = etruedb.NewMemDatabase()
+//		db      = upsdb.NewMemDatabase()
 //	)
 //	recvAddr := crypto.CreateAddress(common.Address{0}, 10)
 //	// Ensure that key1 has some funds in the genesis block.
@@ -337,8 +337,8 @@ func getAddressBalance(addresses [] common.Address, statedb *state.StateDB) (bal
 //		addr2   = crypto.PubkeyToAddress(key2.PublicKey)
 //		addr3   = crypto.PubkeyToAddress(key3.PublicKey)
 //		addr4   = crypto.PubkeyToAddress(key4.PublicKey)
-//		db      = etruedb.NewMemDatabase()
-//		tmpDB   = etruedb.NewMemDatabase()
+//		db      = upsdb.NewMemDatabase()
+//		tmpDB   = upsdb.NewMemDatabase()
 //	)
 //	recvAddr := crypto.CreateAddress(common.Address{0}, 10)
 //	recvAddr2 := crypto.CreateAddress(common.Address{0}, 50)
@@ -444,7 +444,7 @@ func getAddressBalance(addresses [] common.Address, statedb *state.StateDB) (bal
 //
 //func verifyInBatch(sum, count int) {
 //	var (
-//		db = etruedb.NewMemDatabase()
+//		db = upsdb.NewMemDatabase()
 //	)
 //	type tmpItem struct {
 //		sign []byte

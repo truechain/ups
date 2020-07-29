@@ -48,7 +48,7 @@ import (
 	"github.com/truechain/ups/ups"
 	"github.com/truechain/ups/ups/downloader"
 	"github.com/truechain/ups/ups/gasprice"
-	"github.com/truechain/ups/etruedb"
+	"github.com/truechain/ups/upsdb"
 	"github.com/truechain/ups/etruestats"
 	"github.com/truechain/ups/log"
 	"github.com/truechain/ups/metrics"
@@ -1163,7 +1163,7 @@ func SetupMetrics(ctx *cli.Context) {
 }
 
 // MakeChainDatabase open an LevelDB using the flags passed to the client and will hard crash if it fails.
-func MakeChainDatabase(ctx *cli.Context, stack *node.Node) etruedb.Database {
+func MakeChainDatabase(ctx *cli.Context, stack *node.Node) upsdb.Database {
 	var (
 		cache   = ctx.GlobalInt(CacheFlag.Name) * ctx.GlobalInt(CacheDatabaseFlag.Name) / 100
 		handles = makeDatabaseHandles()
@@ -1193,7 +1193,7 @@ func MakeGenesis(ctx *cli.Context) *core.Genesis {
 }
 
 // MakeChain creates a chain manager from set command line flags.
-func MakeChain(ctx *cli.Context, stack *node.Node) (fchain *core.BlockChain, chainDb etruedb.Database) {
+func MakeChain(ctx *cli.Context, stack *node.Node) (fchain *core.BlockChain, chainDb upsdb.Database) {
 	var err error
 	chainDb = MakeChainDatabase(ctx, stack)
 

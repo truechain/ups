@@ -33,7 +33,7 @@ import (
 	"github.com/truechain/ups/common"
 	"github.com/truechain/ups/crypto"
 	"github.com/truechain/ups/rlp"
-	"github.com/truechain/ups/etruedb"
+	"github.com/truechain/ups/upsdb"
 )
 
 func init() {
@@ -43,7 +43,7 @@ func init() {
 
 // Used for testing
 func newEmpty() *Trie {
-	trie, _ := New(common.Hash{}, NewDatabase(etruedb.NewMemDatabase()))
+	trie, _ := New(common.Hash{}, NewDatabase(upsdb.NewMemDatabase()))
 	return trie
 }
 
@@ -67,7 +67,7 @@ func TestNull(t *testing.T) {
 }
 
 func TestMissingRoot(t *testing.T) {
-	trie, err := New(common.HexToHash("0beec7b5ea3f0fdbc95d0dd47f3c5bc275da8a33"), NewDatabase(etruedb.NewMemDatabase()))
+	trie, err := New(common.HexToHash("0beec7b5ea3f0fdbc95d0dd47f3c5bc275da8a33"), NewDatabase(upsdb.NewMemDatabase()))
 	if trie != nil {
 		t.Error("New returned non-nil trie for invalid root")
 	}
@@ -80,7 +80,7 @@ func TestMissingNodeDisk(t *testing.T)    { testMissingNode(t, false) }
 func TestMissingNodeMemonly(t *testing.T) { testMissingNode(t, true) }
 
 func testMissingNode(t *testing.T, memonly bool) {
-	diskdb := etruedb.NewMemDatabase()
+	diskdb := upsdb.NewMemDatabase()
 	triedb := NewDatabase(diskdb)
 
 	trie, _ := New(common.Hash{}, triedb)
@@ -317,7 +317,7 @@ func TestLargeValue(t *testing.T) {
 }
 
 type countingDB struct {
-	etruedb.Database
+	upsdb.Database
 	gets map[string]int
 }
 
@@ -411,7 +411,7 @@ func (randTest) Generate(r *rand.Rand, size int) reflect.Value {
 }
 
 func runRandTest(rt randTest) bool {
-	triedb := NewDatabase(etruedb.NewMemDatabase())
+	triedb := NewDatabase(upsdb.NewMemDatabase())
 
 	tr, _ := New(common.Hash{}, triedb)
 	values := make(map[string]string) // tracks content of the trie
@@ -539,7 +539,7 @@ func benchGet(b *testing.B, commit bool) {
 	b.StopTimer()
 
 	if commit {
-		ldb := trie.db.diskdb.(*etruedb.LDBDatabase)
+		ldb := trie.db.diskdb.(*upsdb.LDBDatabase)
 		ldb.Close()
 		os.RemoveAll(ldb.Path())
 	}
@@ -595,7 +595,7 @@ func tempDB() (string, *Database) {
 	if err != nil {
 		panic(fmt.Sprintf("can't create temporary directory: %v", err))
 	}
-	diskdb, err := etruedb.NewLDBDatabase(dir, 256, 0)
+	diskdb, err := upsdb.NewLDBDatabase(dir, 256, 0)
 	if err != nil {
 		panic(fmt.Sprintf("can't create temporary database: %v", err))
 	}

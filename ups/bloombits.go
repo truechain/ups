@@ -26,7 +26,7 @@ import (
 	"github.com/truechain/ups/core/bloombits"
 	"github.com/truechain/ups/core/rawdb"
 	"github.com/truechain/ups/core/types"
-	"github.com/truechain/ups/etruedb"
+	"github.com/truechain/ups/upsdb"
 	"github.com/truechain/ups/params"
 )
 
@@ -95,7 +95,7 @@ const (
 type BloomIndexer struct {
 	size uint64 // section size to generate bloombits for
 
-	db  etruedb.Database     // database instance to write index data and metadata into
+	db  upsdb.Database     // database instance to write index data and metadata into
 	gen *bloombits.Generator // generator to rotate the bloom bits crating the bloom index
 
 	section uint64      // Section is the section number being processed currently
@@ -104,12 +104,12 @@ type BloomIndexer struct {
 
 // NewBloomIndexer returns a chain indexer that generates bloom bits data for the
 // canonical chain for fast logs filtering.
-func NewBloomIndexer(db etruedb.Database, size, confirms uint64) *core.ChainIndexer {
+func NewBloomIndexer(db upsdb.Database, size, confirms uint64) *core.ChainIndexer {
 	backend := &BloomIndexer{
 		db:   db,
 		size: size,
 	}
-	table := etruedb.NewTable(db, string(rawdb.BloomBitsIndexPrefix))
+	table := upsdb.NewTable(db, string(rawdb.BloomBitsIndexPrefix))
 	return core.NewChainIndexer(db, table, backend, size, bloomConfirms, bloomThrottling, "bloombits")
 }
 // Reset implements core.ChainIndexerBackend, starting a new bloombits index

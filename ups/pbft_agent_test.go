@@ -11,7 +11,7 @@ import (
 	"github.com/truechain/ups/crypto"
 	"github.com/truechain/ups/log"
 	"github.com/truechain/ups/core"
-	"github.com/truechain/ups/etruedb"
+	"github.com/truechain/ups/upsdb"
 	"github.com/truechain/ups/params"
 	"testing"
 )
@@ -133,7 +133,7 @@ func validateSign(fb *types.Block, prikey *ecdsa.PrivateKey) bool {
 }
 
 func generateFastBlock() *types.Block {
-	db := etruedb.NewMemDatabase()
+	db := upsdb.NewMemDatabase()
 	BaseGenesis := new(core.Genesis)
 	genesis := BaseGenesis.MustFastCommit(db)
 	header := &types.Header{

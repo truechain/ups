@@ -32,7 +32,7 @@ import (
 	"github.com/truechain/ups/core/types"
 	"github.com/truechain/ups/core/vm"
 	"github.com/truechain/ups/ups/downloader"
-	"github.com/truechain/ups/etruedb"
+	"github.com/truechain/ups/upsdb"
 	"github.com/truechain/ups/event"
 	"github.com/truechain/ups/p2p"
 	"github.com/truechain/ups/params"
@@ -366,7 +366,7 @@ func testGetNodeData(t *testing.T, protocol int) {
 			t.Errorf("data hash mismatch: have %x, want %x", hash, want)
 		}
 	}
-	statedb := etruedb.NewMemDatabase()
+	statedb := upsdb.NewMemDatabase()
 	for i := 0; i < len(data); i++ {
 		statedb.Put(hashes[i].Bytes(), data[i])
 	}
@@ -471,7 +471,7 @@ func testBroadcastBlock(t *testing.T, totalPeers, broadcastExpected int) {
 	var (
 		evmux = new(event.TypeMux)
 		pow   = ethash.NewFaker()
-		db    = etruedb.NewMemDatabase()
+		db    = upsdb.NewMemDatabase()
 		gspec = &core.Genesis{
 			Config:     params.TestChainConfig,
 			Difficulty: big.NewInt(20000),

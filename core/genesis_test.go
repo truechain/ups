@@ -31,7 +31,7 @@ import (
 	"github.com/truechain/ups/core/state"
 	"github.com/truechain/ups/consensus/minerva"
 	"github.com/truechain/ups/core/types"
-	"github.com/truechain/ups/etruedb"
+	"github.com/truechain/ups/upsdb"
 	"github.com/truechain/ups/crypto"
 	"github.com/truechain/ups/params"
 	"github.com/truechain/ups/core/vm"
@@ -67,14 +67,14 @@ func TestSetupGenesis(t *testing.T) {
 	oldcustomg.Config = &params.ChainConfig{}
 	tests := []struct {
 		name       string
-		fn         func(etruedb.Database) (*params.ChainConfig, common.Hash, error)
+		fn         func(upsdb.Database) (*params.ChainConfig, common.Hash, error)
 		wantConfig *params.ChainConfig
 		wantHash   common.Hash
 		wantErr    error
 	}{
 		{
 			name: "genesis without ChainConfig",
-			fn: func(db etruedb.Database) (*params.ChainConfig, common.Hash, error) {
+			fn: func(db upsdb.Database) (*params.ChainConfig, common.Hash, error) {
 				return SetupGenesisBlock(db, new(Genesis))
 			},
 			wantErr:    errGenesisNoConfig,
@@ -82,7 +82,7 @@ func TestSetupGenesis(t *testing.T) {
 		},
 		{
 			name: "no block in DB, genesis == nil",
-			fn: func(db etruedb.Database) (*params.ChainConfig, common.Hash, error) {
+			fn: func(db upsdb.Database) (*params.ChainConfig, common.Hash, error) {
 				return SetupGenesisBlock(db, nil)
 			},
 			wantHash:   params.MainnetGenesisHash,
@@ -90,7 +90,7 @@ func TestSetupGenesis(t *testing.T) {
 		},
 		{
 			name: "mainnet block in DB, genesis == nil",
-			fn: func(db etruedb.Database) (*params.ChainConfig, common.Hash, error) {
+			fn: func(db upsdb.Database) (*params.ChainConfig, common.Hash, error) {
 				DefaultGenesisBlock().MustFastCommit(db)
 				return SetupGenesisBlock(db, nil)
 			},
@@ -99,7 +99,7 @@ func TestSetupGenesis(t *testing.T) {
 		},
 		{
 			name: "custom block in DB, genesis == testnet",
-			fn: func(db etruedb.Database) (*params.ChainConfig, common.Hash, error) {
+			fn: func(db upsdb.Database) (*params.ChainConfig, common.Hash, error) {
 				customg.MustFastCommit(db)
 				return SetupGenesisBlock(db, DefaultTestnetGenesisBlock())
 			},
@@ -110,7 +110,7 @@ func TestSetupGenesis(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		db := etruedb.NewMemDatabase()
+		db := upsdb.NewMemDatabase()
 		config, hash, err := test.fn(db)
 		// Check the return values.
 		if !reflect.DeepEqual(err, test.wantErr) {
@@ -146,7 +146,7 @@ var (
 )
 
 func getFisrtState() *state.StateDB {
-	db := etruedb.NewMemDatabase()
+	db := upsdb.NewMemDatabase()
 	statedb, _ := state.New(common.Hash{}, state.NewDatabase(db))
 	return statedb
 }
@@ -190,7 +190,7 @@ func makeDeployedTx() *types.Transaction {
 func TestDeployedTx(t *testing.T) {
 	
 	var (
-		db      = etruedb.NewMemDatabase()
+		db      = upsdb.NewMemDatabase()
 		addr1   = common.HexToAddress(addr1)
 		gspec   = &Genesis{
 			Config: params.DevnetChainConfig,

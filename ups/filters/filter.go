@@ -24,13 +24,13 @@ import (
 	"github.com/truechain/ups/common"
 	"github.com/truechain/ups/core/bloombits"
 	"github.com/truechain/ups/core/types"
-	"github.com/truechain/ups/etruedb"
+	"github.com/truechain/ups/upsdb"
 	"github.com/truechain/ups/event"
 	"github.com/truechain/ups/rpc"
 )
 
 type Backend interface {
-	ChainDb() etruedb.Database
+	ChainDb() upsdb.Database
 	EventMux() *event.TypeMux
 	HeaderByNumber(ctx context.Context, blockNr rpc.BlockNumber) (*types.Header, error)
 	HeaderByHash(ctx context.Context, blockHash common.Hash) (*types.Header, error)
@@ -49,7 +49,7 @@ type Backend interface {
 type Filter struct {
 	backend Backend
 
-	db         etruedb.Database
+	db         upsdb.Database
 	begin, end int64
 	addresses  []common.Address
 	topics     [][]common.Hash

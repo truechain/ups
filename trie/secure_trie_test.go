@@ -24,18 +24,18 @@ import (
 
 	"github.com/truechain/ups/common"
 	"github.com/truechain/ups/crypto"
-	"github.com/truechain/ups/etruedb"
+	"github.com/truechain/ups/upsdb"
 )
 
 func newEmptySecure() *SecureTrie {
-	trie, _ := NewSecure(common.Hash{}, NewDatabase(etruedb.NewMemDatabase()), 0)
+	trie, _ := NewSecure(common.Hash{}, NewDatabase(upsdb.NewMemDatabase()), 0)
 	return trie
 }
 
 // makeTestSecureTrie creates a large enough secure trie for testing.
 func makeTestSecureTrie() (*Database, *SecureTrie, map[string][]byte) {
 	// Create an empty trie
-	triedb := NewDatabase(etruedb.NewMemDatabase())
+	triedb := NewDatabase(upsdb.NewMemDatabase())
 
 	trie, _ := NewSecure(common.Hash{}, triedb, 0)
 

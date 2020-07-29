@@ -23,7 +23,7 @@ import (
 
 	"github.com/truechain/ups/common"
 	"github.com/truechain/ups/crypto"
-	ethdb "github.com/truechain/ups/etruedb"
+	ethdb "github.com/truechain/ups/upsdb"
 	checker "gopkg.in/check.v1"
 )
 

@@ -24,7 +24,7 @@ import (
 	"github.com/truechain/ups/consensus/minerva"
 	"github.com/truechain/ups/core/types"
 	"github.com/truechain/ups/core/vm"
-	"github.com/truechain/ups/etruedb"
+	"github.com/truechain/ups/upsdb"
 	"github.com/truechain/ups/params"
 )
 
@@ -33,7 +33,7 @@ func TestHeaderVerification(t *testing.T) {
 	// Create a simple chain to verify
 	var (
 		engine 	  = minerva.NewFaker()
-		testdb    = etruedb.NewMemDatabase()
+		testdb    = upsdb.NewMemDatabase()
 		gspec     = &Genesis{Config: params.TestChainConfig}
 		genesis   = gspec.MustFastCommit(testdb)
 		blocks, _ = GenerateChain(gspec.Config, genesis, engine, testdb, 8, nil)
@@ -86,7 +86,7 @@ func TestHeaderConcurrentVerification32(t *testing.T) { testHeaderConcurrentVeri
 func testHeaderConcurrentVerification(t *testing.T, threads int) {
 	// Create a simple chain to verify
 	var (
-		testdb    = etruedb.NewMemDatabase()
+		testdb    = upsdb.NewMemDatabase()
 		gspec     = &Genesis{Config: params.TestChainConfig}
 		genesis   = gspec.MustFastCommit(testdb)
 		blocks, _ = GenerateChain(params.TestChainConfig, genesis, minerva.NewFaker(), testdb, 8, nil)
@@ -154,7 +154,7 @@ func TestHeaderConcurrentAbortion32(t *testing.T) { testHeaderConcurrentAbortion
 func testHeaderConcurrentAbortion(t *testing.T, threads int) {
 	// Create a simple chain to verify
 	var (
-		testdb    = etruedb.NewMemDatabase()
+		testdb    = upsdb.NewMemDatabase()
 		gspec     = &Genesis{Config: params.TestChainConfig}
 		genesis   = gspec.MustFastCommit(testdb)
 		blocks, _ = GenerateChain(params.TestChainConfig, genesis, minerva.NewFaker(), testdb, 1024, nil)

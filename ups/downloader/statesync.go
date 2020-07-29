@@ -26,7 +26,7 @@ import (
 	"github.com/truechain/ups/log"
 	"github.com/truechain/ups/core/rawdb"
 	"github.com/truechain/ups/core/state"
-	"github.com/truechain/ups/etruedb"
+	"github.com/truechain/ups/upsdb"
 	"github.com/truechain/ups/trie"
 	"golang.org/x/crypto/sha3"
 )
@@ -341,7 +341,7 @@ func (s *stateSync) loop() (err error) {
 }
 
 func (s *stateSync) commit(force bool) error {
-	if !force && s.bytesUncommitted < etruedb.IdealBatchSize {
+	if !force && s.bytesUncommitted < upsdb.IdealBatchSize {
 		return nil
 	}
 	start := time.Now()

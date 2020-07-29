@@ -31,7 +31,7 @@ import (
 	"gopkg.in/check.v1"
 
 	"github.com/truechain/ups/common"
-	ethdb "github.com/truechain/ups/etruedb"
+	ethdb "github.com/truechain/ups/upsdb"
 )
 
 // Tests that updating a state trie does not leak any database writes prior to

@@ -26,7 +26,7 @@ import (
 	"github.com/truechain/ups/consensus/minerva"
 	"github.com/truechain/ups/core"
 	"github.com/truechain/ups/core/types"
-	"github.com/truechain/ups/etruedb"
+	"github.com/truechain/ups/upsdb"
 	"github.com/truechain/ups/params"
 )
 
@@ -35,7 +35,7 @@ var (
 )
 
 func makeTestBlock() *types.Block {
-	db := etruedb.NewMemDatabase()
+	db := upsdb.NewMemDatabase()
 	BaseGenesis := new(core.Genesis)
 	genesis := BaseGenesis.MustFastCommit(db)
 	header := &types.Header{
@@ -101,7 +101,7 @@ func committeeEqual(left, right []*types.CommitteeMember) bool {
 }
 
 // makeBlockChain creates a deterministic chain of blocks rooted at parent.
-func makeFast(parent *types.Block, n int, engine consensus.Engine, db etruedb.Database, seed int) []*types.Block {
+func makeFast(parent *types.Block, n int, engine consensus.Engine, db upsdb.Database, seed int) []*types.Block {
 	blocks, _ := core.GenerateChain(params.TestChainConfig, parent, engine, db, n, func(i int, b *core.BlockGen) {
 		b.SetCoinbase(common.Address{0: byte(seed), 19: byte(i)})
 	})

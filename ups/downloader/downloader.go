@@ -30,7 +30,7 @@ import (
 	"github.com/truechain/ups"
 	"github.com/truechain/ups/common"
 	"github.com/truechain/ups/core/types"
-	"github.com/truechain/ups/etruedb"
+	"github.com/truechain/ups/upsdb"
 	"github.com/truechain/ups/event"
 	"github.com/truechain/ups/log"
 	"github.com/truechain/ups/metrics"
@@ -108,7 +108,7 @@ type Downloader struct {
 	queue      *queue         // Scheduler for selecting the hashes to download
 	peers      *peerSet // Set of active peers from which download can proceed
 
-	stateDB etruedb.Database
+	stateDB upsdb.Database
 	stateBloom *trie.SyncBloom // Bloom filter for fast trie node existence checks
 
 	// Statistics
@@ -204,7 +204,7 @@ type BlockChain interface {
 }
 
 // New creates a new downloader to fetch hashes and blocks from remote peers.
-func New(checkpoint uint64, stateDb etruedb.Database, stateBloom *trie.SyncBloom, mux *event.TypeMux, chain BlockChain, lightchain LightChain, dropPeer peerDropFn) *Downloader {
+func New(checkpoint uint64, stateDb upsdb.Database, stateBloom *trie.SyncBloom, mux *event.TypeMux, chain BlockChain, lightchain LightChain, dropPeer peerDropFn) *Downloader {
 	if lightchain == nil {
 		lightchain = chain
 	}

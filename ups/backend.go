@@ -41,7 +41,7 @@ import (
 	"github.com/truechain/ups/ups/downloader"
 	"github.com/truechain/ups/ups/filters"
 	"github.com/truechain/ups/ups/gasprice"
-	"github.com/truechain/ups/etruedb"
+	"github.com/truechain/ups/upsdb"
 	"github.com/truechain/ups/event"
 	"github.com/truechain/ups/internal/trueapi"
 	"github.com/truechain/ups/log"
@@ -73,7 +73,7 @@ type Truechain struct {
 	protocolManager *ProtocolManager
 	lesServer       LesServer
 	// DB interfaces
-	chainDb etruedb.Database // Block chain database
+	chainDb upsdb.Database // Block chain database
 
 	eventMux       *event.TypeMux
 	engine         consensus.Engine
@@ -211,19 +211,19 @@ func makeExtraData(extra []byte) []byte {
 }
 
 // CreateDB creates the chain database.
-func CreateDB(ctx *node.ServiceContext, config *Config, name string) (etruedb.Database, error) {
+func CreateDB(ctx *node.ServiceContext, config *Config, name string) (upsdb.Database, error) {
 	db, err := ctx.OpenDatabase(name, config.DatabaseCache, config.DatabaseHandles)
 	if err != nil {
 		return nil, err
 	}
-	if db, ok := db.(*etruedb.LDBDatabase); ok {
+	if db, ok := db.(*upsdb.LDBDatabase); ok {
 		db.Meter("ups/db/chaindata/")
 	}
 	return db, nil
 }
 
 // CreateConsensusEngine creates the required type of consensus engine instance for an Truechain service
-func CreateConsensusEngine(ctx *node.ServiceContext, config *ethash.Config,db etruedb.Database) consensus.Engine {
+func CreateConsensusEngine(ctx *node.ServiceContext, config *ethash.Config,db upsdb.Database) consensus.Engine {
 	// If proof-of-authority is requested, set it up
 	// snail chain not need clique
 	/*
@@ -318,7 +318,7 @@ func (s *Truechain) TxPool() *core.TxPool                    { return s.txPool }
 
 func (s *Truechain) EventMux() *event.TypeMux           { return s.eventMux }
 func (s *Truechain) Engine() consensus.Engine           { return s.engine }
-func (s *Truechain) ChainDb() etruedb.Database          { return s.chainDb }
+func (s *Truechain) ChainDb() upsdb.Database          { return s.chainDb }
 func (s *Truechain) IsListening() bool                  { return true } // Always listening
 func (s *Truechain) EthVersion() int                    { return int(s.protocolManager.SubProtocols[0].Version) }
 func (s *Truechain) NetVersion() uint64                 { return s.networkID }

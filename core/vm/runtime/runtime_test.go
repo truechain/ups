@@ -25,7 +25,7 @@ import (
 	"github.com/truechain/ups/accounts/abi"
 	"github.com/truechain/ups/core/state"
 	"github.com/truechain/ups/core/vm"
-	"github.com/truechain/ups/etruedb"
+	"github.com/truechain/ups/upsdb"
 )
 
 func TestDefaults(t *testing.T) {
@@ -94,7 +94,7 @@ func TestExecute(t *testing.T) {
 }
 
 func TestCall(t *testing.T) {
-	state, _ := state.New(common.Hash{}, state.NewDatabase(etruedb.NewMemDatabase()))
+	state, _ := state.New(common.Hash{}, state.NewDatabase(upsdb.NewMemDatabase()))
 	address := common.HexToAddress("0x0a")
 	state.SetCode(address, []byte{
 		byte(vm.PUSH1), 10,

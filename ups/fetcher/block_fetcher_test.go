@@ -24,7 +24,7 @@ import (
 	"github.com/truechain/ups/core/types"
 	"github.com/truechain/ups/crypto"
 	"github.com/truechain/ups/params"
-	"github.com/truechain/ups/etruedb"
+	"github.com/truechain/ups/upsdb"
 	"math/big"
 	"sync"
 	"sync/atomic"
@@ -33,7 +33,7 @@ import (
 )
 
 var (
-	testdb       = etruedb.NewMemDatabase()
+	testdb       = upsdb.NewMemDatabase()
 	testKey, _   = crypto.HexToECDSA("b71c71a67e1177ad4e901695e1b4b9ee17ae16c6668d313eac2f96dbcda3f291")
 	testAddress  = crypto.PubkeyToAddress(testKey.PublicKey)
 	genesis      = core.GenesisBlockForTesting(testdb, testAddress, big.NewInt(1000000000))

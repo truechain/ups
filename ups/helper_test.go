@@ -36,7 +36,7 @@ import (
 	"github.com/truechain/ups/core/vm"
 	"github.com/truechain/ups/crypto"
 	"github.com/truechain/ups/ups/downloader"
-	"github.com/truechain/ups/etruedb"
+	"github.com/truechain/ups/upsdb"
 	"github.com/truechain/ups/event"
 	"github.com/truechain/ups/p2p"
 	"github.com/truechain/ups/params"
@@ -51,10 +51,10 @@ var (
 // newTestProtocolManager creates a new protocol manager for testing purposes,
 // with the given number of blocks already known, and potential notification
 // channels for different events.
-func newTestProtocolManager(mode downloader.SyncMode, blocks int, generator func(int, *core.BlockGen), newtx chan<- []*types.Transaction) (*ProtocolManager, *etruedb.MemDatabase, error) {
+func newTestProtocolManager(mode downloader.SyncMode, blocks int, generator func(int, *core.BlockGen), newtx chan<- []*types.Transaction) (*ProtocolManager, *upsdb.MemDatabase, error) {
 	var (
 		evmux = new(event.TypeMux)
-		db    = etruedb.NewMemDatabase()
+		db    = upsdb.NewMemDatabase()
 		gspec = &core.Genesis{
 			Config:     params.TestChainConfig,
 			Alloc:      types.GenesisAlloc{testBank: {Balance: big.NewInt(1000000000)}},
@@ -93,7 +93,7 @@ func newTestProtocolManager(mode downloader.SyncMode, blocks int, generator func
 // with the given number of blocks already known, and potential notification
 // channels for different events. In case of an error, the constructor force-
 // fails the test.
-func newTestProtocolManagerMust(t *testing.T, mode downloader.SyncMode, blocks int, generator func(int, *core.BlockGen), newtx chan<- []*types.Transaction) (*ProtocolManager, *etruedb.MemDatabase) {
+func newTestProtocolManagerMust(t *testing.T, mode downloader.SyncMode, blocks int, generator func(int, *core.BlockGen), newtx chan<- []*types.Transaction) (*ProtocolManager, *upsdb.MemDatabase) {
 	pm, db, err := newTestProtocolManager(mode, blocks, generator, newtx)
 	if err != nil {
 		t.Fatalf("Failed to create protocol manager: %v", err)
