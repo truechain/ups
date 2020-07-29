@@ -10,10 +10,10 @@ fi
 # Create fake Go workspace if it doesn't exist yet.
 workspace="$PWD/build/_workspace"
 root="$PWD"
-ethdir="$workspace/src/github.com/truechain"
-if [ ! -L "$ethdir/ups" ]; then
-    mkdir -p "$ethdir"
-    cd "$ethdir"
+upsdir="$workspace/src/github.com/truechain"
+if [ ! -L "$upsdir/ups" ]; then
+    mkdir -p "$upsdir"
+    cd "$upsdir"
     ln -s ../../../../../. ups
     cd "$root"
 fi
@@ -23,8 +23,8 @@ GOPATH="$workspace"
 export GOPATH
 
 # Run the command inside the workspace.
-cd "$ethdir/ups"
-PWD="$ethdir/ups"
+cd "$upsdir/ups"
+PWD="$upsdir/ups"
 
 # Launch the arguments with the configured environment.
 exec "$@"
