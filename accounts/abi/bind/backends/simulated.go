@@ -19,7 +19,7 @@ import (
 	"github.com/truechain/ups/core/state"
 	"github.com/truechain/ups/core/types"
 	"github.com/truechain/ups/core/vm"
-	"github.com/truechain/ups/etrue/filters"
+	"github.com/truechain/ups/ups/filters"
 	"github.com/truechain/ups/etruedb"
 	"github.com/truechain/ups/event"
 	"github.com/truechain/ups/params"

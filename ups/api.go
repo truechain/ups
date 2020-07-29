@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with the go-ethereum library. If not, see <http://www.gnu.org/licenses/>.
 
-package etrue
+package ups
 
 import (
 	"compress/gzip"
@@ -86,13 +86,13 @@ func (api *PublicTruechainAPI) ChainId() hexutil.Uint64 {
 // PrivateAdminAPI is the collection of Truechain full node-related APIs
 // exposed over the private admin endpoint.
 type PrivateAdminAPI struct {
-	etrue *Truechain
+	ups *Truechain
 }
 
 // NewPrivateAdminAPI creates a new API definition for the full node private
 // admin methods of the Truechain service.
-func NewPrivateAdminAPI(etrue *Truechain) *PrivateAdminAPI {
-	return &PrivateAdminAPI{etrue: etrue}
+func NewPrivateAdminAPI(ups *Truechain) *PrivateAdminAPI {
+	return &PrivateAdminAPI{ups: ups}
 }
 
 // ExportChain exports the current blockchain into a local file.
@@ -111,7 +111,7 @@ func (api *PrivateAdminAPI) ExportChain(file string) (bool, error) {
 	}
 
 	// Export the blockchain
-	if err := api.etrue.BlockChain().Export(writer); err != nil {
+	if err := api.ups.BlockChain().Export(writer); err != nil {
 		return false, err
 	}
 	return true, nil
@@ -163,12 +163,12 @@ func (api *PrivateAdminAPI) ImportChain(file string) (bool, error) {
 			break
 		}
 
-		if hasAllBlocks(api.etrue.BlockChain(), blocks) {
+		if hasAllBlocks(api.ups.BlockChain(), blocks) {
 			blocks = blocks[:0]
 			continue
 		}
 		// Import the batch and reset the buffer
-		if _, err := api.etrue.BlockChain().InsertChain(blocks); err != nil {
+		if _, err := api.ups.BlockChain().InsertChain(blocks); err != nil {
 			return false, fmt.Errorf("batch %d: failed to insert: %v", batch, err)
 		}
 		blocks = blocks[:0]
@@ -179,27 +179,27 @@ func (api *PrivateAdminAPI) ImportChain(file string) (bool, error) {
 // PublicDebugAPI is the collection of Truechain full node APIs exposed
 // over the public debugging endpoint.
 type PublicDebugAPI struct {
-	etrue *Truechain
+	ups *Truechain
 }
 
 // NewPublicDebugAPI creates a new API definition for the full node-
 // related public debug methods of the Truechain service.
-func NewPublicDebugAPI(etrue *Truechain) *PublicDebugAPI {
-	return &PublicDebugAPI{etrue: etrue}
+func NewPublicDebugAPI(ups *Truechain) *PublicDebugAPI {
+	return &PublicDebugAPI{ups: ups}
 }
 
 // DumpBlock retrieves the entire state of the database at a given block.
 func (api *PublicDebugAPI) DumpBlock(blockNr rpc.BlockNumber) (state.Dump, error) {
 	var block *types.Block
 	if blockNr == rpc.LatestBlockNumber {
-		block = api.etrue.blockchain.CurrentBlock()
+		block = api.ups.blockchain.CurrentBlock()
 	} else {
-		block = api.etrue.blockchain.GetBlockByNumber(uint64(blockNr))
+		block = api.ups.blockchain.GetBlockByNumber(uint64(blockNr))
 	}
 	if block == nil {
 		return state.Dump{}, fmt.Errorf("block #%d not found", blockNr)
 	}
-	stateDb, err := api.etrue.BlockChain().StateAt(block.Root())
+	stateDb, err := api.ups.BlockChain().StateAt(block.Root())
 	if err != nil {
 		return state.Dump{}, err
 	}
@@ -210,18 +210,18 @@ func (api *PublicDebugAPI) DumpBlock(blockNr rpc.BlockNumber) (state.Dump, error
 // the private debugging endpoint.
 type PrivateDebugAPI struct {
 	config *params.ChainConfig
-	etrue  *Truechain
+	ups  *Truechain
 }
 
 // NewPrivateDebugAPI creates a new API definition for the full node-related
 // private debug methods of the Truechain service.
-func NewPrivateDebugAPI(config *params.ChainConfig, etrue *Truechain) *PrivateDebugAPI {
-	return &PrivateDebugAPI{config: config, etrue: etrue}
+func NewPrivateDebugAPI(config *params.ChainConfig, ups *Truechain) *PrivateDebugAPI {
+	return &PrivateDebugAPI{config: config, ups: ups}
 }
 
 // Preimage is a debug API function that returns the preimage for a sha3 hash, if known.
 func (api *PrivateDebugAPI) Preimage(ctx context.Context, hash common.Hash) (hexutil.Bytes, error) {
-	if preimage := rawdb.ReadPreimage(api.etrue.ChainDb(), hash); preimage != nil {
+	if preimage := rawdb.ReadPreimage(api.ups.ChainDb(), hash); preimage != nil {
 		return preimage, nil
 	}
 	return nil, errors.New("unknown preimage")
@@ -237,7 +237,7 @@ type BadBlockArgs struct {
 // GetBadBlocks returns a list of the last 'bad blocks' that the client has seen on the network
 // and returns them as a JSON list of block-hashes
 func (api *PrivateDebugAPI) GetBadBlocks(ctx context.Context) ([]*BadBlockArgs, error) {
-	blocks := api.etrue.BlockChain().BadBlocks()
+	blocks := api.ups.BlockChain().BadBlocks()
 	results := make([]*BadBlockArgs, len(blocks))
 
 	var err error
@@ -314,19 +314,19 @@ func storageRangeAt(st state.Trie, start []byte, maxResult int) (StorageRangeRes
 func (api *PrivateDebugAPI) GetModifiedAccountsByNumber(startNum uint64, endNum *uint64) ([]common.Address, error) {
 	var startBlock, endBlock *types.Block
 
-	startBlock = api.etrue.blockchain.GetBlockByNumber(startNum)
+	startBlock = api.ups.blockchain.GetBlockByNumber(startNum)
 	if startBlock == nil {
 		return nil, fmt.Errorf("start block %x not found", startNum)
 	}
 
 	if endNum == nil {
 		endBlock = startBlock
-		startBlock = api.etrue.blockchain.GetBlockByHash(startBlock.ParentHash())
+		startBlock = api.ups.blockchain.GetBlockByHash(startBlock.ParentHash())
 		if startBlock == nil {
 			return nil, fmt.Errorf("block %x has no parent", endBlock.Number())
 		}
 	} else {
-		endBlock = api.etrue.blockchain.GetBlockByNumber(*endNum)
+		endBlock = api.ups.blockchain.GetBlockByNumber(*endNum)
 		if endBlock == nil {
 			return nil, fmt.Errorf("end block %d not found", *endNum)
 		}
@@ -341,19 +341,19 @@ func (api *PrivateDebugAPI) GetModifiedAccountsByNumber(startNum uint64, endNum 
 // With one parameter, returns the list of accounts modified in the specified block.
 func (api *PrivateDebugAPI) GetModifiedAccountsByHash(startHash common.Hash, endHash *common.Hash) ([]common.Address, error) {
 	var startBlock, endBlock *types.Block
-	startBlock = api.etrue.blockchain.GetBlockByHash(startHash)
+	startBlock = api.ups.blockchain.GetBlockByHash(startHash)
 	if startBlock == nil {
 		return nil, fmt.Errorf("start block %x not found", startHash)
 	}
 
 	if endHash == nil {
 		endBlock = startBlock
-		startBlock = api.etrue.blockchain.GetBlockByHash(startBlock.ParentHash())
+		startBlock = api.ups.blockchain.GetBlockByHash(startBlock.ParentHash())
 		if startBlock == nil {
 			return nil, fmt.Errorf("block %x has no parent", endBlock.Number())
 		}
 	} else {
-		endBlock = api.etrue.blockchain.GetBlockByHash(*endHash)
+		endBlock = api.ups.blockchain.GetBlockByHash(*endHash)
 		if endBlock == nil {
 			return nil, fmt.Errorf("end block %x not found", *endHash)
 		}
@@ -366,11 +366,11 @@ func (api *PrivateDebugAPI) getModifiedAccounts(startBlock, endBlock *types.Bloc
 		return nil, fmt.Errorf("start block height (%d) must be less than end block height (%d)", startBlock.Number().Uint64(), endBlock.Number().Uint64())
 	}
 
-	oldTrie, err := trie.NewSecure(startBlock.Root(), trie.NewDatabase(api.etrue.chainDb), 0)
+	oldTrie, err := trie.NewSecure(startBlock.Root(), trie.NewDatabase(api.ups.chainDb), 0)
 	if err != nil {
 		return nil, err
 	}
-	newTrie, err := trie.NewSecure(endBlock.Root(), trie.NewDatabase(api.etrue.chainDb), 0)
+	newTrie, err := trie.NewSecure(endBlock.Root(), trie.NewDatabase(api.ups.chainDb), 0)
 	if err != nil {
 		return nil, err
 	}

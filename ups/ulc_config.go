@@ -1,4 +1,4 @@
-package etrue
+package ups
 
 const DefaultULCMinTrustedFraction = 75
 

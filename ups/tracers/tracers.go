@@ -21,7 +21,7 @@ import (
 	"strings"
 	"unicode"
 
-	"github.com/truechain/ups/etrue/tracers/internal/tracers"
+	"github.com/truechain/ups/ups/tracers/internal/tracers"
 )
 
 // all contains all the built in JavaScript tracers by name.

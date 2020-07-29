@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with the go-ethereum library. If not, see <http://www.gnu.org/licenses/>.
 
-package etrue
+package ups
 
 import (
 	"encoding/json"
@@ -30,8 +30,8 @@ import (
 	"github.com/truechain/ups/consensus"
 	"github.com/truechain/ups/core"
 	"github.com/truechain/ups/core/types"
-	"github.com/truechain/ups/etrue/downloader"
-	"github.com/truechain/ups/etrue/fetcher"
+	"github.com/truechain/ups/ups/downloader"
+	"github.com/truechain/ups/ups/fetcher"
 	"github.com/truechain/ups/etruedb"
 	"github.com/truechain/ups/event"
 	"github.com/truechain/ups/log"
@@ -367,7 +367,7 @@ func (pm *ProtocolManager) newPeer(pv int, p *p2p.Peer, rw p2p.MsgReadWriter, ge
 	return newPeer(pv, p, newMeteredMsgWriter(rw), pm.removePeer)
 }*/
 
-// handle is the callback invoked to manage the life cycle of an etrue peer. When
+// handle is the callback invoked to manage the life cycle of an ups peer. When
 // this function terminates, the peer is disconnected.
 func (pm *ProtocolManager) handle(p *peer) error {
 	// Ignore maxPeers if this is a trusted peer

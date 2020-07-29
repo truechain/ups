@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with the truechain-engineering-code library. If not, see <http://www.gnu.org/licenses/>.
 
-package etrue
+package ups
 
 import (
 	"crypto/ecdsa"
@@ -61,14 +61,14 @@ const (
 )
 
 var (
-	oldReceivedMetrics       = metrics.NewRegisteredMeter("etrue/pbftAgent/old", nil)
-	repeatReceivedMetrics    = metrics.NewRegisteredMeter("etrue/pbftAgent/repeat", nil)
-	newReceivedMetrics       = metrics.NewRegisteredMeter("etrue/pbftAgent/new", nil)
-	differentReceivedMetrics = metrics.NewRegisteredMeter("etrue/pbftAgent/different", nil)
-	nodeHandleMetrics        = metrics.NewRegisteredMeter("etrue/pbftAgent/handle", nil)
+	oldReceivedMetrics       = metrics.NewRegisteredMeter("ups/pbftAgent/old", nil)
+	repeatReceivedMetrics    = metrics.NewRegisteredMeter("ups/pbftAgent/repeat", nil)
+	newReceivedMetrics       = metrics.NewRegisteredMeter("ups/pbftAgent/new", nil)
+	differentReceivedMetrics = metrics.NewRegisteredMeter("ups/pbftAgent/different", nil)
+	nodeHandleMetrics        = metrics.NewRegisteredMeter("ups/pbftAgent/handle", nil)
 
-	tpsMetrics           = metrics.NewRegisteredMeter("etrue/pbftAgent/tps", nil)
-	pbftConsensusCounter = metrics.NewRegisteredCounter("etrue/pbftAgent/pbftConsensus", nil)
+	tpsMetrics           = metrics.NewRegisteredMeter("ups/pbftAgent/tps", nil)
+	pbftConsensusCounter = metrics.NewRegisteredCounter("ups/pbftAgent/pbftConsensus", nil)
 )
 
 // Backend wraps all methods required for  pbft_agent
@@ -146,12 +146,12 @@ type AgentWork struct {
 }
 
 // NewPbftAgent creates a new pbftAgent ,receive events from election and communicate with pbftServer
-func NewPbftAgent(etrue Backend, config *params.ChainConfig, engine consensus.Engine, election *elect.Election, gasFloor, gasCeil uint64) *PbftAgent {
+func NewPbftAgent(ups Backend, config *params.ChainConfig, engine consensus.Engine, election *elect.Election, gasFloor, gasCeil uint64) *PbftAgent {
 	agent := &PbftAgent{
 		config:               config,
 		engine:               engine,
-		eth:                  etrue,
-		fastChain:            etrue.BlockChain(),
+		eth:                  ups,
+		fastChain:            ups.BlockChain(),
 		currentCommitteeInfo: new(types.CommitteeInfo),
 		nextCommitteeInfo:    new(types.CommitteeInfo),
 		committeeIds:         make([]*big.Int, committeeIDChanSize),
@@ -164,7 +164,7 @@ func NewPbftAgent(etrue Backend, config *params.ChainConfig, engine consensus.En
 		mu:                   new(sync.Mutex),
 		cacheBlockMu:         new(sync.Mutex),
 		cacheBlock:           make(map[*big.Int]*types.Block),
-		vmConfig:             vm.Config{EnablePreimageRecording: etrue.Config().EnablePreimageRecording},
+		vmConfig:             vm.Config{EnablePreimageRecording: ups.Config().EnablePreimageRecording},
 		gasFloor:             gasFloor,
 		gasCeil:              gasCeil,
 		knownRecievedNodes:   utils.NewOrderedMap(),
@@ -173,7 +173,7 @@ func NewPbftAgent(etrue Backend, config *params.ChainConfig, engine consensus.En
 		broadcastNodeTag:     utils.NewOrderedMap(),
 	}
 
-	agent.initNodeInfo(etrue)
+	agent.initNodeInfo(ups)
 
 	if !agent.singleNode {
 		agent.subScribeEvent()
@@ -182,9 +182,9 @@ func NewPbftAgent(etrue Backend, config *params.ChainConfig, engine consensus.En
 }
 
 //initialize node info
-func (agent *PbftAgent) initNodeInfo(etrue Backend) {
+func (agent *PbftAgent) initNodeInfo(ups Backend) {
 	//config *Config, coinbase common.Address
-	config := etrue.Config()
+	config := ups.Config()
 	coinbase := config.CommitteeBase
 	if (coinbase == common.Address{} && agent.privateKey != nil) {
 		coinbase = crypto.PubkeyToAddress(agent.privateKey.PublicKey)

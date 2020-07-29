@@ -45,9 +45,9 @@ import (
 	"github.com/truechain/ups/core/vm"
 	"github.com/truechain/ups/crypto"
 	"github.com/truechain/ups/dashboard"
-	"github.com/truechain/ups/etrue"
-	"github.com/truechain/ups/etrue/downloader"
-	"github.com/truechain/ups/etrue/gasprice"
+	"github.com/truechain/ups/ups"
+	"github.com/truechain/ups/ups/downloader"
+	"github.com/truechain/ups/ups/gasprice"
 	"github.com/truechain/ups/etruedb"
 	"github.com/truechain/ups/etruestats"
 	"github.com/truechain/ups/log"
@@ -139,7 +139,7 @@ var (
 	NetworkIdFlag = cli.Uint64Flag{
 		Name:  "networkid",
 		Usage: "Network identifier",
-		Value: etrue.DefaultConfig.NetworkId,
+		Value: ups.DefaultConfig.NetworkId,
 	}
 	TestnetFlag = cli.BoolFlag{
 		Name:  "testnet",
@@ -180,12 +180,12 @@ var (
 	BFTPortFlag = cli.Uint64Flag{
 		Name:  "bftport",
 		Usage: "committee node port ",
-		Value: uint64(etrue.DefaultConfig.Port),
+		Value: uint64(ups.DefaultConfig.Port),
 	}
 	BFTStandbyPortFlag = cli.Uint64Flag{
 		Name:  "bftport2",
 		Usage: "committee node standby port ",
-		Value: uint64(etrue.DefaultConfig.StandbyPort),
+		Value: uint64(ups.DefaultConfig.StandbyPort),
 	}
 	BftKeyFileFlag = cli.StringFlag{
 		Name:  "bftkey",
@@ -196,7 +196,7 @@ var (
 		Usage: "committee generate bft_privatekey as hex (for testing)",
 	}
 
-	defaultSyncMode = etrue.DefaultConfig.SyncMode
+	defaultSyncMode = ups.DefaultConfig.SyncMode
 	SyncModeFlag    = TextMarshalerFlag{
 		Name:  "syncmode",
 		Usage: `Blockchain sync mode ("full", or "snapshot")`,
@@ -258,37 +258,37 @@ var (
 	TxPoolPriceLimitFlag = cli.Uint64Flag{
 		Name:  "txpool.pricelimit",
 		Usage: "Minimum gas price limit to enforce for acceptance into the pool",
-		Value: etrue.DefaultConfig.TxPool.PriceLimit,
+		Value: ups.DefaultConfig.TxPool.PriceLimit,
 	}
 	TxPoolPriceBumpFlag = cli.Uint64Flag{
 		Name:  "txpool.pricebump",
 		Usage: "Price bump percentage to replace an already existing transaction",
-		Value: etrue.DefaultConfig.TxPool.PriceBump,
+		Value: ups.DefaultConfig.TxPool.PriceBump,
 	}
 	TxPoolAccountSlotsFlag = cli.Uint64Flag{
 		Name:  "txpool.accountslots",
 		Usage: "Minimum number of executable transaction slots guaranteed per account",
-		Value: etrue.DefaultConfig.TxPool.AccountSlots,
+		Value: ups.DefaultConfig.TxPool.AccountSlots,
 	}
 	TxPoolGlobalSlotsFlag = cli.Uint64Flag{
 		Name:  "txpool.globalslots",
 		Usage: "Maximum number of executable transaction slots for all accounts",
-		Value: etrue.DefaultConfig.TxPool.GlobalSlots,
+		Value: ups.DefaultConfig.TxPool.GlobalSlots,
 	}
 	TxPoolAccountQueueFlag = cli.Uint64Flag{
 		Name:  "txpool.accountqueue",
 		Usage: "Maximum number of non-executable transaction slots permitted per account",
-		Value: etrue.DefaultConfig.TxPool.AccountQueue,
+		Value: ups.DefaultConfig.TxPool.AccountQueue,
 	}
 	TxPoolGlobalQueueFlag = cli.Uint64Flag{
 		Name:  "txpool.globalqueue",
 		Usage: "Maximum number of non-executable transaction slots for all accounts",
-		Value: etrue.DefaultConfig.TxPool.GlobalQueue,
+		Value: ups.DefaultConfig.TxPool.GlobalQueue,
 	}
 	TxPoolLifetimeFlag = cli.DurationFlag{
 		Name:  "txpool.lifetime",
 		Usage: "Maximum amount of time non-executable transaction are queued",
-		Value: etrue.DefaultConfig.TxPool.Lifetime,
+		Value: ups.DefaultConfig.TxPool.Lifetime,
 	}
 	// Performance tuning settings
 	CacheFlag = cli.IntFlag{
@@ -314,19 +314,19 @@ var (
 	GasTargetFlag = cli.Uint64Flag{
 		Name:  "gastarget",
 		Usage: "Target gas floor for fast block",
-		Value: etrue.DefaultConfig.MinerGasFloor,
+		Value: ups.DefaultConfig.MinerGasFloor,
 	}
 
 	GasLimitFlag = cli.Uint64Flag{
 		Name:  "gaslimit",
 		Usage: "Target gas ceiling for fast block",
-		Value: etrue.DefaultConfig.MinerGasCeil,
+		Value: ups.DefaultConfig.MinerGasCeil,
 	}
 
 	GasPriceFlag = BigFlag{
 		Name:  "gasprice",
 		Usage: "Minimal gas price to accept for mining a transactions",
-		Value: etrue.DefaultConfig.GasPrice,
+		Value: ups.DefaultConfig.GasPrice,
 	}
 	// Account settings
 	UnlockedAccountFlag = cli.StringFlag{
@@ -496,12 +496,12 @@ var (
 	GpoBlocksFlag = cli.IntFlag{
 		Name:  "gpoblocks",
 		Usage: "Number of recent blocks to check for gas prices",
-		Value: etrue.DefaultConfig.GPO.Blocks,
+		Value: ups.DefaultConfig.GPO.Blocks,
 	}
 	GpoPercentileFlag = cli.IntFlag{
 		Name:  "gpopercentile",
 		Usage: "Suggested gas price is the given percentile of a set of recent transaction gas prices",
-		Value: etrue.DefaultConfig.GPO.Percentile,
+		Value: ups.DefaultConfig.GPO.Percentile,
 	}
 
 	// Metrics flags
@@ -601,7 +601,7 @@ func setNodeKey(ctx *cli.Context, cfg *p2p.Config) {
 	}
 }
 
-func setBftCommitteeKey(ctx *cli.Context, cfg *etrue.Config) {
+func setBftCommitteeKey(ctx *cli.Context, cfg *ups.Config) {
 	var (
 		hex  = ctx.GlobalString(BftKeyHexFlag.Name)
 		file = ctx.GlobalString(BftKeyFileFlag.Name)
@@ -984,8 +984,8 @@ func CheckExclusive(ctx *cli.Context, args ...interface{}) {
 	}
 }
 
-// SetTruechainConfig applies etrue-related command line flags to the config.
-func SetTruechainConfig(ctx *cli.Context, stack *node.Node, cfg *etrue.Config) {
+// SetTruechainConfig applies ups-related command line flags to the config.
+func SetTruechainConfig(ctx *cli.Context, stack *node.Node, cfg *ups.Config) {
 	// Avoid conflicting network flags
 	CheckExclusive(ctx, TestnetFlag, DevnetFlag, SingleNodeFlag)
 	//CheckExclusive(ctx, LightServFlag, LightModeFlag)
@@ -1097,13 +1097,13 @@ func SetDashboardConfig(ctx *cli.Context, cfg *dashboard.Config) {
 }
 
 // RegisterEtrueService adds an Truechain client to the stack.
-func RegisterEtrueService(stack *node.Node, cfg *etrue.Config) {
+func RegisterEtrueService(stack *node.Node, cfg *ups.Config) {
 	var err error
 	if cfg.SyncMode == downloader.LightSync {
 		Fatalf("Failed to register the Truechain les service")
 	} else {
 		err = stack.Register(func(ctx *node.ServiceContext) (node.Service, error) {
-			fullNode, err := etrue.New(ctx, cfg)
+			fullNode, err := ups.New(ctx, cfg)
 			return fullNode, err
 		})
 	}
@@ -1115,8 +1115,8 @@ func RegisterEtrueService(stack *node.Node, cfg *etrue.Config) {
 // RegisterDashboardService adds a dashboard to the stack.
 func RegisterDashboardService(stack *node.Node, cfg *dashboard.Config, commit string) {
 	if err := stack.Register(func(ctx *node.ServiceContext) (node.Service, error) {
-		// Retrieve both etrue services
-		var etrueServ *etrue.Truechain
+		// Retrieve both ups services
+		var etrueServ *ups.Truechain
 		ctx.Service(&etrueServ)
 		return dashboard.New(cfg, commit, ctx.ResolvePath("logs"), etrueServ), nil
 	}); err != nil {
@@ -1131,8 +1131,8 @@ func RegisterDashboardService(stack *node.Node, cfg *dashboard.Config, commit st
 // th egiven node.
 func RegisterEtrueStatsService(stack *node.Node, url string) {
 	if err := stack.Register(func(ctx *node.ServiceContext) (node.Service, error) {
-		// Retrieve both etrue services
-		var etrueServ *etrue.Truechain
+		// Retrieve both ups services
+		var etrueServ *ups.Truechain
 		ctx.Service(&etrueServ)
 
 		return etruestats.New(url, etrueServ)
@@ -1215,8 +1215,8 @@ func MakeChain(ctx *cli.Context, stack *node.Node) (fchain *core.BlockChain, cha
 	}
 	cache := &core.CacheConfig{
 		Disabled:      ctx.GlobalString(GCModeFlag.Name) == "archive",
-		TrieNodeLimit: etrue.DefaultConfig.TrieCache,
-		TrieTimeLimit: etrue.DefaultConfig.TrieTimeout,
+		TrieNodeLimit: ups.DefaultConfig.TrieCache,
+		TrieTimeLimit: ups.DefaultConfig.TrieTimeout,
 	}
 
 	if ctx.GlobalIsSet(CacheFlag.Name) || ctx.GlobalIsSet(CacheGCFlag.Name) {

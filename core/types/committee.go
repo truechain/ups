@@ -188,7 +188,7 @@ type pbftSignMarshaling struct {
 	Sign       hexutil.Bytes
 }
 
-// "external" PbftSign encoding. used for etrue protocol, etc.
+// "external" PbftSign encoding. used for ups protocol, etc.
 type extPbftSign struct {
 	FastHeight *big.Int
 	FastHash   common.Hash // fastblock hash
@@ -313,7 +313,7 @@ type EncryptNodeMessage struct {
 	size atomic.Value
 }
 
-// "external" EncryptNode encoding. used for etrue protocol, etc.
+// "external" EncryptNode encoding. used for ups protocol, etc.
 type extEncryptNode struct {
 	CreatedAt   *big.Int
 	CommitteeID *big.Int

@@ -33,7 +33,7 @@ import (
 
 	"github.com/truechain/ups/log"
 	"github.com/mohae/deepcopy"
-	"github.com/truechain/ups/etrue"
+	"github.com/truechain/ups/ups"
 	"github.com/truechain/ups/p2p"
 	"github.com/truechain/ups/params"
 	"github.com/truechain/ups/rpc"
@@ -71,7 +71,7 @@ type Dashboard struct {
 	quit chan chan error // Channel used for graceful exit
 	wg   sync.WaitGroup  // Wait group used to close the data collector threads
 
-	etrue *etrue.Truechain // Full Truechain service if monitoring a full node
+	ups *ups.Truechain // Full Truechain service if monitoring a full node
 }
 
 // client represents active websocket connection with a remote browser.
@@ -82,7 +82,7 @@ type client struct {
 }
 
 // New creates a new dashboard instance with the given configuration.
-func New(config *Config, commit string, logdir string, ethServ *etrue.Truechain) *Dashboard {
+func New(config *Config, commit string, logdir string, ethServ *ups.Truechain) *Dashboard {
 	now := time.Now()
 	versionMeta := ""
 	if len(params.VersionMeta) > 0 {
@@ -91,7 +91,7 @@ func New(config *Config, commit string, logdir string, ethServ *etrue.Truechain)
 	return &Dashboard{
 		conns:  make(map[uint32]*client),
 		config: config,
-		etrue:  ethServ,
+		ups:  ethServ,
 		quit:   make(chan chan error),
 		history: &Message{
 			General: &GeneralMessage{

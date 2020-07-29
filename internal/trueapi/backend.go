@@ -27,7 +27,7 @@ import (
 	"github.com/truechain/ups/core/state"
 	"github.com/truechain/ups/core/types"
 	"github.com/truechain/ups/core/vm"
-	"github.com/truechain/ups/etrue/downloader"
+	"github.com/truechain/ups/ups/downloader"
 	"github.com/truechain/ups/etruedb"
 	"github.com/truechain/ups/event"
 	"github.com/truechain/ups/params"
@@ -78,7 +78,7 @@ type Backend interface {
 func GetAPIs(apiBackend Backend) []rpc.API {
 	nonceLock := new(AddrLocker)
 	var apis []rpc.API
-	namespaces := []string{"etrue", "eth"}
+	namespaces := []string{"ups", "eth"}
 	for _, name := range namespaces {
 		apis = append(apis, []rpc.API{
 			{

@@ -15,7 +15,7 @@ import (
 	"github.com/truechain/ups/cmd/utils"
 	"github.com/truechain/ups/console"
 	"github.com/truechain/ups/core"
-	"github.com/truechain/ups/etrue/downloader"
+	"github.com/truechain/ups/ups/downloader"
 	"github.com/truechain/ups/etruedb"
 	"github.com/truechain/ups/event"
 	"github.com/truechain/ups/trie"

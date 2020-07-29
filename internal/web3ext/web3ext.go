@@ -22,7 +22,7 @@ var Modules = map[string]string{
 	"chequebook": Chequebook_JS,
 	"clique":     Clique_JS,
 	"debug":      Debug_JS,
-	"etrue":      Etrue_JS,
+	"ups":      Etrue_JS,
 	"net":        Net_JS,
 	"personal":   Personal_JS,
 	"rpc":        RPC_JS,
@@ -393,7 +393,7 @@ web3._extend({
 
 const Etrue_JS = `
 web3._extend({
-	property: 'etrue',
+	property: 'ups',
 	methods: [
 		new web3._extend.Method({
 			name: 'chainId',

@@ -44,7 +44,7 @@ const (
 type ElectMode uint
 
 const (
-	// ElectModeEtrue for etrue
+	// ElectModeEtrue for ups
 	ElectModeEtrue = iota
 	// ElectModeFake for Test purpose
 	ElectModeFake

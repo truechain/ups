@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with the go-ethereum library. If not, see <http://www.gnu.org/licenses/>.
 
-package etrue
+package ups
 
 import (
 	"fmt"
@@ -36,7 +36,7 @@ const (
 )
 
 // ProtocolName is the official short name of the protocol used during capability negotiation.
-var ProtocolName = "etrue"
+var ProtocolName = "ups"
 
 // ProtocolVersions are the supported versions of the eth protocol (first is primary).
 var ProtocolVersions = []uint{eth65, eth64, eth63}
@@ -46,7 +46,7 @@ var ProtocolLengths = map[uint]uint64{eth65: 25, eth64: 25, eth63: 25}
 
 const ProtocolMaxMsgSize = 10 * 1024 * 1024 // Maximum cap on the size of a protocol message
 
-// etrue protocol message codes
+// ups protocol message codes
 const (
 	StatusMsg          = 0x00
 	NewBlockHashesMsg  = 0x01

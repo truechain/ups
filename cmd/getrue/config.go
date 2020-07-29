@@ -15,7 +15,7 @@ import (
 	"github.com/truechain/ups/cmd/utils"
 	"github.com/truechain/ups/crypto"
 	"github.com/truechain/ups/dashboard"
-	"github.com/truechain/ups/etrue"
+	"github.com/truechain/ups/ups"
 	"github.com/truechain/ups/node"
 	"github.com/truechain/ups/params"
 )
@@ -59,7 +59,7 @@ type etruestatsConfig struct {
 }
 
 type gethConfig struct {
-	Etrue      etrue.Config
+	Etrue      ups.Config
 	Node       node.Config
 	Etruestats etruestatsConfig
 	Dashboard  dashboard.Config
@@ -84,8 +84,8 @@ func defaultNodeConfig() node.Config {
 	cfg := node.DefaultConfig
 	cfg.Name = clientIdentifier
 	cfg.Version = params.VersionWithCommit(gitCommit, gitDate)
-	cfg.HTTPModules = append(cfg.HTTPModules, "etrue", "eth", "impawn", "shh")
-	cfg.WSModules = append(cfg.WSModules, "etrue")
+	cfg.HTTPModules = append(cfg.HTTPModules, "ups", "eth", "impawn", "shh")
+	cfg.WSModules = append(cfg.WSModules, "ups")
 	cfg.IPCPath = "getrue.ipc"
 	return cfg
 }
@@ -93,7 +93,7 @@ func defaultNodeConfig() node.Config {
 func makeConfigNode(ctx *cli.Context) (*node.Node, gethConfig) {
 	// Load defaults.
 	cfg := gethConfig{
-		Etrue:     etrue.DefaultConfig,
+		Etrue:     ups.DefaultConfig,
 		Node:      defaultNodeConfig(),
 		Dashboard: dashboard.DefaultConfig,
 	}
@@ -107,7 +107,7 @@ func makeConfigNode(ctx *cli.Context) (*node.Node, gethConfig) {
 		//set node config
 		cfg.Node.HTTPPort = 8888
 		cfg.Node.HTTPHost = "127.0.0.1"
-		cfg.Node.HTTPModules = []string{"db", "etrue", "net", "web3", "personal", "admin", "miner", "eth"}
+		cfg.Node.HTTPModules = []string{"db", "ups", "net", "web3", "personal", "admin", "miner", "eth"}
 
 		ctx.GlobalSet("datadir", "./data")
 	}

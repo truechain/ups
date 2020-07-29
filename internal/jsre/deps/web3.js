@@ -1826,7 +1826,7 @@ require = (function e(t, n, r) {
             'nano',
             'micro',
             'milli',
-            'etrue',
+            'ups',
             'grand',
             'Metrue',
             'Gtrue',
@@ -2563,7 +2563,7 @@ require = (function e(t, n, r) {
 
         var RequestManager = require('./web3/requestmanager');
         var Iban = require('./web3/iban');
-        var Etrue = require('./web3/methods/etrue');
+        var Etrue = require('./web3/methods/ups');
         var DB = require('./web3/methods/db');
         var Shh = require('./web3/methods/shh');
         var Net = require('./web3/methods/net');
@@ -2584,7 +2584,7 @@ require = (function e(t, n, r) {
         function Web3(provider) {
             this._requestManager = new RequestManager(provider);
             this.currentProvider = provider;
-            this.etrue = new Etrue(this);
+            this.ups = new Etrue(this);
             this.db = new DB(this);
             this.shh = new Shh(this);
             this.net = new Net(this);
@@ -2691,7 +2691,7 @@ require = (function e(t, n, r) {
         "./web3/iban": 33,
         "./web3/ipcprovider": 34,
         "./web3/methods/db": 37,
-        "./web3/methods/etrue": 38,
+        "./web3/methods/ups": 38,
         "./web3/methods/net": 39,
         "./web3/methods/personal": 40,
         "./web3/methods/shh": 41,
@@ -2780,7 +2780,7 @@ require = (function e(t, n, r) {
 
             var o = this.encode(options);
             var formatter = this.decode.bind(this);
-            return new Filter(o, 'etrue', this._requestManager, watches.etrue(), formatter, callback);
+            return new Filter(o, 'ups', this._requestManager, watches.ups(), formatter, callback);
         };
 
         AllSolidityEvents.prototype.attachToContract = function (contract) {
@@ -3035,8 +3035,8 @@ require = (function e(t, n, r) {
          * @method ContractFactory
          * @param {Array} abi
          */
-        var ContractFactory = function (etrue, abi) {
-            this.etrue = etrue;
+        var ContractFactory = function (ups, abi) {
+            this.ups = ups;
             this.abi = abi;
 
             /**
@@ -3052,7 +3052,7 @@ require = (function e(t, n, r) {
             this.new = function () {
                 /*jshint maxcomplexity: 7 */
 
-                var contract = new Contract(this.etrue, this.abi);
+                var contract = new Contract(this.ups, this.abi);
 
                 // parse arguments
                 var options = {}; // required!
@@ -3084,7 +3084,7 @@ require = (function e(t, n, r) {
                 if (callback) {
 
                     // wait for the contract address adn check if the code was deployed
-                    this.etrue.sendTransaction(options, function (err, hash) {
+                    this.ups.sendTransaction(options, function (err, hash) {
                         if (err) {
                             callback(err);
                         } else {
@@ -3098,7 +3098,7 @@ require = (function e(t, n, r) {
                         }
                     });
                 } else {
-                    var hash = this.etrue.sendTransaction(options);
+                    var hash = this.ups.sendTransaction(options);
                     // add the transaction hash
                     contract.transactionHash = hash;
                     checkForContractAddress(contract);
@@ -3132,7 +3132,7 @@ require = (function e(t, n, r) {
          * otherwise calls callback function (err, contract)
          */
         ContractFactory.prototype.at = function (address, callback) {
-            var contract = new Contract(this.etrue, this.abi, address);
+            var contract = new Contract(this.ups, this.abi, address);
 
             // this functions are not part of prototype,
             // because we dont want to spoil the interface
@@ -3172,8 +3172,8 @@ require = (function e(t, n, r) {
          * @param {Array} abi
          * @param {Address} contract address
          */
-        var Contract = function (etrue, abi, address) {
-            this._etrue = etrue;
+        var Contract = function (ups, abi, address) {
+            this._etrue = ups;
             this.transactionHash = null;
             this.address = address;
             this.abi = abi;
@@ -3419,7 +3419,7 @@ require = (function e(t, n, r) {
 
             var o = this.encode(indexed, options);
             var formatter = this.decode.bind(this);
-            return new Filter(o, 'etrue', this._requestManager, watches.etrue(), formatter, callback);
+            return new Filter(o, 'ups', this._requestManager, watches.ups(), formatter, callback);
         };
 
         /**
@@ -3561,7 +3561,7 @@ require = (function e(t, n, r) {
 
 
             switch (type) {
-                case 'etrue':
+                case 'ups':
 
                     // make sure topics, get converted to hex
                     options.topics = options.topics || [];
@@ -4147,8 +4147,8 @@ require = (function e(t, n, r) {
         /**
          * This prototype should be used to call/sendTransaction to solidity functions
          */
-        var SolidityFunction = function (etrue, json, address) {
-            this._etrue = etrue;
+        var SolidityFunction = function (ups, json, address) {
+            this._etrue = ups;
             this._inputTypes = json.inputs.map(function (i) {
                 return i.type;
             });
@@ -5347,7 +5347,7 @@ require = (function e(t, n, r) {
     along with web3.js.  If not, see <http://www.gnu.org/licenses/>.
 */
         /**
-         * @file etrue.js
+         * @file ups.js
          * @author Marek Kotewicz <marek@ethdev.com>
          * @author Fabian Vogelsteller <fabian@ethdev.com>
          * @date 2015
@@ -5776,7 +5776,7 @@ require = (function e(t, n, r) {
         };
 
         Etrue.prototype.filter = function (options, callback, filterCreationErrorCallback) {
-            return new Filter(options, 'etrue', this._requestManager, watches.etrue(), formatters.outputLogFormatter, callback, filterCreationErrorCallback);
+            return new Filter(options, 'ups', this._requestManager, watches.ups(), formatters.outputLogFormatter, callback, filterCreationErrorCallback);
         };
 
         Etrue.prototype.namereg = function () {
@@ -5824,7 +5824,7 @@ require = (function e(t, n, r) {
     You should have received a copy of the GNU Lesser General Public License
     along with web3.js.  If not, see <http://www.gnu.org/licenses/>.
 */
-        /** @file etrue.js
+        /** @file ups.js
          * @authors:
          *   Marek Kotewicz <marek@ethdev.com>
          * @date 2015
@@ -5844,7 +5844,7 @@ require = (function e(t, n, r) {
             });
         };
 
-/// @returns an array of objects describing web3.etrue api properties
+/// @returns an array of objects describing web3.ups api properties
         var properties = function () {
             return [
                 new Property({
@@ -5880,7 +5880,7 @@ require = (function e(t, n, r) {
     along with web3.js.  If not, see <http://www.gnu.org/licenses/>.
 */
         /**
-         * @file etrue.js
+         * @file ups.js
          * @author Marek Kotewicz <marek@ethdev.com>
          * @author Fabian Vogelsteller <fabian@ethdev.com>
          * @date 2015
@@ -6300,8 +6300,8 @@ require = (function e(t, n, r) {
 
         var Method = require('../method');
 
-/// @returns an array of objects describing web3.etrue.filter api methods
-        var etrue = function () {
+/// @returns an array of objects describing web3.ups.filter api methods
+        var ups = function () {
             var newFilterCall = function (args) {
                 var type = args[0];
 
@@ -6379,7 +6379,7 @@ require = (function e(t, n, r) {
         };
 
         module.exports = {
-            etrue: etrue,
+            ups: ups,
             shh: shh
         };
 
@@ -6985,23 +6985,23 @@ require = (function e(t, n, r) {
          * @param {Value} value to be tranfered
          * @param {Function} callback, callback
          */
-        var transfer = function (etrue, from, to, value, callback) {
+        var transfer = function (ups, from, to, value, callback) {
             var iban = new Iban(to);
             if (!iban.isValid()) {
                 throw new Error('invalid iban address');
             }
 
             if (iban.isDirect()) {
-                return transferToAddress(etrue, from, iban.address(), value, callback);
+                return transferToAddress(ups, from, iban.address(), value, callback);
             }
 
             if (!callback) {
-                var address = etrue.icapNamereg().addr(iban.institution());
-                return deposit(etrue, from, address, value, iban.client());
+                var address = ups.icapNamereg().addr(iban.institution());
+                return deposit(ups, from, address, value, iban.client());
             }
 
-            etrue.icapNamereg().addr(iban.institution(), function (err, address) {
-                return deposit(etrue, from, address, value, iban.client(), callback);
+            ups.icapNamereg().addr(iban.institution(), function (err, address) {
+                return deposit(ups, from, address, value, iban.client(), callback);
             });
 
         };
@@ -7015,8 +7015,8 @@ require = (function e(t, n, r) {
          * @param {Value} value to be tranfered
          * @param {Function} callback, callback
          */
-        var transferToAddress = function (etrue, from, to, value, callback) {
-            return etrue.sendTransaction({
+        var transferToAddress = function (ups, from, to, value, callback) {
+            return ups.sendTransaction({
                 address: to,
                 from: from,
                 value: value
@@ -7033,9 +7033,9 @@ require = (function e(t, n, r) {
          * @param {String} client unique identifier
          * @param {Function} callback, callback
          */
-        var deposit = function (etrue, from, to, value, client, callback) {
+        var deposit = function (ups, from, to, value, client, callback) {
             var abi = exchangeAbi;
-            return etrue.contract(abi).at(to).deposit(client, {
+            return ups.contract(abi).at(to).deposit(client, {
                 from: from,
                 value: value
             }, callback);

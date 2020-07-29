@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with the go-ethereum library. If not, see <http://www.gnu.org/licenses/>.
 
-package etrue
+package ups
 
 import (
 	"math/big"
@@ -24,8 +24,8 @@ import (
 	"github.com/truechain/ups/common"
 	"github.com/truechain/ups/common/hexutil"
 	"github.com/truechain/ups/core"
-	"github.com/truechain/ups/etrue/downloader"
-	"github.com/truechain/ups/etrue/gasprice"
+	"github.com/truechain/ups/ups/downloader"
+	"github.com/truechain/ups/ups/gasprice"
 	"github.com/truechain/ups/params"
 )
 

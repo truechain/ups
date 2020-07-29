@@ -101,7 +101,7 @@ func getTime() string {
 
 //send transaction init
 func send(count int, ip string) {
-	//dial etrue
+	//dial ups
 start:
 	client, err := rpc.Dial("http://" + ip)
 	if err != nil {

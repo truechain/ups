@@ -17,7 +17,7 @@
 // This file contains some shares testing functionality, common to  multiple
 // different files and modules being tested.
 
-package etrue
+package ups
 
 import (
 	"crypto/ecdsa"
@@ -35,7 +35,7 @@ import (
 	"github.com/truechain/ups/core/types"
 	"github.com/truechain/ups/core/vm"
 	"github.com/truechain/ups/crypto"
-	"github.com/truechain/ups/etrue/downloader"
+	"github.com/truechain/ups/ups/downloader"
 	"github.com/truechain/ups/etruedb"
 	"github.com/truechain/ups/event"
 	"github.com/truechain/ups/p2p"

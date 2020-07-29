@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with the go-ethereum library. If not, see <http://www.gnu.org/licenses/>.
 
-package etrue
+package ups
 
 import (
 	"errors"
@@ -705,7 +705,7 @@ func (p *peer) Send(msgcode uint64, data interface{}) error {
 	return err
 }
 
-// Handshake executes the etrue protocol handshake, negotiating version number,
+// Handshake executes the ups protocol handshake, negotiating version number,
 // network IDs, difficulties, head and genesis blocks.
 func (p *peer) Handshake(network uint64, td *big.Int, head common.Hash, genesis common.Hash, forkID forkid.ID, forkFilter forkid.Filter) error {
 	// Send out own handshake in a new thread
@@ -834,7 +834,7 @@ func (p *peer) readStatus(network uint64, status *statusData, genesis common.Has
 // String implements fmt.Stringer.
 func (p *peer) String() string {
 	return fmt.Sprintf("Peer %s [%s]", p.id,
-		fmt.Sprintf("etrue/%2d", p.version),
+		fmt.Sprintf("ups/%2d", p.version),
 	)
 }
 

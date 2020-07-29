@@ -9,7 +9,7 @@ import (
 	"strings"
 
 	"github.com/truechain/ups/cmd/utils"
-	"github.com/truechain/ups/etrue"
+	"github.com/truechain/ups/ups"
 	"github.com/truechain/ups/params"
 	"gopkg.in/urfave/cli.v1"
 )
@@ -41,8 +41,8 @@ func version(ctx *cli.Context) error {
 		fmt.Println("Git Commit:", gitCommit)
 	}
 	fmt.Println("Architecture:", runtime.GOARCH)
-	fmt.Println("Protocol Versions:", etrue.ProtocolVersions)
-	fmt.Println("Network Id:", etrue.DefaultConfig.NetworkId)
+	fmt.Println("Protocol Versions:", ups.ProtocolVersions)
+	fmt.Println("Network Id:", ups.DefaultConfig.NetworkId)
 	fmt.Println("Go Version:", runtime.Version())
 	fmt.Println("Operating System:", runtime.GOOS)
 	fmt.Printf("GOPATH=%s\n", os.Getenv("GOPATH"))

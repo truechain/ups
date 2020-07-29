@@ -51,7 +51,7 @@ const (
 )
 
 var (
-	LocalTxMetrics = metrics.NewRegisteredMeter("etrue/prop/local_tx/in", nil)
+	LocalTxMetrics = metrics.NewRegisteredMeter("ups/prop/local_tx/in", nil)
 )
 
 // PublicTrueAPI provides an API to access True related information.

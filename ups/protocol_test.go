@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with the go-ethereum library. If not, see <http://www.gnu.org/licenses/>.
 
-package etrue
+package ups
 
 import (
 	"fmt"
@@ -26,7 +26,7 @@ import (
 	"github.com/truechain/ups/crypto"
 	"github.com/truechain/ups/rlp"
 	"github.com/truechain/ups/core/types"
-	"github.com/truechain/ups/etrue/downloader"
+	"github.com/truechain/ups/ups/downloader"
 	"github.com/truechain/ups/p2p"
 )
 

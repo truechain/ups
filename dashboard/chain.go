@@ -30,7 +30,7 @@ type fastChainInfo struct {
 // collectTxpoolData gathers data about the tx_pool and sends it to the clients.
 func (db *Dashboard) collectChainData() {
 	defer db.wg.Done()
-	fastchain := db.etrue.BlockChain()
+	fastchain := db.ups.BlockChain()
 
 	for {
 		select {

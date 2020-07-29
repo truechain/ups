@@ -390,9 +390,9 @@ func (c *Client) BatchCallContext(ctx context.Context, b []BatchElem) error {
 	return err
 }
 
-// EthSubscribe registers a subscripion under the "etrue" namespace.
+// EthSubscribe registers a subscripion under the "ups" namespace.
 func (c *Client) EthSubscribe(ctx context.Context, channel interface{}, args ...interface{}) (*ClientSubscription, error) {
-	return c.Subscribe(ctx, "etrue", channel, args...)
+	return c.Subscribe(ctx, "ups", channel, args...)
 }
 
 // ShhSubscribe registers a subscripion under the "shh" namespace.

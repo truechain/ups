@@ -99,7 +99,7 @@ func main() {
 
 //send transaction init
 func send(count int, ip string) {
-	//dial etrue
+	//dial ups
 	client, err := rpc.Dial("http://" + ip)
 
 	defer client.Close()

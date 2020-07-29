@@ -14,8 +14,8 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with the go-ethereum library. If not, see <http://www.gnu.org/licenses/>.
 
-// Package etrue implements the Truechain protocol.
-package etrue
+// Package ups implements the Truechain protocol.
+package ups
 
 import (
 	"errors"
@@ -38,9 +38,9 @@ import (
 	"github.com/truechain/ups/core/types"
 	"github.com/truechain/ups/core/vm"
 	"github.com/truechain/ups/crypto"
-	"github.com/truechain/ups/etrue/downloader"
-	"github.com/truechain/ups/etrue/filters"
-	"github.com/truechain/ups/etrue/gasprice"
+	"github.com/truechain/ups/ups/downloader"
+	"github.com/truechain/ups/ups/filters"
+	"github.com/truechain/ups/ups/gasprice"
 	"github.com/truechain/ups/etruedb"
 	"github.com/truechain/ups/event"
 	"github.com/truechain/ups/internal/trueapi"
@@ -101,7 +101,7 @@ func (s *Truechain) AddLesServer(ls LesServer) {
 // initialisation of the common Truechain object)
 func New(ctx *node.ServiceContext, config *Config) (*Truechain, error) {
 	if config.SyncMode == downloader.LightSync {
-		return nil, errors.New("can't run etrue.Truechain in light sync mode, use les.LightTruechain")
+		return nil, errors.New("can't run ups.Truechain in light sync mode, use les.LightTruechain")
 	}
 	if !config.SyncMode.IsValid() {
 		return nil, fmt.Errorf("invalid sync mode %d", config.SyncMode)
@@ -123,7 +123,7 @@ func New(ctx *node.ServiceContext, config *Config) (*Truechain, error) {
 		config.MinerGasCeil = config.Genesis.GasLimit * 11 / 10
 	}*/
 
-	etrue := &Truechain{
+	ups := &Truechain{
 		config:         config,
 		chainDb:        chainDb,
 		chainConfig:    chainConfig,
@@ -151,7 +151,7 @@ func New(ctx *node.ServiceContext, config *Config) (*Truechain, error) {
 		cacheConfig = &core.CacheConfig{Deleted: config.DeletedState, Disabled: config.NoPruning, TrieNodeLimit: config.TrieCache, TrieTimeLimit: config.TrieTimeout}
 	)
 
-	etrue.blockchain, err = core.NewBlockChain(chainDb, cacheConfig, etrue.chainConfig, etrue.engine, vmConfig)
+	ups.blockchain, err = core.NewBlockChain(chainDb, cacheConfig, ups.chainConfig, ups.engine, vmConfig)
 	if err != nil {
 		return nil, err
 	}
@@ -159,39 +159,39 @@ func New(ctx *node.ServiceContext, config *Config) (*Truechain, error) {
 	// Rewind the chain in case of an incompatible config upgrade.
 	if compat, ok := genesisErr.(*params.ConfigCompatError); ok {
 		log.Warn("Rewinding chain to upgrade configuration", "err", compat)
-		etrue.blockchain.SetHead(compat.RewindTo)
+		ups.blockchain.SetHead(compat.RewindTo)
 		rawdb.WriteChainConfig(chainDb, genesisHash, chainConfig)
 	}
 
-	etrue.bloomIndexer.Start(etrue.blockchain)
+	ups.bloomIndexer.Start(ups.blockchain)
 	consensus.InitTIP8(chainConfig)
 	if config.TxPool.Journal != "" {
 		config.TxPool.Journal = ctx.ResolvePath(config.TxPool.Journal)
 	}
-	etrue.txPool = core.NewTxPool(config.TxPool, etrue.chainConfig, etrue.blockchain)
-	etrue.election = elect.NewElection(etrue.chainConfig, etrue.blockchain, etrue.config)
+	ups.txPool = core.NewTxPool(config.TxPool, ups.chainConfig, ups.blockchain)
+	ups.election = elect.NewElection(ups.chainConfig, ups.blockchain, ups.config)
 	checkpoint := config.Checkpoint
 	cacheLimit := cacheConfig.TrieCleanLimit
 
-	etrue.engine.SetElection(etrue.election)
-	etrue.election.SetEngine(etrue.engine)
+	ups.engine.SetElection(ups.election)
+	ups.election.SetEngine(ups.engine)
 
-	etrue.agent = NewPbftAgent(etrue, etrue.chainConfig, etrue.engine, etrue.election, config.MinerGasFloor, config.MinerGasCeil)
+	ups.agent = NewPbftAgent(ups, ups.chainConfig, ups.engine, ups.election, config.MinerGasFloor, config.MinerGasCeil)
 
-	if etrue.protocolManager, err = NewProtocolManager(
-		etrue.chainConfig,checkpoint, config.SyncMode, config.NetworkId,
-		etrue.eventMux, etrue.txPool, etrue.engine,
-		etrue.blockchain, chainDb, etrue.agent,cacheLimit,config.Whitelist); err != nil {
+	if ups.protocolManager, err = NewProtocolManager(
+		ups.chainConfig,checkpoint, config.SyncMode, config.NetworkId,
+		ups.eventMux, ups.txPool, ups.engine,
+		ups.blockchain, chainDb, ups.agent,cacheLimit,config.Whitelist); err != nil {
 		return nil, err
 	}
 
-	etrue.APIBackend = &TrueAPIBackend{etrue, nil}
+	ups.APIBackend = &TrueAPIBackend{ups, nil}
 	gpoParams := config.GPO
 	if gpoParams.Default == nil {
 		gpoParams.Default = config.GasPrice
 	}
-	etrue.APIBackend.gpo = gasprice.NewOracle(etrue.APIBackend, gpoParams)
-	return etrue, nil
+	ups.APIBackend.gpo = gasprice.NewOracle(ups.APIBackend, gpoParams)
+	return ups, nil
 }
 func makeExtraData(extra []byte) []byte {
 	if len(extra) == 0 {
@@ -217,7 +217,7 @@ func CreateDB(ctx *node.ServiceContext, config *Config, name string) (etruedb.Da
 		return nil, err
 	}
 	if db, ok := db.(*etruedb.LDBDatabase); ok {
-		db.Meter("etrue/db/chaindata/")
+		db.Meter("ups/db/chaindata/")
 	}
 	return db, nil
 }
@@ -249,7 +249,7 @@ func CreateConsensusEngine(ctx *node.ServiceContext, config *ethash.Config,db et
 	}
 }
 
-// APIs return the collection of RPC services the etrue package offers.
+// APIs return the collection of RPC services the ups package offers.
 // NOTE, some of these services probably need to be moved to somewhere else.
 func (s *Truechain) APIs() []rpc.API {
 	apis := trueapi.GetAPIs(s.APIBackend)
@@ -257,8 +257,8 @@ func (s *Truechain) APIs() []rpc.API {
 	// Append any APIs exposed explicitly by the consensus engine
 	apis = append(apis, s.engine.APIs(s.BlockChain())...)
 
-	// Append etrue	APIs and  Eth APIs
-	namespaces := []string{"etrue", "eth"}
+	// Append ups	APIs and  Eth APIs
+	namespaces := []string{"ups", "eth"}
 	for _, name := range namespaces {
 		apis = append(apis, []rpc.API{
 			{
