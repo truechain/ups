@@ -49,7 +49,7 @@ import (
 	"github.com/truechain/ups/ups/downloader"
 	"github.com/truechain/ups/ups/gasprice"
 	"github.com/truechain/ups/upsdb"
-	"github.com/truechain/ups/etruestats"
+	"github.com/truechain/ups/upsstats"
 	"github.com/truechain/ups/log"
 	"github.com/truechain/ups/metrics"
 	"github.com/truechain/ups/metrics/influxdb"
@@ -346,8 +346,8 @@ var (
 	}
 	// Logging and debug settings
 	EtrueStatsURLFlag = cli.StringFlag{
-		Name:  "etruestats",
-		Usage: "Reporting URL of a etruestats service (nodename:secret@host:port)",
+		Name:  "upsstats",
+		Usage: "Reporting URL of a upsstats service (nodename:secret@host:port)",
 	}
 	FakePoWFlag = cli.BoolFlag{
 		Name:  "fakepow",
@@ -1135,7 +1135,7 @@ func RegisterEtrueStatsService(stack *node.Node, url string) {
 		var etrueServ *ups.Truechain
 		ctx.Service(&etrueServ)
 
-		return etruestats.New(url, etrueServ)
+		return upsstats.New(url, etrueServ)
 	}); err != nil {
 		Fatalf("Failed to register the Truechain Stats service: %v", err)
 	}
