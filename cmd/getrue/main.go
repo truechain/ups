@@ -17,7 +17,7 @@ import (
 	"github.com/truechain/ups/accounts/keystore"
 	"github.com/truechain/ups/cmd/utils"
 	"github.com/truechain/ups/console"
-	"github.com/truechain/ups/etrueclient"
+	"github.com/truechain/ups/upsclient"
 	"github.com/truechain/ups/internal/debug"
 	"github.com/truechain/ups/log"
 	"github.com/truechain/ups/metrics"
@@ -256,7 +256,7 @@ func startNode(ctx *cli.Context, stack *node.Node) {
 		if err != nil {
 			utils.Fatalf("Failed to attach to self: %v", err)
 		}
-		stateReader := etrueclient.NewClient(rpcClient)
+		stateReader := upsclient.NewClient(rpcClient)
 
 		// Open any wallets already attached
 		for _, wallet := range stack.AccountManager().Wallets() {

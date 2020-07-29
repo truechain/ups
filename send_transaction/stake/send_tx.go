@@ -16,7 +16,7 @@ import (
 	"github.com/truechain/ups/core/types"
 	"github.com/truechain/ups/core/vm"
 	"github.com/truechain/ups/crypto"
-	"github.com/truechain/ups/etrueclient"
+	"github.com/truechain/ups/upsclient"
 	tlog "github.com/truechain/ups/log"
 	"gopkg.in/urfave/cli.v1"
 	"io/ioutil"
@@ -172,7 +172,7 @@ func impawn(ctx *cli.Context) error {
 	return nil
 }
 
-func loop(conn *etrueclient.Client, header *types.Header, ctx *cli.Context) {
+func loop(conn *upsclient.Client, header *types.Header, ctx *cli.Context) {
 	loopMutex.Lock()
 	defer loopMutex.Unlock()
 	number := header.Number.Uint64()
@@ -335,7 +335,7 @@ func loadKeyAccounts() {
 	load = false
 }
 
-func startDelegateTx(conn *etrueclient.Client, diff, number uint64, query bool) {
+func startDelegateTx(conn *upsclient.Client, diff, number uint64, query bool) {
 	for i := 0; i < len(delegateAddr); i++ {
 		addr := delegateAddr[i]
 		key := delegateKey[i]
@@ -403,7 +403,7 @@ func startDelegateTx(conn *etrueclient.Client, diff, number uint64, query bool) 
 
 //value := queryDelegateInfo(conn, addr)
 
-func redistributionDelegate(conn *etrueclient.Client) {
+func redistributionDelegate(conn *upsclient.Client) {
 	loopCount = 0
 	deleValue = getBalance(conn, from)
 	if delegateNum > 0 {
@@ -431,7 +431,7 @@ func redistributionDelegate(conn *etrueclient.Client) {
 	writeNodesJSON(defaultKeyAccount, kas)
 }
 
-func deposit(ctx *cli.Context, conn *etrueclient.Client, value *big.Int) {
+func deposit(ctx *cli.Context, conn *upsclient.Client, value *big.Int) {
 	fee := ctx.GlobalUint64(FeeFlag.Name)
 	pubkey, pk, _ := getPubKey(ctx, conn)
 
@@ -441,7 +441,7 @@ func deposit(ctx *cli.Context, conn *etrueclient.Client, value *big.Int) {
 	getResult(conn, txHash, true, false)
 }
 
-func getBalance(conn *etrueclient.Client, address common.Address) *big.Int {
+func getBalance(conn *upsclient.Client, address common.Address) *big.Int {
 	balance, err := conn.BalanceAt(context.Background(), address, nil)
 	if err != nil {
 		log.Fatal(err)
@@ -449,7 +449,7 @@ func getBalance(conn *etrueclient.Client, address common.Address) *big.Int {
 	return balance
 }
 
-func sendOtherContractTransaction(client *etrueclient.Client, f, toAddress common.Address, value *big.Int, privateKey *ecdsa.PrivateKey, input []byte, method string) (common.Hash, error) {
+func sendOtherContractTransaction(client *upsclient.Client, f, toAddress common.Address, value *big.Int, privateKey *ecdsa.PrivateKey, input []byte, method string) (common.Hash, error) {
 	blockMutex.Lock()
 	defer blockMutex.Unlock()
 	nonceOther, _ := client.PendingNonceAt(context.Background(), f)
@@ -469,7 +469,7 @@ func sendOtherContractTransaction(client *etrueclient.Client, f, toAddress commo
 	return signedTx.Hash(), err
 }
 
-func sendContractTransaction(client *etrueclient.Client, from, toAddress common.Address, value *big.Int, privateKey *ecdsa.PrivateKey, input []byte, method string) (common.Hash, error) {
+func sendContractTransaction(client *upsclient.Client, from, toAddress common.Address, value *big.Int, privateKey *ecdsa.PrivateKey, input []byte, method string) (common.Hash, error) {
 	blockMutex.Lock()
 	defer blockMutex.Unlock()
 
@@ -603,7 +603,7 @@ func weiToTrue(value *big.Int) uint64 {
 	return valueT
 }
 
-func getResult(conn *etrueclient.Client, txHash common.Hash, contract bool, delegate bool) {
+func getResult(conn *upsclient.Client, txHash common.Hash, contract bool, delegate bool) {
 	fmt.Println("Please waiting ", " txHash ", txHash.String())
 	//count := 0
 	//for {
@@ -625,7 +625,7 @@ func getResult(conn *etrueclient.Client, txHash common.Hash, contract bool, dele
 	//queryTx(conn, txHash, contract, false, delegate)
 }
 
-func querySendTx(conn *etrueclient.Client, number uint64) {
+func querySendTx(conn *upsclient.Client, number uint64) {
 	for addr, v := range delegateTx {
 		_, isPending, err := conn.TransactionByHash(context.Background(), v)
 		if err != nil {
@@ -678,7 +678,7 @@ func querySendTx(conn *etrueclient.Client, number uint64) {
 	}
 }
 
-func queryTx(conn *etrueclient.Client, txHash common.Hash, contract bool, pending bool, delegate bool) bool {
+func queryTx(conn *upsclient.Client, txHash common.Hash, contract bool, pending bool, delegate bool) bool {
 	if pending {
 		_, isPending, err := conn.TransactionByHash(context.Background(), txHash)
 		if err != nil {
@@ -720,7 +720,7 @@ func packInput(abiMethod string, params ...interface{}) []byte {
 	return input
 }
 
-func PrintBalance(conn *etrueclient.Client, from common.Address) {
+func PrintBalance(conn *upsclient.Client, from common.Address) {
 	balance, err := conn.BalanceAt(context.Background(), from, nil)
 	if err != nil {
 		log.Fatal(err)
@@ -751,21 +751,21 @@ func loadPrivate(ctx *cli.Context) {
 	}
 }
 
-func dialConn(ctx *cli.Context) (*etrueclient.Client, string) {
+func dialConn(ctx *cli.Context) (*upsclient.Client, string) {
 	ip = ctx.GlobalString(utils.RPCListenAddrFlag.Name)
 	port = ctx.GlobalInt(utils.RPCPortFlag.Name)
 
 	url := fmt.Sprintf("http://%s", fmt.Sprintf("%s:%d", ip, port))
 	// Create an IPC based RPC connection to a remote node
 	// "http://39.100.97.129:8545"
-	conn, err := etrueclient.Dial(url)
+	conn, err := upsclient.Dial(url)
 	if err != nil {
 		log.Fatalf("Failed to connect to the Truechain client: %v", err)
 	}
 	return conn, url
 }
 
-func getPubKey(ctx *cli.Context, conn *etrueclient.Client) (string, []byte, error) {
+func getPubKey(ctx *cli.Context, conn *upsclient.Client) (string, []byte, error) {
 	var (
 		pubkey string
 		err    error
@@ -794,7 +794,7 @@ func getPubKey(ctx *cli.Context, conn *etrueclient.Client) (string, []byte, erro
 	return pubkey, pk, err
 }
 
-func printBaseInfo(conn *etrueclient.Client, url string) *types.Header {
+func printBaseInfo(conn *upsclient.Client, url string) *types.Header {
 	header, err := conn.HeaderByNumber(context.Background(), nil)
 	if err != nil {
 		log.Fatal(err)
@@ -827,7 +827,7 @@ func loadSigningKey(keyfile string) common.Address {
 	return from
 }
 
-func queryStakingInfo(conn *etrueclient.Client, query bool, delegate bool) (uint64, uint64) {
+func queryStakingInfo(conn *upsclient.Client, query bool, delegate bool) (uint64, uint64) {
 	header, err := conn.HeaderByNumber(context.Background(), nil)
 	if err != nil {
 		log.Fatal(err)
@@ -878,7 +878,7 @@ func queryStakingInfo(conn *etrueclient.Client, query bool, delegate bool) (uint
 	return 0, 0
 }
 
-func queryDelegateInfo(conn *etrueclient.Client, daAddress common.Address) (uint64, uint64) {
+func queryDelegateInfo(conn *upsclient.Client, daAddress common.Address) (uint64, uint64) {
 	header, err := conn.HeaderByNumber(context.Background(), nil)
 	if err != nil {
 		log.Fatal(err)
@@ -952,7 +952,7 @@ func isExist(f string) bool {
 	return err == nil || os.IsExist(err)
 }
 
-func queryRewardInfo(conn *etrueclient.Client, snailNumber uint64, address common.Address) (bool, uint64) {
+func queryRewardInfo(conn *upsclient.Client, snailNumber uint64, address common.Address) (bool, uint64) {
 	queryReward := snailNumber - 14
 
 	var crc map[string]interface{}

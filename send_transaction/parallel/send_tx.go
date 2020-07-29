@@ -13,7 +13,7 @@ import (
 	"github.com/truechain/ups/console"
 	"github.com/truechain/ups/core/types"
 	"github.com/truechain/ups/crypto"
-	"github.com/truechain/ups/etrueclient"
+	"github.com/truechain/ups/upsclient"
 	tlog "github.com/truechain/ups/log"
 	"gopkg.in/urfave/cli.v1"
 	"io/ioutil"
@@ -117,7 +117,7 @@ func impawn(ctx *cli.Context) error {
 	return nil
 }
 
-func loop(conn *etrueclient.Client, ctx *cli.Context) {
+func loop(conn *upsclient.Client, ctx *cli.Context) {
 	loopMutex.Lock()
 	defer loopMutex.Unlock()
 	if nonceEpoch > 0 {
@@ -133,7 +133,7 @@ func loop(conn *etrueclient.Client, ctx *cli.Context) {
 	}
 }
 
-func startDelegateTx(conn *etrueclient.Client) {
+func startDelegateTx(conn *upsclient.Client) {
 
 	for addr, v := range delegateFail {
 		if v {
@@ -164,7 +164,7 @@ func startDelegateTx(conn *etrueclient.Client) {
 }
 
 //send count transaction
-func sendTransactions(client *etrueclient.Client, value *big.Int) {
+func sendTransactions(client *upsclient.Client, value *big.Int) {
 	waitGroup := &sync.WaitGroup{}
 	Time := time.Now()
 
@@ -181,7 +181,7 @@ func sendTransactions(client *etrueclient.Client, value *big.Int) {
 	fmt.Println(" Complete ", count, " time ", Time, " count ", delegateNum)
 }
 
-func initAccount(conn *etrueclient.Client) {
+func initAccount(conn *upsclient.Client) {
 	deleValue = getBalance(conn, from)
 	if delegateNum > 0 {
 		sendValue = new(big.Int).Div(deleValue, new(big.Int).SetInt64(int64(delegateNum*10000)))
@@ -203,7 +203,7 @@ func initAccount(conn *etrueclient.Client) {
 	writeNodesJSON(defaultKeyAccount, kas)
 }
 
-func getBalance(conn *etrueclient.Client, address common.Address) *big.Int {
+func getBalance(conn *upsclient.Client, address common.Address) *big.Int {
 	balance, err := conn.BalanceAt(context.Background(), address, nil)
 	if err != nil {
 		log.Fatal(err)
@@ -211,7 +211,7 @@ func getBalance(conn *etrueclient.Client, address common.Address) *big.Int {
 	return balance
 }
 
-func sendOtherContractTransaction(client *etrueclient.Client, toAddress common.Address, value *big.Int, privateKey *ecdsa.PrivateKey, nonceOther uint64, wait *sync.WaitGroup) (common.Hash, error) {
+func sendOtherContractTransaction(client *upsclient.Client, toAddress common.Address, value *big.Int, privateKey *ecdsa.PrivateKey, nonceOther uint64, wait *sync.WaitGroup) (common.Hash, error) {
 	defer wait.Done()
 
 	gasLimit := uint64(210000) // in units
@@ -235,7 +235,7 @@ func sendOtherContractTransaction(client *etrueclient.Client, toAddress common.A
 	return signedTx.Hash(), err
 }
 
-func sendSonTransaction(client *etrueclient.Client, from, toAddress common.Address, value *big.Int, privateKey *ecdsa.PrivateKey, input []byte, method string) (common.Hash, error) {
+func sendSonTransaction(client *upsclient.Client, from, toAddress common.Address, value *big.Int, privateKey *ecdsa.PrivateKey, input []byte, method string) (common.Hash, error) {
 	blockMutex.Lock()
 	defer blockMutex.Unlock()
 
@@ -304,7 +304,7 @@ func printError(error ...interface{}) {
 	log.Fatal(error)
 }
 
-func querySendTx(conn *etrueclient.Client) {
+func querySendTx(conn *upsclient.Client) {
 	if len(delegateSu) != delegateNum {
 		for addr, v := range delegateTx {
 			if _, ok := delegateSu[addr]; ok {
@@ -324,7 +324,7 @@ func querySendTx(conn *etrueclient.Client) {
 	}
 }
 
-func queryTx(conn *etrueclient.Client, txHash common.Hash, contract bool, pending bool, delegate bool) bool {
+func queryTx(conn *upsclient.Client, txHash common.Hash, contract bool, pending bool, delegate bool) bool {
 	if pending {
 		_, isPending, err := conn.TransactionByHash(context.Background(), txHash)
 		if err != nil {
@@ -355,7 +355,7 @@ func queryTx(conn *etrueclient.Client, txHash common.Hash, contract bool, pendin
 	return false
 }
 
-func PrintBalance(conn *etrueclient.Client, from common.Address) {
+func PrintBalance(conn *upsclient.Client, from common.Address) {
 	balance, err := conn.BalanceAt(context.Background(), from, nil)
 	if err != nil {
 		log.Fatal(err)
@@ -386,21 +386,21 @@ func loadPrivate(ctx *cli.Context) {
 	}
 }
 
-func dialConn(ctx *cli.Context) (*etrueclient.Client, string) {
+func dialConn(ctx *cli.Context) (*upsclient.Client, string) {
 	ip = ctx.GlobalString(utils.RPCListenAddrFlag.Name)
 	port = ctx.GlobalInt(utils.RPCPortFlag.Name)
 
 	url := fmt.Sprintf("http://%s", fmt.Sprintf("%s:%d", ip, port))
 	// Create an IPC based RPC connection to a remote node
 	// "http://39.100.97.129:8545"
-	conn, err := etrueclient.Dial(url)
+	conn, err := upsclient.Dial(url)
 	if err != nil {
 		log.Fatalf("Failed to connect to the Truechain client: %v", err)
 	}
 	return conn, url
 }
 
-func printBaseInfo(conn *etrueclient.Client, url string) *types.Header {
+func printBaseInfo(conn *upsclient.Client, url string) *types.Header {
 	header, err := conn.HeaderByNumber(context.Background(), nil)
 	if err != nil {
 		log.Fatal(err)

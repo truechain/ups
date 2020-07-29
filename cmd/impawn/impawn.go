@@ -14,7 +14,7 @@ import (
 	"github.com/truechain/ups/core/types"
 	"github.com/truechain/ups/core/vm"
 	"github.com/truechain/ups/crypto"
-	"github.com/truechain/ups/etrueclient"
+	"github.com/truechain/ups/upsclient"
 	"gopkg.in/urfave/cli.v1"
 	"io/ioutil"
 	"log"
@@ -84,7 +84,7 @@ func checkFee(fee *big.Int) {
 	}
 }
 
-func getPubKey(ctx *cli.Context, conn *etrueclient.Client) (string, []byte, error) {
+func getPubKey(ctx *cli.Context, conn *upsclient.Client) (string, []byte, error) {
 	var (
 		pubkey string
 		err    error
@@ -113,7 +113,7 @@ func getPubKey(ctx *cli.Context, conn *etrueclient.Client) (string, []byte, erro
 	return pubkey, pk, err
 }
 
-func sendContractTransaction(client *etrueclient.Client, from, toAddress common.Address, value *big.Int, privateKey *ecdsa.PrivateKey, input []byte) common.Hash {
+func sendContractTransaction(client *upsclient.Client, from, toAddress common.Address, value *big.Int, privateKey *ecdsa.PrivateKey, input []byte) common.Hash {
 	// Ensure a valid value field and resolve the account nonce
 	nonce, err := client.PendingNonceAt(context.Background(), from)
 	if err != nil {
@@ -249,7 +249,7 @@ func weiToTrue(value *big.Int) uint64 {
 	return valueT
 }
 
-func getResult(conn *etrueclient.Client, txHash common.Hash, contract bool, delegate bool) {
+func getResult(conn *upsclient.Client, txHash common.Hash, contract bool, delegate bool) {
 	fmt.Println("Please waiting ", " txHash ", txHash.String())
 
 	count := 0
@@ -272,7 +272,7 @@ func getResult(conn *etrueclient.Client, txHash common.Hash, contract bool, dele
 	queryTx(conn, txHash, contract, false, delegate)
 }
 
-func queryTx(conn *etrueclient.Client, txHash common.Hash, contract bool, pending bool, delegate bool) {
+func queryTx(conn *upsclient.Client, txHash common.Hash, contract bool, pending bool, delegate bool) {
 
 	if pending {
 		_, isPending, err := conn.TransactionByHash(context.Background(), txHash)
@@ -313,7 +313,7 @@ func packInput(abiMethod string, params ...interface{}) []byte {
 	return input
 }
 
-func PrintBalance(conn *etrueclient.Client, from common.Address) {
+func PrintBalance(conn *upsclient.Client, from common.Address) {
 	balance, err := conn.BalanceAt(context.Background(), from, nil)
 	if err != nil {
 		log.Fatal(err)
@@ -342,21 +342,21 @@ func loadPrivate(ctx *cli.Context) {
 	}
 }
 
-func dialConn(ctx *cli.Context) (*etrueclient.Client, string) {
+func dialConn(ctx *cli.Context) (*upsclient.Client, string) {
 	ip = ctx.GlobalString(utils.RPCListenAddrFlag.Name)
 	port = ctx.GlobalInt(utils.RPCPortFlag.Name)
 
 	url := fmt.Sprintf("http://%s", fmt.Sprintf("%s:%d", ip, port))
 	// Create an IPC based RPC connection to a remote node
 	// "http://39.100.97.129:8545"
-	conn, err := etrueclient.Dial(url)
+	conn, err := upsclient.Dial(url)
 	if err != nil {
 		log.Fatalf("Failed to connect to the Truechain client: %v", err)
 	}
 	return conn, url
 }
 
-func printBaseInfo(conn *etrueclient.Client, url string) *types.Header {
+func printBaseInfo(conn *upsclient.Client, url string) *types.Header {
 	header, err := conn.HeaderByNumber(context.Background(), nil)
 	if err != nil {
 		log.Fatal(err)
@@ -389,7 +389,7 @@ func loadSigningKey(keyfile string) common.Address {
 	return from
 }
 
-func queryRewardInfo(conn *etrueclient.Client, number uint64, start bool) {
+func queryRewardInfo(conn *upsclient.Client, number uint64, start bool) {
 	queryReward := number
 	var crc map[string]interface{}
 	crc, err = conn.GetChainRewardContent(context.Background(), from, new(big.Int).SetUint64(queryReward))
@@ -403,7 +403,7 @@ func queryRewardInfo(conn *etrueclient.Client, number uint64, start bool) {
 	}
 }
 
-func queryStakingInfo(conn *etrueclient.Client, query bool, delegate bool) {
+func queryStakingInfo(conn *upsclient.Client, query bool, delegate bool) {
 	header, err := conn.HeaderByNumber(context.Background(), nil)
 	if err != nil {
 		log.Fatal(err)

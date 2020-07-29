@@ -11,7 +11,7 @@ import (
 	"github.com/truechain/ups/common/hexutil"
 	"github.com/truechain/ups/core/types"
 	"github.com/truechain/ups/crypto"
-	"github.com/truechain/ups/etrueclient"
+	"github.com/truechain/ups/upsclient"
 	"github.com/truechain/ups/rpc"
 	"gopkg.in/urfave/cli.v1"
 	"log"
@@ -19,14 +19,14 @@ import (
 	"reflect"
 )
 
-func cancel(conn *etrueclient.Client, value *big.Int) error {
+func cancel(conn *upsclient.Client, value *big.Int) error {
 	input := packInput("cancel", value)
 	txHash, _ := sendContractTransaction(conn, from, types.StakingAddress, new(big.Int).SetInt64(0), priKey, input, "cancel")
 	getResult(conn, txHash, true, false)
 	return nil
 }
 
-func withdrawImpawn(conn *etrueclient.Client, value *big.Int) (common.Hash, error) {
+func withdrawImpawn(conn *upsclient.Client, value *big.Int) (common.Hash, error) {
 	input := packInput("withdraw", value)
 	txHash, err := sendContractTransaction(conn, from, types.StakingAddress, new(big.Int).SetInt64(0), priKey, input, "withdrawImpawn")
 	getResult(conn, txHash, true, false)
@@ -73,21 +73,21 @@ func sendTX(ctx *cli.Context) error {
 	return nil
 }
 
-func delegateImpawn(conn *etrueclient.Client, value *big.Int, address common.Address, key *ecdsa.PrivateKey) (common.Hash, error) {
+func delegateImpawn(conn *upsclient.Client, value *big.Int, address common.Address, key *ecdsa.PrivateKey) (common.Hash, error) {
 	input := packInput("delegate", from, value)
 	txHash, err := sendOtherContractTransaction(conn, address, types.StakingAddress, nil, key, input, "delegateImpawn")
 	getResult(conn, txHash, true, true)
 	return txHash, err
 }
 
-func cancelDImpawn(conn *etrueclient.Client, value *big.Int, address common.Address, key *ecdsa.PrivateKey) error {
+func cancelDImpawn(conn *upsclient.Client, value *big.Int, address common.Address, key *ecdsa.PrivateKey) error {
 	input := packInput("undelegate", from, value)
 	txHash, err := sendOtherContractTransaction(conn, address, types.StakingAddress, new(big.Int).SetInt64(0), key, input, "cancelDImpawn")
 	getResult(conn, txHash, true, true)
 	return err
 }
 
-func withdrawDImpawn(conn *etrueclient.Client, value *big.Int, address common.Address, key *ecdsa.PrivateKey) (common.Hash, error) {
+func withdrawDImpawn(conn *upsclient.Client, value *big.Int, address common.Address, key *ecdsa.PrivateKey) (common.Hash, error) {
 	input := packInput("withdrawDelegate", from, value)
 	txHash, err := sendOtherContractTransaction(conn, address, types.StakingAddress, new(big.Int).SetInt64(0), key, input, "withdrawDImpawn")
 	getResult(conn, txHash, true, true)
@@ -127,7 +127,7 @@ func queryLogImpawn(ctx *cli.Context) error {
 	return nil
 }
 
-func filterLogs(client *etrueclient.Client) {
+func filterLogs(client *upsclient.Client) {
 	method := "Deposit"
 	contractAddress := types.StakingAddress
 	//address := common.HexToAddress("0x25e7ba30a8ca432996553987da8d9f855016059b")
