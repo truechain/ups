@@ -1,4 +1,4 @@
-// Contains the getrue command usage template and generator.
+// Contains the gups command usage template and generator.
 
 package main
 

@@ -2,20 +2,20 @@
 # with Go source code. If you know what GOPATH is then you probably
 # don't need to bother with make.
 
-.PHONY: getrue deps android ios getrue-cross swarm evm all test clean
-.PHONY: getrue-linux getrue-linux-386 getrue-linux-amd64 getrue-linux-mips64 getrue-linux-mips64le
-.PHONY: getrue-linux-arm getrue-linux-arm-5 getrue-linux-arm-6 getrue-linux-arm-7 getrue-linux-arm64
-.PHONY: getrue-darwin getrue-darwin-386 getrue-darwin-amd64
-.PHONY: getrue-windows getrue-windows-386 getrue-windows-amd64
+.PHONY: gups deps android ios gups-cross swarm evm all test clean
+.PHONY: gups-linux gups-linux-386 gups-linux-amd64 gups-linux-mips64 gups-linux-mips64le
+.PHONY: gups-linux-arm gups-linux-arm-5 gups-linux-arm-6 gups-linux-arm-7 gups-linux-arm64
+.PHONY: gups-darwin gups-darwin-386 gups-darwin-amd64
+.PHONY: gups-windows gups-windows-386 gups-windows-amd64
 
 GOBIN = $(shell pwd)/build/bin
 GO ?= latest
 DEPS = $(shell pwd)/internal/jsre/deps
 
-getrue:
-	build/env.sh go run build/ci.go install ./cmd/getrue
+gups:
+	build/env.sh go run build/ci.go install ./cmd/gups
 	@echo "Done building."
-	@echo "Run \"$(GOBIN)/getrue\" to launch getrue."
+	@echo "Run \"$(GOBIN)/gups\" to launch gups."
 
 deps:
 	cd $(DEPS) &&	go-bindata -nometadata -pkg deps -o bindata.go bignumber.js web3.js
@@ -33,7 +33,7 @@ all:
 # android:
 #	build/env.sh go run build/ci.go aar --local
 #	@echo "Done building."
-#	@echo "Import \"$(GOBIN)/getrue.aar\" to use the library."
+#	@echo "Import \"$(GOBIN)/gups.aar\" to use the library."
 
 # ios:
 #	build/env.sh go run build/ci.go xcode --local
@@ -64,92 +64,92 @@ devtools:
 
 # Cross Compilation Targets (xgo)
 
-getrue-cross: getrue-linux getrue-darwin getrue-windows getrue-android getrue-ios
+gups-cross: gups-linux gups-darwin gups-windows gups-android gups-ios
 	@echo "Full cross compilation done:"
-	@ls -ld $(GOBIN)/getrue-*
+	@ls -ld $(GOBIN)/gups-*
 
-getrue-linux: getrue-linux-386 getrue-linux-amd64 getrue-linux-arm getrue-linux-mips64 getrue-linux-mips64le
+gups-linux: gups-linux-386 gups-linux-amd64 gups-linux-arm gups-linux-mips64 gups-linux-mips64le
 	@echo "Linux cross compilation done:"
-	@ls -ld $(GOBIN)/getrue-linux-*
+	@ls -ld $(GOBIN)/gups-linux-*
 
-getrue-linux-386:
-	build/env.sh go run build/ci.go xgo -- --go=$(GO) --targets=linux/386 -v ./cmd/getrue
+gups-linux-386:
+	build/env.sh go run build/ci.go xgo -- --go=$(GO) --targets=linux/386 -v ./cmd/gups
 	@echo "Linux 386 cross compilation done:"
-	@ls -ld $(GOBIN)/getrue-linux-* | grep 386
+	@ls -ld $(GOBIN)/gups-linux-* | grep 386
 
-getrue-linux-amd64:
-	build/env.sh go run build/ci.go xgo -- --go=$(GO) --targets=linux/amd64 -v ./cmd/getrue
+gups-linux-amd64:
+	build/env.sh go run build/ci.go xgo -- --go=$(GO) --targets=linux/amd64 -v ./cmd/gups
 	@echo "Linux amd64 cross compilation done:"
-	@ls -ld $(GOBIN)/getrue-linux-* | grep amd64
+	@ls -ld $(GOBIN)/gups-linux-* | grep amd64
 
-getrue-linux-arm: getrue-linux-arm-5 getrue-linux-arm-6 getrue-linux-arm-7 getrue-linux-arm64
+gups-linux-arm: gups-linux-arm-5 gups-linux-arm-6 gups-linux-arm-7 gups-linux-arm64
 	@echo "Linux ARM cross compilation done:"
-	@ls -ld $(GOBIN)/getrue-linux-* | grep arm
+	@ls -ld $(GOBIN)/gups-linux-* | grep arm
 
-getrue-linux-arm-5:
-	build/env.sh go run build/ci.go xgo -- --go=$(GO) --targets=linux/arm-5 -v ./cmd/getrue
+gups-linux-arm-5:
+	build/env.sh go run build/ci.go xgo -- --go=$(GO) --targets=linux/arm-5 -v ./cmd/gups
 	@echo "Linux ARMv5 cross compilation done:"
-	@ls -ld $(GOBIN)/getrue-linux-* | grep arm-5
+	@ls -ld $(GOBIN)/gups-linux-* | grep arm-5
 
-getrue-linux-arm-6:
-	build/env.sh go run build/ci.go xgo -- --go=$(GO) --targets=linux/arm-6 -v ./cmd/getrue
+gups-linux-arm-6:
+	build/env.sh go run build/ci.go xgo -- --go=$(GO) --targets=linux/arm-6 -v ./cmd/gups
 	@echo "Linux ARMv6 cross compilation done:"
-	@ls -ld $(GOBIN)/getrue-linux-* | grep arm-6
+	@ls -ld $(GOBIN)/gups-linux-* | grep arm-6
 
-getrue-linux-arm-7:
-	build/env.sh go run build/ci.go xgo -- --go=$(GO) --targets=linux/arm-7 -v ./cmd/getrue
+gups-linux-arm-7:
+	build/env.sh go run build/ci.go xgo -- --go=$(GO) --targets=linux/arm-7 -v ./cmd/gups
 	@echo "Linux ARMv7 cross compilation done:"
-	@ls -ld $(GOBIN)/getrue-linux-* | grep arm-7
+	@ls -ld $(GOBIN)/gups-linux-* | grep arm-7
 
-getrue-linux-arm64:
-	build/env.sh go run build/ci.go xgo -- --go=$(GO) --targets=linux/arm64 -v ./cmd/getrue
+gups-linux-arm64:
+	build/env.sh go run build/ci.go xgo -- --go=$(GO) --targets=linux/arm64 -v ./cmd/gups
 	@echo "Linux ARM64 cross compilation done:"
-	@ls -ld $(GOBIN)/getrue-linux-* | grep arm64
+	@ls -ld $(GOBIN)/gups-linux-* | grep arm64
 
-getrue-linux-mips:
-	build/env.sh go run build/ci.go xgo -- --go=$(GO) --targets=linux/mips --ldflags '-extldflags "-static"' -v ./cmd/getrue
+gups-linux-mips:
+	build/env.sh go run build/ci.go xgo -- --go=$(GO) --targets=linux/mips --ldflags '-extldflags "-static"' -v ./cmd/gups
 	@echo "Linux MIPS cross compilation done:"
-	@ls -ld $(GOBIN)/getrue-linux-* | grep mips
+	@ls -ld $(GOBIN)/gups-linux-* | grep mips
 
-getrue-linux-mipsle:
-	build/env.sh go run build/ci.go xgo -- --go=$(GO) --targets=linux/mipsle --ldflags '-extldflags "-static"' -v ./cmd/getrue
+gups-linux-mipsle:
+	build/env.sh go run build/ci.go xgo -- --go=$(GO) --targets=linux/mipsle --ldflags '-extldflags "-static"' -v ./cmd/gups
 	@echo "Linux MIPSle cross compilation done:"
-	@ls -ld $(GOBIN)/getrue-linux-* | grep mipsle
+	@ls -ld $(GOBIN)/gups-linux-* | grep mipsle
 
-getrue-linux-mips64:
-	build/env.sh go run build/ci.go xgo -- --go=$(GO) --targets=linux/mips64 --ldflags '-extldflags "-static"' -v ./cmd/getrue
+gups-linux-mips64:
+	build/env.sh go run build/ci.go xgo -- --go=$(GO) --targets=linux/mips64 --ldflags '-extldflags "-static"' -v ./cmd/gups
 	@echo "Linux MIPS64 cross compilation done:"
-	@ls -ld $(GOBIN)/getrue-linux-* | grep mips64
+	@ls -ld $(GOBIN)/gups-linux-* | grep mips64
 
-getrue-linux-mips64le:
-	build/env.sh go run build/ci.go xgo -- --go=$(GO) --targets=linux/mips64le --ldflags '-extldflags "-static"' -v ./cmd/getrue
+gups-linux-mips64le:
+	build/env.sh go run build/ci.go xgo -- --go=$(GO) --targets=linux/mips64le --ldflags '-extldflags "-static"' -v ./cmd/gups
 	@echo "Linux MIPS64le cross compilation done:"
-	@ls -ld $(GOBIN)/getrue-linux-* | grep mips64le
+	@ls -ld $(GOBIN)/gups-linux-* | grep mips64le
 
-getrue-darwin: getrue-darwin-386 getrue-darwin-amd64
+gups-darwin: gups-darwin-386 gups-darwin-amd64
 	@echo "Darwin cross compilation done:"
-	@ls -ld $(GOBIN)/getrue-darwin-*
+	@ls -ld $(GOBIN)/gups-darwin-*
 
-getrue-darwin-386:
-	build/env.sh go run build/ci.go xgo -- --go=$(GO) --targets=darwin/386 -v ./cmd/getrue
+gups-darwin-386:
+	build/env.sh go run build/ci.go xgo -- --go=$(GO) --targets=darwin/386 -v ./cmd/gups
 	@echo "Darwin 386 cross compilation done:"
-	@ls -ld $(GOBIN)/getrue-darwin-* | grep 386
+	@ls -ld $(GOBIN)/gups-darwin-* | grep 386
 
-getrue-darwin-amd64:
-	build/env.sh go run build/ci.go xgo -- --go=$(GO) --targets=darwin/amd64 -v ./cmd/getrue
+gups-darwin-amd64:
+	build/env.sh go run build/ci.go xgo -- --go=$(GO) --targets=darwin/amd64 -v ./cmd/gups
 	@echo "Darwin amd64 cross compilation done:"
-	@ls -ld $(GOBIN)/getrue-darwin-* | grep amd64
+	@ls -ld $(GOBIN)/gups-darwin-* | grep amd64
 
-getrue-windows: getrue-windows-386 getrue-windows-amd64
+gups-windows: gups-windows-386 gups-windows-amd64
 	@echo "Windows cross compilation done:"
-	@ls -ld $(GOBIN)/getrue-windows-*
+	@ls -ld $(GOBIN)/gups-windows-*
 
-getrue-windows-386:
-	build/env.sh go run build/ci.go xgo -- --go=$(GO) --targets=windows/386 -v ./cmd/getrue
+gups-windows-386:
+	build/env.sh go run build/ci.go xgo -- --go=$(GO) --targets=windows/386 -v ./cmd/gups
 	@echo "Windows 386 cross compilation done:"
-	@ls -ld $(GOBIN)/getrue-windows-* | grep 386
+	@ls -ld $(GOBIN)/gups-windows-* | grep 386
 
-getrue-windows-amd64:
-	build/env.sh go run build/ci.go xgo -- --go=$(GO) --targets=windows/amd64 -v ./cmd/getrue
+gups-windows-amd64:
+	build/env.sh go run build/ci.go xgo -- --go=$(GO) --targets=windows/amd64 -v ./cmd/gups
 	@echo "Windows amd64 cross compilation done:"
-	@ls -ld $(GOBIN)/getrue-windows-* | grep amd64
+	@ls -ld $(GOBIN)/gups-windows-* | grep amd64

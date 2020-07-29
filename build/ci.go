@@ -46,19 +46,19 @@ import (
 )
 
 var (
-	// Files that end up in the getrue*.zip archive.
+	// Files that end up in the gups*.zip archive.
 	gethArchiveFiles = []string{
 		"COPYING",
-		executablePath("getrue"),
+		executablePath("gups"),
 	}
 
-	// Files that end up in the getrue-alltools*.zip archive.
+	// Files that end up in the gups-alltools*.zip archive.
 	allToolsArchiveFiles = []string{
 		"COPYING",
 		executablePath("abigen"),
 		executablePath("bootnode"),
 		executablePath("evm"),
-		executablePath("getrue"),
+		executablePath("gups"),
 		executablePath("puppeth"),
 		executablePath("rlpdump"),
 		executablePath("swarm"),
@@ -80,7 +80,7 @@ var (
 			Description: "Developer utility version of the EVM (Ethereum Virtual Machine) that is capable of running bytecode snippets within a configurable environment and execution mode.",
 		},
 		{
-			Name:        "getrue",
+			Name:        "gups",
 			Description: "Ethereum CLI client.",
 		},
 		{
@@ -352,17 +352,17 @@ func doArchive(cmdline []string) {
 	var (
 		env      = build.Env()
 		base     = archiveBasename(*arch, env)
-		getrue   = "getrue-" + base + ext
-		alltools = "getrue-alltools-" + base + ext
+		gups   = "gups-" + base + ext
+		alltools = "gups-alltools-" + base + ext
 	)
 	maybeSkipArchive(env)
-	if err := build.WriteArchive(getrue, gethArchiveFiles); err != nil {
+	if err := build.WriteArchive(gups, gethArchiveFiles); err != nil {
 		log.Fatal(err)
 	}
 	if err := build.WriteArchive(alltools, allToolsArchiveFiles); err != nil {
 		log.Fatal(err)
 	}
-	for _, archive := range []string{getrue, alltools} {
+	for _, archive := range []string{gups, alltools} {
 		if err := archiveUpload(archive, *upload, *signer); err != nil {
 			log.Fatal(err)
 		}
@@ -489,7 +489,7 @@ func makeWorkdir(wdflag string) string {
 	if wdflag != "" {
 		err = os.MkdirAll(wdflag, 0744)
 	} else {
-		wdflag, err = ioutil.TempDir("", "getrue-build-")
+		wdflag, err = ioutil.TempDir("", "gups-build-")
 	}
 	if err != nil {
 		log.Fatal(err)
@@ -645,7 +645,7 @@ func doWindowsInstaller(cmdline []string) {
 			continue
 		}
 		allTools = append(allTools, filepath.Base(file))
-		if filepath.Base(file) == "getrue.exe" {
+		if filepath.Base(file) == "gups.exe" {
 			gethTool = file
 		} else {
 			devTools = append(devTools, file)
@@ -653,13 +653,13 @@ func doWindowsInstaller(cmdline []string) {
 	}
 
 	// Render NSIS scripts: Installer NSIS contains two installer sections,
-	// first section contains the getrue binary, second section holds the dev tools.
+	// first section contains the gups binary, second section holds the dev tools.
 	templateData := map[string]interface{}{
 		"License":  "COPYING",
 		"Getrue":   gethTool,
 		"DevTools": devTools,
 	}
-	build.Render("build/nsis.getrue.nsi", filepath.Join(*workdir, "getrue.nsi"), 0644, nil)
+	build.Render("build/nsis.gups.nsi", filepath.Join(*workdir, "gups.nsi"), 0644, nil)
 	build.Render("build/nsis.install.nsh", filepath.Join(*workdir, "install.nsh"), 0644, templateData)
 	build.Render("build/nsis.uninstall.nsh", filepath.Join(*workdir, "uninstall.nsh"), 0644, allTools)
 	build.Render("build/nsis.pathupdate.nsh", filepath.Join(*workdir, "PathUpdate.nsh"), 0644, nil)
@@ -674,14 +674,14 @@ func doWindowsInstaller(cmdline []string) {
 	if env.Commit != "" {
 		version[2] += "-" + env.Commit[:8]
 	}
-	installer, _ := filepath.Abs("getrue-" + archiveBasename(*arch, env) + ".exe")
+	installer, _ := filepath.Abs("gups-" + archiveBasename(*arch, env) + ".exe")
 	build.MustRunCommand("makensis.exe",
 		"/DOUTPUTFILE="+installer,
 		"/DMAJORVERSION="+version[0],
 		"/DMINORVERSION="+version[1],
 		"/DBUILDVERSION="+version[2],
 		"/DARCH="+*arch,
-		filepath.Join(*workdir, "getrue.nsi"),
+		filepath.Join(*workdir, "gups.nsi"),
 	)
 
 	// Sign and publish installer.
@@ -716,7 +716,7 @@ func doAndroidArchive(cmdline []string) {
 
 	if *local {
 		// If we're building locally, copy bundle to build dir and skip Maven
-		os.Rename("getrue.aar", filepath.Join(GOBIN, "getrue.aar"))
+		os.Rename("gups.aar", filepath.Join(GOBIN, "gups.aar"))
 		return
 	}
 	meta := newMavenMetadata(env)
@@ -726,8 +726,8 @@ func doAndroidArchive(cmdline []string) {
 	maybeSkipArchive(env)
 
 	// Sign and upload the archive to Azure
-	archive := "getrue-" + archiveBasename("android", env) + ".aar"
-	os.Rename("getrue.aar", archive)
+	archive := "gups-" + archiveBasename("android", env) + ".aar"
+	os.Rename("gups.aar", archive)
 
 	if err := archiveUpload(archive, *upload, *signer); err != nil {
 		log.Fatal(err)
@@ -817,7 +817,7 @@ func newMavenMetadata(env build.Environment) mavenMetadata {
 	}
 	return mavenMetadata{
 		Version:      version,
-		Package:      "getrue-" + version,
+		Package:      "gups-" + version,
 		Develop:      isUnstableBuild(env),
 		Contributors: contribs,
 	}
@@ -846,7 +846,7 @@ func doXCodeFramework(cmdline []string) {
 		build.MustRun(bind)
 		return
 	}
-	archive := "getrue-" + archiveBasename("ios", env)
+	archive := "gups-" + archiveBasename("ios", env)
 	if err := os.Mkdir(archive, os.ModePerm); err != nil {
 		log.Fatal(err)
 	}

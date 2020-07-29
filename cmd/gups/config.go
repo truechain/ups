@@ -86,7 +86,7 @@ func defaultNodeConfig() node.Config {
 	cfg.Version = params.VersionWithCommit(gitCommit, gitDate)
 	cfg.HTTPModules = append(cfg.HTTPModules, "ups", "eth", "impawn", "shh")
 	cfg.WSModules = append(cfg.WSModules, "ups")
-	cfg.IPCPath = "getrue.ipc"
+	cfg.IPCPath = "gups.ipc"
 	return cfg
 }
 
