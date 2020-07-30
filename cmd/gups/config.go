@@ -143,7 +143,7 @@ func makeFullNode(ctx *cli.Context) *node.Node {
 		utils.RegisterDashboardService(stack, &cfg.Dashboard, gitCommit)
 	}
 
-	// Add the Truechain Stats daemon if requested.
+	// Add the Upschain Stats daemon if requested.
 	if cfg.Etruestats.URL != "" {
 		utils.RegisterEtrueStatsService(stack, cfg.Etruestats.URL)
 	}

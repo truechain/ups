@@ -36,7 +36,7 @@ Going through all the possible command line flags is out of scope here (please c
 [CLI Wiki page](https://github.com/truechain/ups/wiki/Command-Line-Options)), 
 also you can quickly run your own gups instance with a few common parameter combos.
 
-### Running on the Truechain main network
+### Running on the Upschain main network
 
 ```
 $ gups console
@@ -52,7 +52,7 @@ This command will:
    with `gups attach`.
 
 
-### Running on the Truechain test network
+### Running on the Upschain test network
 
 To test your contracts, you can join the test network with your node.
 
@@ -84,7 +84,7 @@ $ gups --your-favourite-flags dumpconfig
 ```
 
 
-### Running on the Truechain singlenode(private) network
+### Running on the Upschain singlenode(private) network
 
 To start a gups instance for single node,  run it with these flags:
 

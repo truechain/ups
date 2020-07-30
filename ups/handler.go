@@ -111,8 +111,8 @@ type ProtocolManager struct {
 	pbNodeInfoSub event.Subscription
 }
 
-// NewProtocolManager returns a new Truechain sub protocol manager. The Truechain sub protocol manages peers capable
-// with the Truechain network.
+// NewProtocolManager returns a new Upschain sub protocol manager. The Upschain sub protocol manages peers capable
+// with the Upschain network.
 func NewProtocolManager(config *params.ChainConfig, checkpoint *params.TrustedCheckpoint, 
 	mode downloader.SyncMode, networkID uint64, mux *event.TypeMux, txpool txPool, 
 	engine consensus.Engine, blockchain *core.BlockChain, chaindb upsdb.Database, 
@@ -295,9 +295,9 @@ func (pm *ProtocolManager) removePeer(id string) {
 	if peer == nil {
 		return
 	}
-	log.Debug("Removing Truechain peer", "peer", id)
+	log.Debug("Removing Upschain peer", "peer", id)
 
-	// Unregister the peer from the downloader and Truechain peer set
+	// Unregister the peer from the downloader and Upschain peer set
 	pm.downloader.UnregisterPeer(id)
 	pm.txFetcher.Drop(id)
 
@@ -334,7 +334,7 @@ func (pm *ProtocolManager) Start(maxPeers int) {
 }
 
 func (pm *ProtocolManager) Stop() {
-	log.Info("Stopping Truechain protocol")
+	log.Info("Stopping Upschain protocol")
 
 	pm.txsSub.Unsubscribe()       // quits txBroadcastLoop
 	pm.minedFastSub.Unsubscribe() // quits minedFastBroadcastLoop
@@ -356,7 +356,7 @@ func (pm *ProtocolManager) Stop() {
 	// Wait for all peer handler goroutines and the loops to come down.
 	pm.wg.Wait()
 
-	log.Info("Truechain protocol stopped")
+	log.Info("Upschain protocol stopped")
 }
 
 func (pm *ProtocolManager) newPeer(pv int, p *p2p.Peer, rw p2p.MsgReadWriter, getPooledTx func(hash common.Hash) *types.Transaction) *peer {
@@ -374,9 +374,9 @@ func (pm *ProtocolManager) handle(p *peer) error {
 	if pm.peers.Len() >= pm.maxPeers && !p.Peer.Info().Network.Trusted {
 		return p2p.DiscTooManyPeers
 	}
-	p.Log().Debug("Truechain peer connected", "name", p.Name())
+	p.Log().Debug("Upschain peer connected", "name", p.Name())
 
-	// Execute the Truechain handshake
+	// Execute the Upschain handshake
 	var (
 		genesis = pm.blockchain.Genesis()
 		head    = pm.blockchain.CurrentHeader()
@@ -385,13 +385,13 @@ func (pm *ProtocolManager) handle(p *peer) error {
 	)
 
 	if err := p.Handshake(pm.networkID, number, hash, genesis.Hash(), forkid.NewID(pm.blockchain), pm.forkFilter); err != nil {
-		p.Log().Debug("Truechain handshake failed", "err", err)
+		p.Log().Debug("Upschain handshake failed", "err", err)
 		return err
 	}
 
 	// Register the peer locally
 	if err := pm.peers.Register(p); err != nil {
-		p.Log().Error("Truechain peer registration failed", "err", err)
+		p.Log().Error("Upschain peer registration failed", "err", err)
 		return err
 	}
 
@@ -434,7 +434,7 @@ func (pm *ProtocolManager) handle(p *peer) error {
 	p.Log().Info("Peer connected success", "name", p.Name(), "remoteAddr", p.RemoteAddr())
 	for {
 		if err := pm.handleMsg(p); err != nil {
-			p.Log().Debug("Truechain message handling failed", "err", err)
+			p.Log().Debug("Upschain message handling failed", "err", err)
 			return err
 		}
 	}
@@ -1095,7 +1095,7 @@ func (pm *ProtocolManager) txBroadcastLoop() {
 // NodeInfo represents a short summary of the Ethereum sub-protocol metadata
 // known about the host peer.
 type NodeInfo struct {
-	Network      uint64              `json:"network"`      // Truechain network ID (1=Frontier, 2=Morden, Ropsten=3, Rinkeby=4)
+	Network      uint64              `json:"network"`      // Upschain network ID (1=Frontier, 2=Morden, Ropsten=3, Rinkeby=4)
 	Difficulty *big.Int            `json:"difficulty"` // Total difficulty of the host's blockchain
 	Genesis      common.Hash         `json:"genesis"`      // SHA3 hash of the host's genesis block
 	Config       *params.ChainConfig `json:"config"`       // Chain configuration for the fork rules

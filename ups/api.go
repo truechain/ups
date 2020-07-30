@@ -40,14 +40,14 @@ import (
 	"github.com/truechain/ups/trie"
 )
 
-// PublicTruechainAPI provides an API to access Truechain full node-related
+// PublicTruechainAPI provides an API to access Upschain full node-related
 // information.
 type PublicTruechainAPI struct {
-	e *Truechain
+	e *Upschain
 }
 
-// NewPublicTruechainAPI creates a new Truechain protocol API for full nodes.
-func NewPublicTruechainAPI(e *Truechain) *PublicTruechainAPI {
+// NewPublicTruechainAPI creates a new Upschain protocol API for full nodes.
+func NewPublicTruechainAPI(e *Upschain) *PublicTruechainAPI {
 	return &PublicTruechainAPI{e}
 }
 // Pubkey is the address that mining rewards will be send to (alias for Etherbase)
@@ -83,15 +83,15 @@ func (api *PublicTruechainAPI) ChainId() hexutil.Uint64 {
 	return (hexutil.Uint64)(chainID.Uint64())
 }
 
-// PrivateAdminAPI is the collection of Truechain full node-related APIs
+// PrivateAdminAPI is the collection of Upschain full node-related APIs
 // exposed over the private admin endpoint.
 type PrivateAdminAPI struct {
-	ups *Truechain
+	ups *Upschain
 }
 
 // NewPrivateAdminAPI creates a new API definition for the full node private
-// admin methods of the Truechain service.
-func NewPrivateAdminAPI(ups *Truechain) *PrivateAdminAPI {
+// admin methods of the Upschain service.
+func NewPrivateAdminAPI(ups *Upschain) *PrivateAdminAPI {
 	return &PrivateAdminAPI{ups: ups}
 }
 
@@ -176,15 +176,15 @@ func (api *PrivateAdminAPI) ImportChain(file string) (bool, error) {
 	return true, nil
 }
 
-// PublicDebugAPI is the collection of Truechain full node APIs exposed
+// PublicDebugAPI is the collection of Upschain full node APIs exposed
 // over the public debugging endpoint.
 type PublicDebugAPI struct {
-	ups *Truechain
+	ups *Upschain
 }
 
 // NewPublicDebugAPI creates a new API definition for the full node-
-// related public debug methods of the Truechain service.
-func NewPublicDebugAPI(ups *Truechain) *PublicDebugAPI {
+// related public debug methods of the Upschain service.
+func NewPublicDebugAPI(ups *Upschain) *PublicDebugAPI {
 	return &PublicDebugAPI{ups: ups}
 }
 
@@ -206,16 +206,16 @@ func (api *PublicDebugAPI) DumpBlock(blockNr rpc.BlockNumber) (state.Dump, error
 	return stateDb.RawDump(), nil
 }
 
-// PrivateDebugAPI is the collection of Truechain full node APIs exposed over
+// PrivateDebugAPI is the collection of Upschain full node APIs exposed over
 // the private debugging endpoint.
 type PrivateDebugAPI struct {
 	config *params.ChainConfig
-	ups  *Truechain
+	ups  *Upschain
 }
 
 // NewPrivateDebugAPI creates a new API definition for the full node-related
-// private debug methods of the Truechain service.
-func NewPrivateDebugAPI(config *params.ChainConfig, ups *Truechain) *PrivateDebugAPI {
+// private debug methods of the Upschain service.
+func NewPrivateDebugAPI(config *params.ChainConfig, ups *Upschain) *PrivateDebugAPI {
 	return &PrivateDebugAPI{config: config, ups: ups}
 }
 

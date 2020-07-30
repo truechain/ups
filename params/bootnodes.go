@@ -17,7 +17,7 @@
 package params
 
 // MainnetBootnodes are the enode URLs of the P2P bootstrap nodes running on
-// the main Truechain network.
+// the main Upschain network.
 var MainnetBootnodes = []string{
 	"enode://cd99daa76de43e2b7a5806c3455d33012cd127bca9b2e271be3af5d78e402c153a77e1d408f708770fb390e597621407f963f1c444090c21f91e03e03caa2110@39.98.216.197:30313", // CN
 	"enode://e95937d68263a59c95ac1199eecc450b3590624accaf1542c7e51d8dc3ca3bfa6d3f60785b021c408b4a9a67b2869da33237c75448ae29b70506164a2bfe6931@13.52.156.74:30313",  // US WEST
@@ -37,7 +37,7 @@ var TestnetBootnodes = []string{
 }
 
 // DevnetBootnodes are the enode URLs of the P2P bootstrap nodes running on
-// the dev Truechain network.
+// the dev Upschain network.
 var DevnetBootnodes = []string{
 	"enode://ec1e13e3d0177196a55570dfc1c810b2ea05109cb310c4dc7397ae6f3109467ec0d13a5f28ebdfb553511d492a4892ffa3a8283ce69bc5f93fce079dbfbfa5f4@39.100.120.25:30310",
 }

@@ -760,7 +760,7 @@ func dialConn(ctx *cli.Context) (*upsclient.Client, string) {
 	// "http://39.100.97.129:8545"
 	conn, err := upsclient.Dial(url)
 	if err != nil {
-		log.Fatalf("Failed to connect to the Truechain client: %v", err)
+		log.Fatalf("Failed to connect to the Upschain client: %v", err)
 	}
 	return conn, url
 }

@@ -1,4 +1,4 @@
-// Copyright 2018 The Truechain Authors
+// Copyright 2018 The Upschain Authors
 // This file is part of the ups library.
 //
 // The ups library is free software: you can redistribute it and/or modify

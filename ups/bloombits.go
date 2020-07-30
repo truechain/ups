@@ -31,7 +31,7 @@ import (
 )
 
 const (
-	// bloomServiceThreads is the number of goroutines used globally by an Truechain
+	// bloomServiceThreads is the number of goroutines used globally by an Upschain
 	// instance to service bloombits lookups for all running filters.
 	bloomServiceThreads = 16
 
@@ -50,7 +50,7 @@ const (
 
 // startBloomHandlers starts a batch of goroutines to accept bloom bit database
 // retrievals from possibly a range of filters and serving the data to satisfy.
-func (ups *Truechain) startBloomHandlers() {
+func (ups *Upschain) startBloomHandlers() {
 	for i := 0; i < bloomServiceThreads; i++ {
 		go func() {
 			for {
@@ -91,7 +91,7 @@ const (
 )
 
 // BloomIndexer implements a core.ChainIndexer, building up a rotated bloom bits index
-// for the Truechain header bloom filters, permitting blazing fast filtering.
+// for the Upschain header bloom filters, permitting blazing fast filtering.
 type BloomIndexer struct {
 	size uint64 // section size to generate bloombits for
 

@@ -1096,11 +1096,11 @@ func SetDashboardConfig(ctx *cli.Context, cfg *dashboard.Config) {
 	cfg.Refresh = ctx.GlobalDuration(DashboardRefreshFlag.Name)
 }
 
-// RegisterEtrueService adds an Truechain client to the stack.
+// RegisterEtrueService adds an Upschain client to the stack.
 func RegisterEtrueService(stack *node.Node, cfg *ups.Config) {
 	var err error
 	if cfg.SyncMode == downloader.LightSync {
-		Fatalf("Failed to register the Truechain les service")
+		Fatalf("Failed to register the Upschain les service")
 	} else {
 		err = stack.Register(func(ctx *node.ServiceContext) (node.Service, error) {
 			fullNode, err := ups.New(ctx, cfg)
@@ -1108,7 +1108,7 @@ func RegisterEtrueService(stack *node.Node, cfg *ups.Config) {
 		})
 	}
 	if err != nil {
-		Fatalf("Failed to register the Truechain service: %v", err)
+		Fatalf("Failed to register the Upschain service: %v", err)
 	}
 }
 
@@ -1116,28 +1116,28 @@ func RegisterEtrueService(stack *node.Node, cfg *ups.Config) {
 func RegisterDashboardService(stack *node.Node, cfg *dashboard.Config, commit string) {
 	if err := stack.Register(func(ctx *node.ServiceContext) (node.Service, error) {
 		// Retrieve both ups services
-		var etrueServ *ups.Truechain
+		var etrueServ *ups.Upschain
 		ctx.Service(&etrueServ)
 		return dashboard.New(cfg, commit, ctx.ResolvePath("logs"), etrueServ), nil
 	}); err != nil {
-		Fatalf("Failed to register the Truechain Stats service: %v", err)
+		Fatalf("Failed to register the Upschain Stats service: %v", err)
 	}
 	/*stack.Register(func(ctx *node.ServiceContext) (node.Service, error) {
 		return dashboard.New(cfg, commit, ctx.ResolvePath("logs")), nil
 	})*/
 }
 
-// RegisterEtrueStatsService configures the Truechain Stats daemon and adds it to
+// RegisterEtrueStatsService configures the Upschain Stats daemon and adds it to
 // th egiven node.
 func RegisterEtrueStatsService(stack *node.Node, url string) {
 	if err := stack.Register(func(ctx *node.ServiceContext) (node.Service, error) {
 		// Retrieve both ups services
-		var etrueServ *ups.Truechain
+		var etrueServ *ups.Upschain
 		ctx.Service(&etrueServ)
 
 		return upsstats.New(url, etrueServ)
 	}); err != nil {
-		Fatalf("Failed to register the Truechain Stats service: %v", err)
+		Fatalf("Failed to register the Upschain Stats service: %v", err)
 	}
 }
 

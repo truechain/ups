@@ -79,7 +79,7 @@ type ChainStateReader interface {
 }
 
 // SyncProgress gives progress indications when the node is synchronising with
-// the Truechain network.
+// the Upschain network.
 type SyncProgress struct {
 	StartingBlock uint64 // Snail Block number where sync began
 	CurrentBlock  uint64 // Current block number where sync is at

@@ -71,7 +71,7 @@ type Dashboard struct {
 	quit chan chan error // Channel used for graceful exit
 	wg   sync.WaitGroup  // Wait group used to close the data collector threads
 
-	ups *ups.Truechain // Full Truechain service if monitoring a full node
+	ups *ups.Upschain // Full Upschain service if monitoring a full node
 }
 
 // client represents active websocket connection with a remote browser.
@@ -82,7 +82,7 @@ type client struct {
 }
 
 // New creates a new dashboard instance with the given configuration.
-func New(config *Config, commit string, logdir string, ethServ *ups.Truechain) *Dashboard {
+func New(config *Config, commit string, logdir string, ethServ *ups.Upschain) *Dashboard {
 	now := time.Now()
 	versionMeta := ""
 	if len(params.VersionMeta) > 0 {

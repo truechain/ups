@@ -39,7 +39,7 @@ import (
 
 // TRUEAPIBackend implements ethapi.Backend for full nodes
 type TrueAPIBackend struct {
-	ups *Truechain
+	ups *Upschain
 	gpo   *gasprice.Oracle
 }
 

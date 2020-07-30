@@ -29,7 +29,7 @@ import (
 	"github.com/truechain/ups/params"
 )
 
-// DefaultConfig contains default settings for use on the Truechain main net.
+// DefaultConfig contains default settings for use on the Upschain main net.
 var DefaultConfig = Config{
 	SyncMode:      downloader.FullSync,
 	NodeType:      false,
@@ -64,7 +64,7 @@ func init() {
 
 type Config struct {
 	// The genesis block, which is inserted if the database is empty.
-	// If nil, the Truechain main net block is used.
+	// If nil, the Upschain main net block is used.
 	Genesis *core.Genesis
 
 	// Protocol options

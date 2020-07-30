@@ -325,7 +325,7 @@ func GenesisBlockForTesting(db upsdb.Database, addr common.Address, balance *big
 	g := Genesis{Alloc: types.GenesisAlloc{addr: {Balance: balance}}, Config: params.AllMinervaProtocolChanges}
 	return g.MustFastCommit(db)
 }
-// DefaultGenesisBlock returns the Truechain main net snail block.
+// DefaultGenesisBlock returns the Upschain main net snail block.
 func DefaultGenesisBlock() *Genesis {
 	i, _ := new(big.Int).SetString("65750000000000000000000000", 10)
 	j, _ := new(big.Int).SetString("8250000000000000000000000", 10)

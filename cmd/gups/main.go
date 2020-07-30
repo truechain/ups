@@ -1,4 +1,4 @@
-// gups is the official command-line client for Truechain.
+// gups is the official command-line client for Upschain.
 package main
 
 import (

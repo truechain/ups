@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU Lesser General Public License
 // along with the go-ethereum library. If not, see <http://www.gnu.org/licenses/>.
 
-// Package ups implements the Truechain protocol.
+// Package ups implements the Upschain protocol.
 package ups
 
 import (
@@ -59,12 +59,12 @@ type LesServer interface {
 	SetBloomBitsIndexer(bbIndexer *core.ChainIndexer)
 }
 
-// Truechain implements the Truechain full node service.
-type Truechain struct {
+// Upschain implements the Upschain full node service.
+type Upschain struct {
 	config      *Config
 	chainConfig *params.ChainConfig
 	// Channel for shutting down the service
-	shutdownChan chan bool // Channel for shutting down the Truechain
+	shutdownChan chan bool // Channel for shutting down the Upschain
 	// Handlers
 	txPool *core.TxPool
 	agent    *PbftAgent
@@ -92,16 +92,16 @@ type Truechain struct {
 	lock sync.RWMutex // Protects the variadic fields (e.g. gas price)
 }
 
-func (s *Truechain) AddLesServer(ls LesServer) {
+func (s *Upschain) AddLesServer(ls LesServer) {
 	s.lesServer = ls
 	ls.SetBloomBitsIndexer(s.bloomIndexer)
 }
 
-// New creates a new Truechain object (including the
-// initialisation of the common Truechain object)
-func New(ctx *node.ServiceContext, config *Config) (*Truechain, error) {
+// New creates a new Upschain object (including the
+// initialisation of the common Upschain object)
+func New(ctx *node.ServiceContext, config *Config) (*Upschain, error) {
 	if config.SyncMode == downloader.LightSync {
-		return nil, errors.New("can't run ups.Truechain in light sync mode, use les.LightTruechain")
+		return nil, errors.New("can't run ups.Upschain in light sync mode, use les.LightTruechain")
 	}
 	if !config.SyncMode.IsValid() {
 		return nil, fmt.Errorf("invalid sync mode %d", config.SyncMode)
@@ -123,7 +123,7 @@ func New(ctx *node.ServiceContext, config *Config) (*Truechain, error) {
 		config.MinerGasCeil = config.Genesis.GasLimit * 11 / 10
 	}*/
 
-	ups := &Truechain{
+	ups := &Upschain{
 		config:         config,
 		chainDb:        chainDb,
 		chainConfig:    chainConfig,
@@ -137,7 +137,7 @@ func New(ctx *node.ServiceContext, config *Config) (*Truechain, error) {
 		bloomIndexer:   NewBloomIndexer(chainDb, params.BloomBitsBlocks, params.BloomConfirms),
 	}
 
-	log.Info("Initialising Truechain protocol", "versions", ProtocolVersions, "network", config.NetworkId, "syncmode", config.SyncMode)
+	log.Info("Initialising Upschain protocol", "versions", ProtocolVersions, "network", config.NetworkId, "syncmode", config.SyncMode)
 
 	if !config.SkipBcVersionCheck {
 		bcVersion := rawdb.ReadDatabaseVersion(chainDb)
@@ -222,7 +222,7 @@ func CreateDB(ctx *node.ServiceContext, config *Config, name string) (upsdb.Data
 	return db, nil
 }
 
-// CreateConsensusEngine creates the required type of consensus engine instance for an Truechain service
+// CreateConsensusEngine creates the required type of consensus engine instance for an Upschain service
 func CreateConsensusEngine(ctx *node.ServiceContext, config *ethash.Config,db upsdb.Database) consensus.Engine {
 	// If proof-of-authority is requested, set it up
 	// snail chain not need clique
@@ -251,7 +251,7 @@ func CreateConsensusEngine(ctx *node.ServiceContext, config *ethash.Config,db up
 
 // APIs return the collection of RPC services the ups package offers.
 // NOTE, some of these services probably need to be moved to somewhere else.
-func (s *Truechain) APIs() []rpc.API {
+func (s *Upschain) APIs() []rpc.API {
 	apis := trueapi.GetAPIs(s.APIBackend)
 
 	// Append any APIs exposed explicitly by the consensus engine
@@ -303,32 +303,32 @@ func (s *Truechain) APIs() []rpc.API {
 	}...)
 }
 
-func (s *Truechain) ResetWithGenesisBlock(gb *types.Block) {
+func (s *Upschain) ResetWithGenesisBlock(gb *types.Block) {
 	s.blockchain.ResetWithGenesisBlock(gb)
 }
 
-func (s *Truechain) ResetWithFastGenesisBlock(gb *types.Block) {
+func (s *Upschain) ResetWithFastGenesisBlock(gb *types.Block) {
 	s.blockchain.ResetWithGenesisBlock(gb)
 }
-func (s *Truechain) PbftAgent() *PbftAgent             { return s.agent }
-func (s *Truechain) AccountManager() *accounts.Manager { return s.accountManager }
-func (s *Truechain) BlockChain() *core.BlockChain      { return s.blockchain }
-func (s *Truechain) Config() *Config                   { return s.config }
-func (s *Truechain) TxPool() *core.TxPool                    { return s.txPool }
+func (s *Upschain) PbftAgent() *PbftAgent             { return s.agent }
+func (s *Upschain) AccountManager() *accounts.Manager { return s.accountManager }
+func (s *Upschain) BlockChain() *core.BlockChain      { return s.blockchain }
+func (s *Upschain) Config() *Config                   { return s.config }
+func (s *Upschain) TxPool() *core.TxPool                    { return s.txPool }
 
-func (s *Truechain) EventMux() *event.TypeMux           { return s.eventMux }
-func (s *Truechain) Engine() consensus.Engine           { return s.engine }
-func (s *Truechain) ChainDb() upsdb.Database          { return s.chainDb }
-func (s *Truechain) IsListening() bool                  { return true } // Always listening
-func (s *Truechain) EthVersion() int                    { return int(s.protocolManager.SubProtocols[0].Version) }
-func (s *Truechain) NetVersion() uint64                 { return s.networkID }
-func (s *Truechain) Downloader() *downloader.Downloader { return s.protocolManager.downloader }
-func (s *Truechain) Synced() bool                       { return atomic.LoadUint32(&s.protocolManager.acceptTxs) == 1 }
-func (s *Truechain) ArchiveMode() bool                  { return s.config.NoPruning }
+func (s *Upschain) EventMux() *event.TypeMux           { return s.eventMux }
+func (s *Upschain) Engine() consensus.Engine           { return s.engine }
+func (s *Upschain) ChainDb() upsdb.Database          { return s.chainDb }
+func (s *Upschain) IsListening() bool                  { return true } // Always listening
+func (s *Upschain) EthVersion() int                    { return int(s.protocolManager.SubProtocols[0].Version) }
+func (s *Upschain) NetVersion() uint64                 { return s.networkID }
+func (s *Upschain) Downloader() *downloader.Downloader { return s.protocolManager.downloader }
+func (s *Upschain) Synced() bool                       { return atomic.LoadUint32(&s.protocolManager.acceptTxs) == 1 }
+func (s *Upschain) ArchiveMode() bool                  { return s.config.NoPruning }
 
 // Protocols implements node.Service, returning all the currently configured
 // network protocols to start.
-func (s *Truechain) Protocols() []p2p.Protocol {
+func (s *Upschain) Protocols() []p2p.Protocol {
 	if s.lesServer == nil {
 		return s.protocolManager.SubProtocols
 	}
@@ -336,8 +336,8 @@ func (s *Truechain) Protocols() []p2p.Protocol {
 }
 
 // Start implements node.Service, starting all internal goroutines needed by the
-// Truechain protocol implementation.
-func (s *Truechain) Start(srvr *p2p.Server) error {
+// Upschain protocol implementation.
+func (s *Upschain) Start(srvr *p2p.Server) error {
 
 	// Start the bloom bits servicing goroutines
 	s.startBloomHandlers()
@@ -372,8 +372,8 @@ func (s *Truechain) Start(srvr *p2p.Server) error {
 }
 
 // Stop implements node.Service, terminating all internal goroutines used by the
-// Truechain protocol.
-func (s *Truechain) Stop() error {
+// Upschain protocol.
+func (s *Upschain) Stop() error {
 	s.stopPbftServer()
 	s.bloomIndexer.Close()
 	s.blockchain.Stop()
@@ -390,7 +390,7 @@ func (s *Truechain) Stop() error {
 	return nil
 }
 
-func (s *Truechain) startPbftServer() error {
+func (s *Upschain) startPbftServer() error {
 	priv, err := crypto.ToECDSA(s.config.CommitteeKey)
 	if err != nil {
 		return err
@@ -408,7 +408,7 @@ func (s *Truechain) startPbftServer() error {
 	return n1.Start()
 }
 
-func (s *Truechain) stopPbftServer() error {
+func (s *Upschain) stopPbftServer() error {
 	if s.pbftServer != nil {
 		s.pbftServer.Stop()
 	}
