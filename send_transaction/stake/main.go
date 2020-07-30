@@ -107,10 +107,10 @@ var (
 
 func init() {
 	app = cli.NewApp()
-	app.Usage = "TrueChain Impawn tool"
+	app.Usage = "UpsChain Impawn tool"
 	app.Name = filepath.Base(os.Args[0])
 	app.Version = "1.0.0"
-	app.Copyright = "Copyright 2019-2020 The TrueChain Authors"
+	app.Copyright = "Copyright 2019-2020 The UpsChain Authors"
 	app.Flags = []cli.Flag{
 		KeyFlag,
 		KeyStoreFlag,

@@ -1,6 +1,6 @@
-## TrueChain Impawn CLI
+## UpsChain Impawn CLI
 
-TrueChain Impawn CLI is a tool, which can call deposit contract participate in POS.
+UpsChain Impawn CLI is a tool, which can call deposit contract participate in POS.
 
 <a href="https://github.com/truechain/ups/blob/master/COPYING"><img src="https://img.shields.io/badge/license-GPL%20%20truechain-lightgrey.svg"></a>
 

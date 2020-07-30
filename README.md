@@ -1,16 +1,16 @@
-## TrueChain Engineering Code
+## UpsChain Engineering Code
 
-TrueChain is a truly fast, permissionless, secure and scalable public blockchain platform 
+UpsChain is a truly fast, permissionless, secure and scalable public blockchain platform 
 which is supported by hybrid consensus technology called Minerva and a global developer community. 
  
-TrueChain uses hybrid consensus combining PBFT and fPoW to solve the biggest problem confronting public blockchain: 
+UpsChain uses hybrid consensus combining PBFT and fPoW to solve the biggest problem confronting public blockchain: 
 the contradiction between decentralization and efficiency. 
 
-TrueChain uses PBFT as fast-chain to process transactions, and leave the oversight and election of PBFT to the hands of PoW nodes. 
-Besides, TrueChain integrates fruitchain technology into the traditional PoW protocol to become fPoW, 
+UpsChain uses PBFT as fast-chain to process transactions, and leave the oversight and election of PBFT to the hands of PoW nodes. 
+Besides, UpsChain integrates fruitchain technology into the traditional PoW protocol to become fPoW, 
 to make the chain even more decentralized and fair. 
  
-TrueChain also creates a hybrid consensus incentive model and a stable gas fee mechanism to lower the cost for the developers 
+UpsChain also creates a hybrid consensus incentive model and a stable gas fee mechanism to lower the cost for the developers 
 and operators of DApps, and provide better infrastructure for decentralized eco-system. 
 
 <a href="https://github.com/truechain/ups/blob/master/COPYING"><img src="https://img.shields.io/badge/license-GPL%20%20truechain-lightgrey.svg"></a>
@@ -66,7 +66,7 @@ testnet too. Please see above for their explanations if you've skipped here.
 Specifying the `--testnet` flag, however, will reconfigure your Geth instance a bit:
 
  * Test network uses different network ID `18928`
- * Instead of connecting the main TrueChain network, the client will connect to the test network, which uses testnet P2P bootnodes,  and genesis states.
+ * Instead of connecting the main UpsChain network, the client will connect to the test network, which uses testnet P2P bootnodes,  and genesis states.
 
 
 ### Configuration
@@ -95,6 +95,6 @@ $ gups --singlenode  console
 Specifying the `--singlenode` flag, however, will reconfigure your Geth instance a bit:
 
  * singlenode network uses different network ID `400`
- * Instead of connecting the main or test TrueChain network, the client has no peers, and generate fast block without committee.
+ * Instead of connecting the main or test UpsChain network, the client has no peers, and generate fast block without committee.
 
 Which will start sending transactions periodly to this node and mining fruits and snail blocks.
