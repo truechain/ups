@@ -968,7 +968,7 @@ require = (function e(t, n, r) {
          * @returns {SolidityParam}
          */
         var formatInputInt = function (value) {
-            BigNumber.config(c.ETRUE_BIGNUMBER_ROUNDING_MODE);
+            BigNumber.config(c.UPS_BIGNUMBER_ROUNDING_MODE);
             var result = utils.padLeft(utils.toTwosComplement(value).toString(16), 64);
             return new SolidityParam(result);
         };
@@ -1808,10 +1808,10 @@ require = (function e(t, n, r) {
          */
 
 
-/// required to define ETRUE_BIGNUMBER_ROUNDING_MODE
+/// required to define UPS_BIGNUMBER_ROUNDING_MODE
         var BigNumber = require('bignumber.js');
 
-        var ETRUE_UNITS = [
+        var UPS_UNITS = [
             'wei',
             'kwei',
             'Mwei',
@@ -1842,11 +1842,11 @@ require = (function e(t, n, r) {
         ];
 
         module.exports = {
-            ETRUE_PADDING: 32,
-            ETRUE_SIGNATURE_LENGTH: 4,
-            ETRUE_UNITS: ETRUE_UNITS,
-            ETRUE_BIGNUMBER_ROUNDING_MODE: {ROUNDING_MODE: BigNumber.ROUND_DOWN},
-            ETRUE_POLLING_TIMEOUT: 1000 / 2,
+            UPS_PADDING: 32,
+            UPS_SIGNATURE_LENGTH: 4,
+            UPS_UNITS: UPS_UNITS,
+            UPS_BIGNUMBER_ROUNDING_MODE: {ROUNDING_MODE: BigNumber.ROUND_DOWN},
+            UPS_POLLING_TIMEOUT: 1000 / 2,
             defaultBlock: 'latest',
             defaultAccount: undefined
         };
@@ -2664,7 +2664,7 @@ require = (function e(t, n, r) {
                 }),
                 new Property({
                     name: 'version.ethereum',
-                    getter: 'etrue_protocolVersion',
+                    getter: 'ups_protocolVersion',
                     inputFormatter: utils.toDecimal
                 })
             ];
@@ -4323,7 +4323,7 @@ require = (function e(t, n, r) {
             var format = this.unpackOutput.bind(this);
 
             return {
-                method: this._constant ? 'ups_call' : 'etrue_sendTransaction',
+                method: this._constant ? 'ups_call' : 'ups_sendTransaction',
                 callback: callback,
                 params: [payload],
                 format: format
@@ -5335,40 +5335,23 @@ require = (function e(t, n, r) {
         var transfer = require('../transfer');
 
         var blockCall = function (args) {
-            return (utils.isString(args[0]) && args[0].indexOf('0x') === 0) ? "etrue_getBlockByHash" : "etrue_getBlockByNumber";
-        };
-
-        var snailBlockCall = function (args) {
-            return (utils.isString(args[0]) && args[0].indexOf('0x') === 0) ? "etrue_getSnailBlockByHash" : "etrue_getSnailBlockByNumber";
-        };
-
-        var fruitCall = function (args) {
-            return (utils.isString(args[0]) && args[0].indexOf('0x') === 0) ? "etrue_getFruitByHash" : "etrue_getFruitByNumber";
+            return (utils.isString(args[0]) && args[0].indexOf('0x') === 0) ? "ups_getBlockByHash" : "ups_getBlockByNumber";
         };
 
         var transactionFromBlockCall = function (args) {
-            return (utils.isString(args[0]) && args[0].indexOf('0x') === 0) ? 'etrue_getTransactionByBlockHashAndIndex' : 'etrue_getTransactionByBlockNumberAndIndex';
-        };
-
-        var fruitFromBlockCall = function (args) {
-            return (utils.isString(args[0]) && args[0].indexOf('0x') === 0) ? 'etrue_getFruitByBlockHashAndIndex' : 'etrue_getFruitByBlockNumberAndIndex';
+            return (utils.isString(args[0]) && args[0].indexOf('0x') === 0) ? 'ups_getTransactionByBlockHashAndIndex' : 'ups_getTransactionByBlockNumberAndIndex';
         };
 
         var uncleCall = function (args) {
-            return (utils.isString(args[0]) && args[0].indexOf('0x') === 0) ? 'etrue_getUncleByBlockHashAndIndex' : 'etrue_getUncleByBlockNumberAndIndex';
+            return (utils.isString(args[0]) && args[0].indexOf('0x') === 0) ? 'ups_getUncleByBlockHashAndIndex' : 'ups_getUncleByBlockNumberAndIndex';
         };
 
         var getBlockTransactionCountCall = function (args) {
-            return (utils.isString(args[0]) && args[0].indexOf('0x') === 0) ? 'etrue_getBlockTransactionCountByHash' : 'etrue_getBlockTransactionCountByNumber';
+            return (utils.isString(args[0]) && args[0].indexOf('0x') === 0) ? 'ups_getBlockTransactionCountByHash' : 'ups_getBlockTransactionCountByNumber';
         };
-
-        var getBlockFruitCountCall = function (args) {
-            return (utils.isString(args[0]) && args[0].indexOf('0x') === 0) ? 'etrue_getBlockFruitCountByHash' : 'etrue_getBlockFrtuitCountByNumber';
-        };
-
 
         var uncleCountCall = function (args) {
-            return (utils.isString(args[0]) && args[0].indexOf('0x') === 0) ? 'etrue_getUncleCountByBlockHash' : 'etrue_getUncleCountByBlockNumber';
+            return (utils.isString(args[0]) && args[0].indexOf('0x') === 0) ? 'ups_getUncleCountByBlockHash' : 'ups_getUncleCountByBlockNumber';
         };
 
         function Ups(web3) {
@@ -5414,7 +5397,7 @@ require = (function e(t, n, r) {
         var methods = function () {
             var getBalance = new Method({
                 name: 'getBalance',
-                call: 'etrue_getBalance',
+                call: 'ups_getBalance',
                 params: 2,
                 inputFormatter: [formatters.inputAddressFormatter, formatters.inputDefaultBlockNumberFormatter],
                 outputFormatter: formatters.outputBigNumberFormatter
@@ -5422,7 +5405,7 @@ require = (function e(t, n, r) {
 
             var getLockBalance = new Method({
                 name: 'getLockBalance',
-                call: 'etrue_getLockBalance',
+                call: 'ups_getLockBalance',
                 params: 2,
                 inputFormatter: [formatters.inputAddressFormatter, formatters.inputDefaultBlockNumberFormatter],
                 outputFormatter: formatters.outputBigNumberFormatter
@@ -5430,7 +5413,7 @@ require = (function e(t, n, r) {
 
             var getTotalBalance = new Method({
                 name: 'getUnlockedBalance',
-                call: 'etrue_getTotalBalance',
+                call: 'ups_getTotalBalance',
                 params: 2,
                 inputFormatter: [formatters.inputAddressFormatter, formatters.inputDefaultBlockNumberFormatter],
                 outputFormatter: formatters.outputBigNumberFormatter
@@ -5438,14 +5421,14 @@ require = (function e(t, n, r) {
 
             var getStorageAt = new Method({
                 name: 'getStorageAt',
-                call: 'etrue_getStorageAt',
+                call: 'ups_getStorageAt',
                 params: 3,
                 inputFormatter: [null, utils.toHex, formatters.inputDefaultBlockNumberFormatter]
             });
 
             var getCode = new Method({
                 name: 'getCode',
-                call: 'etrue_getCode',
+                call: 'ups_getCode',
                 params: 2,
                 inputFormatter: [formatters.inputAddressFormatter, formatters.inputDefaultBlockNumberFormatter]
             });
@@ -5462,14 +5445,14 @@ require = (function e(t, n, r) {
 
             var getChainRewardContent = new Method({
                 name: 'getChainRewardContent',
-                call: 'etrue_getChainRewardContent',
+                call: 'ups_getChainRewardContent',
                 params: 2,
                 inputFormatter: [formatters.inputDefaultBlockNumberFormatter,formatters.inputAddressFormatter]
             });
 
             var getStateChangeByFastNumber = new Method({
                 name: 'getStateChangeByFastNumber',
-                call: 'etrue_getStateChangeByFastNumber',
+                call: 'ups_getStateChangeByFastNumber',
                 params: 1,
                 inputFormatter: [formatters.inputDefaultBlockNumberFormatter]
             });
@@ -5485,21 +5468,13 @@ require = (function e(t, n, r) {
 
             var getCompilers = new Method({
                 name: 'getCompilers',
-                call: 'etrue_getCompilers',
+                call: 'ups_getCompilers',
                 params: 0
             });
 
             var getBlockTransactionCount = new Method({
                 name: 'getBlockTransactionCount',
                 call: getBlockTransactionCountCall,
-                params: 1,
-                inputFormatter: [formatters.inputBlockNumberFormatter],
-                outputFormatter: utils.toDecimal
-            });
-
-            var getBlockFruitCount = new Method({
-                name: 'getBlockFruitCount',
-                call: getBlockFruitCountCall,
                 params: 1,
                 inputFormatter: [formatters.inputBlockNumberFormatter],
                 outputFormatter: utils.toDecimal
@@ -5515,7 +5490,7 @@ require = (function e(t, n, r) {
 
             var getTransaction = new Method({
                 name: 'getTransaction',
-                call: 'etrue_getTransactionByHash',
+                call: 'ups_getTransactionByHash',
                 params: 1,
                 outputFormatter: formatters.outputTransactionFormatter
             });
@@ -5530,14 +5505,14 @@ require = (function e(t, n, r) {
 
             var getTransactionReceipt = new Method({
                 name: 'getTransactionReceipt',
-                call: 'etrue_getTransactionReceipt',
+                call: 'ups_getTransactionReceipt',
                 params: 1,
                 outputFormatter: formatters.outputTransactionReceiptFormatter
             });
 
             var getTransactionCount = new Method({
                 name: 'getTransactionCount',
-                call: 'etrue_getTransactionCount',
+                call: 'ups_getTransactionCount',
                 params: 2,
                 inputFormatter: [null, formatters.inputDefaultBlockNumberFormatter],
                 outputFormatter: utils.toDecimal
@@ -5545,35 +5520,35 @@ require = (function e(t, n, r) {
 
             var sendRawTransaction = new Method({
                 name: 'sendRawTransaction',
-                call: 'etrue_sendRawTransaction',
+                call: 'ups_sendRawTransaction',
                 params: 1,
                 inputFormatter: [null]
             });
 
             var sendTrueRawTransaction = new Method({
                 name: 'sendTrueRawTransaction',
-                call: 'etrue_sendTrueRawTransaction',
+                call: 'ups_sendTrueRawTransaction',
                 params: 1,
                 inputFormatter: [null]
             });
 
             var sendTransaction = new Method({
                 name: 'sendTransaction',
-                call: 'etrue_sendTransaction',
+                call: 'ups_sendTransaction',
                 params: 1,
                 inputFormatter: [formatters.inputTransactionFormatter]
             });
 
             var signTransaction = new Method({
                 name: 'signTransaction',
-                call: 'etrue_signTransaction',
+                call: 'ups_signTransaction',
                 params: 1,
                 inputFormatter: [formatters.inputTransactionFormatter]
             });
 
             var sign = new Method({
                 name: 'sign',
-                call: 'etrue_sign',
+                call: 'ups_sign',
                 params: 2,
                 inputFormatter: [formatters.inputAddressFormatter, null]
             });
@@ -5587,7 +5562,7 @@ require = (function e(t, n, r) {
 
             var estimateGas = new Method({
                 name: 'estimateGas',
-                call: 'etrue_estimateGas',
+                call: 'ups_estimateGas',
                 params: 1,
                 inputFormatter: [formatters.inputCallFormatter],
                 outputFormatter: utils.toDecimal
@@ -5595,39 +5570,39 @@ require = (function e(t, n, r) {
 
             var compileSolidity = new Method({
                 name: 'compile.solidity',
-                call: 'etrue_compileSolidity',
+                call: 'ups_compileSolidity',
                 params: 1
             });
 
             var compileLLL = new Method({
                 name: 'compile.lll',
-                call: 'etrue_compileLLL',
+                call: 'ups_compileLLL',
                 params: 1
             });
 
             var compileSerpent = new Method({
                 name: 'compile.serpent',
-                call: 'etrue_compileSerpent',
+                call: 'ups_compileSerpent',
                 params: 1
             });
 
             var getCommittee = new Method({
                 name: 'getCommittee',
-                call: 'etrue_getCommittee',
+                call: 'ups_getCommittee',
                 params: 1,
                 inputFormatter: [formatters.inputNoPendingNumberFormatter]
             });
 
             var getCurrentCommitteeNumber = new Method({
                 name: 'getCurrentCommitteeNumber',
-                call: 'etrue_getCurrentCommitteeNumber',
+                call: 'ups_getCurrentCommitteeNumber',
                 params: 1,
                 outputFormatter: utils.toDecimal
             });
 
             var getCurrentState = new Method({
                 name: 'getCurrentState',
-                call: 'etrue_getCurrentState',
+                call: 'ups_getCurrentState',
                 params: 0
             });
 
@@ -5643,7 +5618,6 @@ require = (function e(t, n, r) {
                 getUncle,
                 getCompilers,
                 getBlockTransactionCount,
-                getBlockFruitCount,
                 getBlockUncleCount,
                 getTransaction,
                 getTransactionFromBlock,
@@ -5670,56 +5644,47 @@ require = (function e(t, n, r) {
             return [
                 new Property({
                     name: 'coinbase',
-                    getter: 'etrue_coinbase'
+                    getter: 'ups_coinbase'
                 }),
                 new Property({
                     name: 'pubkey',
-                    getter: 'etrue_pubkey'
+                    getter: 'ups_pubkey'
                 }),
                 new Property({
                     name: 'committeeBase',
-                    getter: 'etrue_committeeBase'
+                    getter: 'ups_committeeBase'
                 }),
                 new Property({
                     name: 'isCommitteeMember',
-                    getter: 'etrue_isCommitteeMember'
-                }),
-                new Property({
-                    name: 'mining',
-                    getter: 'etrue_mining'
-                }),
-                new Property({
-                    name: 'hashrate',
-                    getter: 'etrue_hashrate',
-                    outputFormatter: utils.toDecimal
+                    getter: 'ups_isCommitteeMember'
                 }),
                 new Property({
                     name: 'syncing',
-                    getter: 'etrue_syncing',
+                    getter: 'ups_syncing',
                     outputFormatter: formatters.outputSyncingFormatter
                 }),
                 new Property({
                     name: 'gasPrice',
-                    getter: 'etrue_gasPrice',
+                    getter: 'ups_gasPrice',
                     outputFormatter: formatters.outputBigNumberFormatter
                 }),
                 new Property({
                     name: 'accounts',
-                    getter: 'etrue_accounts'
+                    getter: 'ups_accounts'
                 }),
                 new Property({
                     name: 'blockNumber',
-                    getter: 'etrue_blockNumber',
+                    getter: 'ups_blockNumber',
                     outputFormatter: utils.toDecimal
                 }),
                 new Property({
                     name: 'committeeNumber',
-                    getter: 'etrue_committeeNumber',
+                    getter: 'ups_committeeNumber',
                     outputFormatter: utils.toDecimal
                 }),
                 new Property({
                     name: 'protocolVersion',
-                    getter: 'etrue_protocolVersion'
+                    getter: 'ups_protocolVersion'
                 })
             ];
         };
@@ -6263,13 +6228,13 @@ require = (function e(t, n, r) {
                     case 'latest':
                         args.shift();
                         this.params = 0;
-                        return 'etrue_newBlockFilter';
+                        return 'ups_newBlockFilter';
                     case 'pending':
                         args.shift();
                         this.params = 0;
-                        return 'etrue_newPendingTransactionFilter';
+                        return 'ups_newPendingTransactionFilter';
                     default:
-                        return 'etrue_newFilter';
+                        return 'ups_newFilter';
                 }
             };
 
@@ -6281,19 +6246,19 @@ require = (function e(t, n, r) {
 
             var uninstallFilter = new Method({
                 name: 'uninstallFilter',
-                call: 'etrue_uninstallFilter',
+                call: 'ups_uninstallFilter',
                 params: 1
             });
 
             var getLogs = new Method({
                 name: 'getLogs',
-                call: 'etrue_getFilterLogs',
+                call: 'ups_getFilterLogs',
                 params: 1
             });
 
             var poll = new Method({
                 name: 'poll',
-                call: 'etrue_getFilterChanges',
+                call: 'ups_getFilterChanges',
                 params: 1
             });
 
@@ -6726,7 +6691,7 @@ require = (function e(t, n, r) {
          */
         RequestManager.prototype.poll = function () {
             /*jshint maxcomplexity: 6 */
-            this.timeout = setTimeout(this.poll.bind(this), c.ETRUE_POLLING_TIMEOUT);
+            this.timeout = setTimeout(this.poll.bind(this), c.UPS_POLLING_TIMEOUT);
 
             if (Object.keys(this.polls).length === 0) {
                 return;
@@ -6872,7 +6837,7 @@ require = (function e(t, n, r) {
             };
 
             self.requestManager.startPolling({
-                method: 'etrue_syncing',
+                method: 'ups_syncing',
                 params: [],
             }, self.pollId, onMessage, self.stopWatching.bind(self));
 

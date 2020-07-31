@@ -295,49 +295,13 @@ func queryRewardImpawn(ctx *cli.Context) error {
 		Number *hexutil.Big `json:"number"`
 	}{}
 
-	err = client.Call(&head, "etrue_getSnailBlockByNumber", "latest", false)
+	err = client.Call(&head, "ups_getChainRewardContent", "latest", false)
 	if err != nil {
-		fmt.Println("etrue_getSnailBlockByNumber:", err.Error())
+		fmt.Println("ups_getChainRewardContent:", err.Error())
 		return err
 	}
 
-	var (
-		snailNumber uint64
-		start       uint64
-	)
 
-	if ctx.GlobalIsSet(SnailNumberFlag.Name) {
-		snailNumber = ctx.GlobalUint64(SnailNumberFlag.Name)
-	}
-
-	if snailNumber < 1 {
-		start = head.Number.ToInt().Uint64() - 100
-	} else {
-		start = snailNumber
-	}
-
-	for i := start; i < head.Number.ToInt().Uint64()-14; i++ {
-
-		var reward types.ChainReward
-		address := common.HexToAddress("0x0000000000000000000000000000000000000000")
-		err = client.Call(&reward, "etrue_getChainRewardContent", hexutil.EncodeBig(new(big.Int).SetUint64(i)), address)
-		if err != nil {
-			fmt.Println("etrue_getChainRewardContent:", err.Error())
-			return err
-		}
-
-		total := new(big.Int).SetUint64(0)
-		for _, v := range reward.CommitteeBase {
-			for _, vv := range v.Items {
-				total.Add(total, vv.Amount)
-			}
-		}
-		committeeReward, _ := new(big.Int).SetString("19268837169230000000", 10)
-		if total.Cmp(committeeReward) > 0 {
-			fmt.Println("----------------------------------------------------------------")
-		}
-		fmt.Println("Block Number", i, " committeeReward total ", total)
-	}
 
 	return nil
 }

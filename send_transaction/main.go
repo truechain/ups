@@ -110,9 +110,9 @@ func send(count int, ip string) {
 		return
 	}
 
-	err = client.Call(&account, "etrue_accounts")
+	err = client.Call(&account, "ups_accounts")
 	if err != nil {
-		fmt.Println("etrue_accounts Error", err.Error())
+		fmt.Println("ups_accounts Error", err.Error())
 		msg <- false
 		return
 	}
@@ -245,7 +245,7 @@ func sendRawTransaction(client *rpc.Client, from string, to string, value string
 	mapData["value"] = value
 
 	var result string
-	err := client.Call(&result, "etrue_sendTransaction", mapData)
+	err := client.Call(&result, "ups_sendTransaction", mapData)
 	return result, err
 }
 
@@ -266,9 +266,9 @@ func genAddress() string {
 func getAccountBalance(client *rpc.Client, account string) *big.Int {
 	var result hexutil.Big
 	// get balance
-	err := client.Call(&result, "etrue_getBalance", account, "latest")
+	err := client.Call(&result, "ups_getBalance", account, "latest")
 	if err != nil {
-		fmt.Println("etrue_getBalance Error:", err)
+		fmt.Println("ups_getBalance Error:", err)
 		msg <- false
 		return nil
 	}
@@ -346,7 +346,7 @@ func checkSonAccountBalance(client *rpc.Client, count int, main *big.Int) bool {
 			return false
 		}
 		balanceTrue := new(big.Int).Set(balance)
-		fmt.Println("etrue_getBalance son address ", account[i], " result ", balance, " i ", i, " true ", balanceTrue.Div(balanceTrue, big.NewInt(1000000000000000000)))
+		fmt.Println("ups_getBalance son address ", account[i], " result ", balance, " i ", i, " true ", balanceTrue.Div(balanceTrue, big.NewInt(1000000000000000000)))
 		if balance.Cmp(average) < 0 {
 			fmt.Println(i, " Transaction main address ", account[from], " son address ", account[i], " value ", value)
 			if result, err := sendRawTransaction(client, account[from], v, value); err != nil {
