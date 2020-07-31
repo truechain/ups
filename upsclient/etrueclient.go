@@ -228,14 +228,6 @@ func (ec *Client) TransactionCount(ctx context.Context, blockHash common.Hash) (
 	err := ec.c.CallContext(ctx, &num, "etrue_getBlockTransactionCountByHash", blockHash)
 	return uint(num), err
 }
-
-// FruitCount returns the total number of fruits in the given block.
-func (ec *Client) FruitCount(ctx context.Context, blockHash common.Hash) (uint, error) {
-	var num hexutil.Uint
-	err := ec.c.CallContext(ctx, &num, "etrue_getBlockFruitCountByHash", blockHash)
-	return uint(num), err
-}
-
 // TransactionInBlock returns a single transaction at index in the given block.
 func (ec *Client) TransactionInBlock(ctx context.Context, blockHash common.Hash, index uint) (*types.Transaction, error) {
 	var json *rpcTransaction
