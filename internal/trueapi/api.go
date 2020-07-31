@@ -1808,9 +1808,9 @@ func (s *PublicFileAPI) UploadFile(ctx context.Context, fArgs FileArgs) (hexutil
 	log.Info("UploadFile", "Name", fArgs.Name,"addr",addr)
 	return nil,nil
 }
-func (s *PublicFileAPI) GetFile(ctx context.Context,name string, fHash common.Hash) (*CatFileResult,error) {
+func (s *PublicFileAPI) GetFile(ctx context.Context,name string, fHash common.Hash) (map[string]interface{},error) {
 	res := &CatFileResult{
 		Name: name,
 	}
-	return res,nil
+	return types.ToJSON(res),nil
 }

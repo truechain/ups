@@ -662,3 +662,23 @@ func (ec *Client) GetChainRewardContent(ctx context.Context, account common.Addr
 	}
 	return result, nil
 }
+func toFileArgs(name string)  interface{} {
+	return nil
+}
+func (ec *Client) UploadFile(ctx context.Context,name string) ([]byte, error) {
+	var hex hexutil.Bytes
+	err := ec.c.CallContext(ctx, &hex, "ups_uploadFile", toFileArgs(name))
+	if err != nil {
+		return nil, err
+	}
+	return hex, nil
+}
+
+func (ec *Client) GetFile(ctx context.Context,name string,hash common.Hash) (map[string]interface{}, error) {
+	var result map[string]interface{}
+	err := ec.c.CallContext(ctx, &result, "ups_getFile", name,hash)
+	if err != nil {
+		return nil, err
+	}
+	return result, nil
+}
