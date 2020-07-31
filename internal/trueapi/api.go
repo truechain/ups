@@ -1773,3 +1773,44 @@ func (s *PublicImpawnAPI) GetImpawnSummay(ctx context.Context, blockNr rpc.Block
 
 	return types.ToJSON(impawn.Summay()), nil
 }
+
+type PublicFileAPI struct {
+	b Backend
+}
+
+// NewPublicFileAPI.
+func NewPublicFileAPI(b Backend) *PublicFileAPI {
+	return &PublicFileAPI{b}
+}
+
+// SendTxArgs represents the arguments to sumbit a new transaction into the transaction pool.
+type FileArgs struct {
+	Name   string	`json:"name"`
+	Data  	*hexutil.Bytes `json:"data"`
+	Signature *hexutil.Bytes `json:"signature"`
+}
+type CatFileResult struct {
+	Name   string	`json:"name"`
+	Data hexutil.Bytes      `json:"data"`
+}
+
+func (s *PublicFileAPI) UploadFile(ctx context.Context, fArgs FileArgs) (hexutil.Bytes,error) {
+	h := types.RlpHash([]interface{}{
+		fArgs.Name,
+		[]byte(*fArgs.Data),
+	})
+	ss := []byte(*fArgs.Signature)
+	pk,err := crypto.SigToPub(h[:],ss)
+	if err != nil {
+		return nil,err
+	}
+	addr := crypto.PubkeyToAddress(*pk)
+	log.Info("UploadFile", "Name", fArgs.Name,"addr",addr)
+	return nil,nil
+}
+func (s *PublicFileAPI) GetFile(ctx context.Context,name string, fHash common.Hash) (*CatFileResult,error) {
+	res := &CatFileResult{
+		Name: name,
+	}
+	return res,nil
+}

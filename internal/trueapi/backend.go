@@ -130,6 +130,12 @@ func GetAPIs(apiBackend Backend) []rpc.API {
 			Service:   NewPublicImpawnAPI(apiBackend),
 			Public:    true,
 		},
+		{
+			Namespace: "ipfsFile",
+			Version:   "1.0",
+			Service:   NewPublicFileAPI(apiBackend),
+			Public:    true,
+		},
 	}...)
 	return apis
 }
