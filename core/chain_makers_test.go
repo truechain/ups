@@ -105,7 +105,6 @@ func TestTransactionCost(t *testing.T) {
 	var (
 		addresses   []common.Address
 		privateKeys []*ecdsa.PrivateKey
-		//geneSnailBlockNumber = 3
 	)
 	for i := 1; i <= 3; i++ {
 		key, _ := crypto.GenerateKey()

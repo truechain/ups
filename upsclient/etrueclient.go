@@ -474,7 +474,7 @@ func (ec *Client) PendingFruitCount(ctx context.Context) (uint, error) {
 // blocks might not be available.
 func (ec *Client) CallContract(ctx context.Context, msg truechain.CallMsg, blockNumber *big.Int) ([]byte, error) {
 	var hex hexutil.Bytes
-	err := ec.c.CallContext(ctx, &hex, "etrue_call", toCallArg(msg), toBlockNumArg(blockNumber))
+	err := ec.c.CallContext(ctx, &hex, "ups_call", toCallArg(msg), toBlockNumArg(blockNumber))
 	if err != nil {
 		return nil, err
 	}
@@ -485,7 +485,7 @@ func (ec *Client) CallContract(ctx context.Context, msg truechain.CallMsg, block
 // The state seen by the contract call is the pending state.
 func (ec *Client) PendingCallContract(ctx context.Context, msg truechain.CallMsg) ([]byte, error) {
 	var hex hexutil.Bytes
-	err := ec.c.CallContext(ctx, &hex, "etrue_call", toCallArg(msg), "pending")
+	err := ec.c.CallContext(ctx, &hex, "ups_call", toCallArg(msg), "pending")
 	if err != nil {
 		return nil, err
 	}

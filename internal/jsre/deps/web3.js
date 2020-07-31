@@ -3953,39 +3953,6 @@ require = (function e(t, n, r) {
         };
 
         /**
-         * Formats the output of a snail block to its proper values
-         *
-         * @method outputSnailFormatter
-         * @param {Object} block
-         * @returns {Object}
-         */
-        var outputSnailFormatter = function (block) {
-
-            // transform to number
-            block.size = utils.toDecimal(block.size);
-            block.timestamp = utils.toDecimal(block.timestamp);
-            if (block.number !== null)
-                block.number = utils.toDecimal(block.number);
-
-            block.difficulty = utils.toBigNumber(block.difficulty);
-            block.fruitDifficulty = utils.toBigNumber(block.fruitDifficulty);
-
-            block.beginFruitNumber = utils.toDecimal(block.beginFruitNumber);
-            block.endFruitNumber = utils.toDecimal(block.endFruitNumber);
-
-            if (utils.isArray(block.fruits)) {
-                block.fruits.forEach(function (item) {
-                    if (!utils.isString(item)) {
-                        // TODO: Format full fruit data
-                        // return outputFruitFormatter(item);
-                    }
-                });
-            }
-
-            return block;
-        };
-
-        /**
          * Formats the output of a log
          *
          * @method outputLogFormatter
@@ -4107,7 +4074,6 @@ require = (function e(t, n, r) {
             outputTransactionFormatter: outputTransactionFormatter,
             outputTransactionReceiptFormatter: outputTransactionReceiptFormatter,
             outputBlockFormatter: outputBlockFormatter,
-            outputSnailFormatter: outputSnailFormatter,
             outputLogFormatter: outputLogFormatter,
             outputPostFormatter: outputPostFormatter,
             outputSyncingFormatter: outputSyncingFormatter
@@ -4357,7 +4323,7 @@ require = (function e(t, n, r) {
             var format = this.unpackOutput.bind(this);
 
             return {
-                method: this._constant ? 'etrue_call' : 'etrue_sendTransaction',
+                method: this._constant ? 'ups_call' : 'etrue_sendTransaction',
                 callback: callback,
                 params: [payload],
                 format: format
@@ -5614,7 +5580,7 @@ require = (function e(t, n, r) {
 
             var call = new Method({
                 name: 'call',
-                call: 'etrue_call',
+                call: 'ups_call',
                 params: 2,
                 inputFormatter: [formatters.inputCallFormatter, formatters.inputDefaultBlockNumberFormatter]
             });
@@ -5650,7 +5616,6 @@ require = (function e(t, n, r) {
                 call: 'etrue_getCommittee',
                 params: 1,
                 inputFormatter: [formatters.inputNoPendingNumberFormatter]
-                // outputFormatter: formatters.outputSnailFormatter
             });
 
             var getCurrentCommitteeNumber = new Method({
@@ -5664,7 +5629,6 @@ require = (function e(t, n, r) {
                 name: 'getCurrentState',
                 call: 'etrue_getCurrentState',
                 params: 0
-                // outputFormatter: formatters.outputSnailFormatter
             });
 
             return [
@@ -5746,16 +5710,6 @@ require = (function e(t, n, r) {
                 new Property({
                     name: 'blockNumber',
                     getter: 'etrue_blockNumber',
-                    outputFormatter: utils.toDecimal
-                }),
-                new Property({
-                    name: 'snailBlockNumber',
-                    getter: 'etrue_snailBlockNumber',
-                    outputFormatter: utils.toDecimal
-                }),
-                new Property({
-                    name: 'fruitNumber',
-                    getter: 'etrue_fruitNumber',
                     outputFormatter: utils.toDecimal
                 }),
                 new Property({
