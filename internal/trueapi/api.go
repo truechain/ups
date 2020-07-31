@@ -199,18 +199,6 @@ func (s *PublicAccountAPI) Accounts() []common.Address {
 	return addresses
 }
 
-// RPCFruits represents a fruit that will serialize to the RPC representation of a fruit
-type RPCFruit struct {
-	Number          *hexutil.Big `json:"number"`
-	FruitDifficulty *hexutil.Big `json:"fruitDifficulty"`
-	FruitHash       common.Hash  `json:"fruitHash"`
-	FastHash        common.Hash  `json:"fastHash"`
-	FastNumber      *hexutil.Big `json:"fastNumber"`
-	SignHash        common.Hash  `json:"signHash"`
-	PointerHash     common.Hash  `json:"pointerHash"`
-	PointerNumber   *hexutil.Big `json:"pointerNumber"`
-}
-
 // PrivateAccountAPI provides an API to access accounts managed by this node.
 // It offers methods to create, (un)lock en list accounts. Some methods accept
 // passwords and are therefore considered private by default.
