@@ -1812,5 +1812,8 @@ func (s *PublicFileAPI) GetFile(ctx context.Context,name string, fHash common.Ha
 	res := &CatFileResult{
 		Name: name,
 	}
-	return types.ToJSON(res),nil
+	obj := make(map[string]interface{})
+	obj["name"] = res.Name
+	obj["data"] = hexutil.Bytes(res.Data)
+	return obj,nil
 }

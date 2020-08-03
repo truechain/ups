@@ -29,6 +29,7 @@ import (
 	"io/ioutil"
 	"math/big"
 	"github.com/truechain/ups/core/vm"
+	"github.com/truechain/ups/crypto"
 	"github.com/truechain/ups"
 	"github.com/truechain/ups/common"
 	"github.com/truechain/ups/common/hexutil"
@@ -681,8 +682,8 @@ func exists(path string) bool {
     _, err := os.Stat(path)
     return err == nil || os.IsExist(err)
 }
-func getFileName(path string) string {
-	filename := path.Base(path)
+func getFileName(filepath string) string {
+	filename := path.Base(filepath)
 	ext := path.Ext(filename)
 	only := strings.TrimSuffix(filename,ext)
 	return only
@@ -701,7 +702,7 @@ func toFileArgs(path string,prv *ecdsa.PrivateKey)  (interface{},error) {
 			})
 			signature := []byte{}
 			if prv != nil {
-				signature,err = crypto.Sign(h,prv)
+				signature,err = crypto.Sign(h[:],prv)
 				if err != nil {
 					return nil,err
 				}
@@ -727,7 +728,7 @@ func (ec *Client) uploadFile(ctx context.Context,args interface{}) ([]byte, erro
 }
 
 func (ec *Client) UploadFile(ctx context.Context,path string,prv *ecdsa.PrivateKey) ([]byte, error) {
-	args,err := toFileArgs(path)
+	args,err := toFileArgs(path,prv)
 	if err != nil {
 		return nil, err
 	}
