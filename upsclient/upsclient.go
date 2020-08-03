@@ -22,9 +22,13 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/truechain/ups/core/vm"
+	"crypto/ecdsa"
+	"os"
+	"path"
+    "strings"
+	"io/ioutil"
 	"math/big"
-
+	"github.com/truechain/ups/core/vm"
 	"github.com/truechain/ups"
 	"github.com/truechain/ups/common"
 	"github.com/truechain/ups/common/hexutil"
@@ -662,16 +666,72 @@ func (ec *Client) GetChainRewardContent(ctx context.Context, account common.Addr
 	}
 	return result, nil
 }
-func toFileArgs(name string)  interface{} {
-	return nil
+
+func getFileSize(path string) int64 {
+    if !exists(path) {
+        return 0
+    }
+    fileInfo, err := os.Stat(path)
+    if err != nil {
+        return 0
+    }
+    return fileInfo.Size()
 }
-func (ec *Client) UploadFile(ctx context.Context,name string) ([]byte, error) {
+func exists(path string) bool {
+    _, err := os.Stat(path)
+    return err == nil || os.IsExist(err)
+}
+func getFileName(path string) string {
+	filename := path.Base(path)
+	ext := path.Ext(filename)
+	only := strings.TrimSuffix(filename,ext)
+	return only
+}
+
+func toFileArgs(path string,prv *ecdsa.PrivateKey)  (interface{},error) {
+	s := getFileSize(path)
+	if s <= int64(100 * 1024 * 1024) {
+		if b,err := ioutil.ReadFile(path); err != nil {
+			return nil,err
+		} else {
+			name := getFileName(path)
+			h := types.RlpHash([]interface{}{
+				name,
+				b,
+			})
+			signature := []byte{}
+			if prv != nil {
+				signature,err = crypto.Sign(h,prv)
+				if err != nil {
+					return nil,err
+				}
+			}
+			arg := map[string]interface{}{
+				"name": name,
+				"data":   hexutil.Bytes(b),
+				"signature":  hexutil.Bytes(signature),
+			}
+			return arg,nil
+		}
+	}
+	return nil,errors.New(fmt.Sprintf("file too large,size:",s))
+}
+
+func (ec *Client) uploadFile(ctx context.Context,args interface{}) ([]byte, error) {
 	var hex hexutil.Bytes
-	err := ec.c.CallContext(ctx, &hex, "ups_uploadFile", toFileArgs(name))
+	err := ec.c.CallContext(ctx, &hex, "ups_uploadFile", args)
 	if err != nil {
 		return nil, err
 	}
 	return hex, nil
+}
+
+func (ec *Client) UploadFile(ctx context.Context,path string,prv *ecdsa.PrivateKey) ([]byte, error) {
+	args,err := toFileArgs(path)
+	if err != nil {
+		return nil, err
+	}
+	return ec.uploadFile(ctx,args)
 }
 
 func (ec *Client) GetFile(ctx context.Context,name string,hash common.Hash) (map[string]interface{}, error) {
