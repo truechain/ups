@@ -36,7 +36,7 @@ import (
 	"github.com/truechain/ups/core/types"
 	"github.com/truechain/ups/core/vm"
 	"github.com/truechain/ups/ups/tracers"
-	"github.com/truechain/ups/internal/trueapi"
+	"github.com/truechain/ups/internal/upsapi"
 	"github.com/truechain/ups/rpc"
 	"github.com/truechain/ups/trie"
 )
@@ -600,11 +600,11 @@ func (api *PrivateDebugAPI) traceTx(ctx context.Context, message core.Message, v
 	// Depending on the tracer type, format and return the output
 	switch tracer := tracer.(type) {
 	case *vm.StructLogger:
-		return &trueapi.ExecutionResult{
+		return &upsapi.ExecutionResult{
 			Gas:         gas,
 			Failed:      failed,
 			ReturnValue: fmt.Sprintf("%x", ret),
-			StructLogs:  trueapi.FormatLogs(tracer.StructLogs()),
+			StructLogs:  upsapi.FormatLogs(tracer.StructLogs()),
 		}, nil
 
 	case *tracers.Tracer:

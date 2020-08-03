@@ -24,7 +24,7 @@ import (
 
 	"github.com/robertkrimen/otto"
 	"github.com/truechain/ups/common"
-	"github.com/truechain/ups/internal/trueapi"
+	"github.com/truechain/ups/internal/upsapi"
 	"github.com/truechain/ups/log"
 	"github.com/truechain/ups/signer/core"
 	"github.com/truechain/ups/signer/rules/deps"
@@ -235,7 +235,7 @@ func (r *rulesetUI) OnSignerStartup(info core.StartupInfo) {
 	}
 }
 
-func (r *rulesetUI) OnApprovedTx(tx trueapi.SignTransactionResult) {
+func (r *rulesetUI) OnApprovedTx(tx upsapi.SignTransactionResult) {
 	jsonTx, err := json.Marshal(tx)
 	if err != nil {
 		log.Warn("failed marshalling transaction", "tx", tx)

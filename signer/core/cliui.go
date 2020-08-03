@@ -26,7 +26,7 @@ import (
 
 	"github.com/davecgh/go-spew/spew"
 	"github.com/truechain/ups/common"
-	"github.com/truechain/ups/internal/trueapi"
+	"github.com/truechain/ups/internal/upsapi"
 	"github.com/truechain/ups/log"
 	"golang.org/x/crypto/ssh/terminal"
 )
@@ -234,7 +234,7 @@ func (ui *CommandlineUI) ShowInfo(message string) {
 	fmt.Printf("Info: %v\n", message)
 }
 
-func (ui *CommandlineUI) OnApprovedTx(tx trueapi.SignTransactionResult) {
+func (ui *CommandlineUI) OnApprovedTx(tx upsapi.SignTransactionResult) {
 	fmt.Printf("Transaction signed:\n ")
 	spew.Dump(tx.Tx)
 }

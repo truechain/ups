@@ -43,7 +43,7 @@ import (
 	"github.com/truechain/ups/ups/gasprice"
 	"github.com/truechain/ups/upsdb"
 	"github.com/truechain/ups/event"
-	"github.com/truechain/ups/internal/trueapi"
+	"github.com/truechain/ups/internal/upsapi"
 	"github.com/truechain/ups/log"
 	"github.com/truechain/ups/node"
 	"github.com/truechain/ups/p2p"
@@ -85,7 +85,7 @@ type Upschain struct {
 	APIBackend *TrueAPIBackend
 	gasPrice  *big.Int
 	networkID     uint64
-	netRPCService *trueapi.PublicNetAPI
+	netRPCService *upsapi.PublicNetAPI
 
 	pbftServer *tbft.Node
 
@@ -252,7 +252,7 @@ func CreateConsensusEngine(ctx *node.ServiceContext, config *ethash.Config,db up
 // APIs return the collection of RPC services the ups package offers.
 // NOTE, some of these services probably need to be moved to somewhere else.
 func (s *Upschain) APIs() []rpc.API {
-	apis := trueapi.GetAPIs(s.APIBackend)
+	apis := upsapi.GetAPIs(s.APIBackend)
 
 	// Append any APIs exposed explicitly by the consensus engine
 	apis = append(apis, s.engine.APIs(s.BlockChain())...)
@@ -343,7 +343,7 @@ func (s *Upschain) Start(srvr *p2p.Server) error {
 	s.startBloomHandlers()
 
 	// Start the RPC service
-	s.netRPCService = trueapi.NewPublicNetAPI(srvr, s.NetVersion())
+	s.netRPCService = upsapi.NewPublicNetAPI(srvr, s.NetVersion())
 
 	// Figure out a max peers count based on the server limits
 	maxPeers := srvr.MaxPeers

@@ -32,7 +32,7 @@ import (
 	"github.com/truechain/ups/common"
 	"github.com/truechain/ups/common/hexutil"
 	"github.com/truechain/ups/core/types"
-	"github.com/truechain/ups/internal/trueapi"
+	"github.com/truechain/ups/internal/upsapi"
 	"github.com/truechain/ups/rlp"
 )
 
@@ -44,7 +44,7 @@ type HeadlessUI struct {
 func (ui *HeadlessUI) OnSignerStartup(info StartupInfo) {
 }
 
-func (ui *HeadlessUI) OnApprovedTx(tx trueapi.SignTransactionResult) {
+func (ui *HeadlessUI) OnApprovedTx(tx upsapi.SignTransactionResult) {
 	fmt.Printf("OnApproved called")
 }
 
@@ -276,7 +276,7 @@ func TestSignTx(t *testing.T) {
 
 	var (
 		list      Accounts
-		res, res2 *trueapi.SignTransactionResult
+		res, res2 *upsapi.SignTransactionResult
 		err       error
 	)
 

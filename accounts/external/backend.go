@@ -28,7 +28,7 @@ import (
 	"github.com/truechain/ups/accounts"
 	"github.com/truechain/ups/core/types"
 	"github.com/truechain/ups/event"
-	"github.com/truechain/ups/internal/trueapi"
+	"github.com/truechain/ups/internal/upsapi"
 	"github.com/truechain/ups/rpc"
 	"github.com/truechain/ups/signer/core"
 )
@@ -181,7 +181,7 @@ func (api *ExternalSigner) SignText(account accounts.Account, text []byte) ([]by
 }
 
 func (api *ExternalSigner) SignTx(account accounts.Account, tx *types.Transaction, chainID *big.Int) (*types.Transaction, error) {
-	res := trueapi.SignTransactionResult{}
+	res := upsapi.SignTransactionResult{}
 	data := hexutil.Bytes(tx.Data())
 	var to *common.MixedcaseAddress
 	if tx.To() != nil {

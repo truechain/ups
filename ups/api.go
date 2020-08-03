@@ -33,7 +33,7 @@ import (
 	"github.com/truechain/ups/core/state"
 	"github.com/truechain/ups/core/types"
 	"github.com/truechain/ups/crypto"
-	"github.com/truechain/ups/internal/trueapi"
+	"github.com/truechain/ups/internal/upsapi"
 	"github.com/truechain/ups/params"
 	"github.com/truechain/ups/rlp"
 	"github.com/truechain/ups/rpc"
@@ -250,7 +250,7 @@ func (api *PrivateDebugAPI) GetBadBlocks(ctx context.Context) ([]*BadBlockArgs, 
 		} else {
 			results[i].RLP = fmt.Sprintf("0x%x", rlpBytes)
 		}
-		if results[i].Block, err = trueapi.RPCMarshalBlock(block, true, true); err != nil {
+		if results[i].Block, err = upsapi.RPCMarshalBlock(block, true, true); err != nil {
 			results[i].Block = map[string]interface{}{"error": err.Error()}
 		}
 	}
