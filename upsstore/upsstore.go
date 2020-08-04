@@ -3,7 +3,7 @@ package upsstore
 import (
 	"bytes"
 	// "context"
-	// "errors"
+	"errors"
 	"fmt"
 	"os"
 	"bufio"
@@ -72,7 +72,13 @@ type UpsFile struct {
 func (u *UpsFile) Event() {
 }
 func (u *UpsFile) Wait() {
-
+}
+func (u *UpsFile) getFileNameInCache(cfg *ipfsConfig) string {
+	if cfg == nil {
+		cfg = getDefaultIpfsConfig()
+	}
+	filename := filepath.Join(cfg.dir,file.name)
+	return filename
 }
 func (u *UpsFile) setFileHash(hash string) {
 	u.hash = hash
@@ -83,10 +89,10 @@ type FileMgr struct {
 }
 
 func cacheFileToHard(cfg *ipfsConfig,file *UpsFile) error {
-	if cfg == nil {
-		cfg = getDefaultIpfsConfig()
+	if file == nil {
+		return errors.New("file is nil")
 	}
-	filename := filepath.Join(cfg.dir,file.name)
+	filename := file.getFileNameInCache(cfg)
 	dstFile, err := os.OpenFile(filename, os.O_CREATE|os.O_WRONLY, os.ModePerm)
 	if err != nil {
 		log.Error("open file failed", "name", filename, "err", err)
@@ -109,6 +115,9 @@ func removeFileInCache(cfg *ipfsConfig,name string) error {
 	return nil
 }
 func AddFile(file *UpsFile) error {
+	return nil
+}
+func GetFile(name,hash string,addr common.Address) *UpsFile {
 	return nil
 }
 
