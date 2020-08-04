@@ -1342,8 +1342,6 @@ func TestModify(t *testing.T) {
 		fmt.Println("Shift1:",err)
 		return
 	}
-	fmt.Println("MakeModifyStateByTip10")
-	impawn.MakeModifyStateByTip10()
 	print_sas(impawn.GetAllStakingAccount())
 	fmt.Println("Shift3..................")
 	print_election(impawn,3)

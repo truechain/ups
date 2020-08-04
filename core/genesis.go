@@ -255,7 +255,7 @@ func (g *Genesis) ToFastBlock(db upsdb.Database) *types.Block {
 			statedb.SetState(addr, key, value)
 		}
 	}
-	consensus.OnceInitImpawnState(g.Config,statedb,new(big.Int).SetUint64(g.Number))
+	consensus.OnceInitImpawnState(g.Config,statedb)
 	if consensus.IsTIP8() {
 		impl := vm.NewImpawnImpl()
 		hh := g.Number

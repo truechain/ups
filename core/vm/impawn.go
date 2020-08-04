@@ -526,20 +526,7 @@ func (s *StakingAccount) isvalid() bool {
 	}
 	return s.Unit.isValid()
 }
-// MakeModifyStateByTip10 once called by tip10 
-func (s *StakingAccount) makeModifyStateByTip10() {
-	if s.Modify == nil {
-		s.Modify = &AlterableInfo{
-			Fee: 		new(big.Int).Set(types.InvalidFee),
-			VotePubkey:	[]byte{},
-		}
-	} else {
-		if s.Modify.Fee == nil || s.Modify.Fee.Sign() == 0 {
-			s.Modify.Fee = new(big.Int).Set(types.InvalidFee)
-			s.Modify.VotePubkey = []byte{}
-		}
-	}
-}
+
 type SAImpawns []*StakingAccount
 
 func (s *SAImpawns) getAllStaking(hh uint64) *big.Int {
@@ -1292,14 +1279,7 @@ func (i *ImpawnImpl) getAsset(addr common.Address, epoch uint64, op uint8) (map[
 	}
 	return nil, nil
 }
-func (i *ImpawnImpl) MakeModifyStateByTip10() {
-	if val, ok := i.accounts[i.curEpochID]; ok {
-		for _, v := range val {
-			v.makeModifyStateByTip10()
-		}
-		log.Info("impawn: MakeModifyStateByTip10")
-	}
-}
+
 /////////////////////////////////////////////////////////////////////////////////
 // storage layer
 func (i *ImpawnImpl) GetRoot() common.Hash {

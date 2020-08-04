@@ -169,7 +169,7 @@ func generateAddr() common.Address {
 func toFirstBlock(statedb *state.StateDB)  {
 	statedb.AddBalance(common.HexToAddress(addr1),balance1)
 	config := params.DevnetChainConfig
-	consensus.OnceInitImpawnState(config,statedb,new(big.Int).SetUint64(0))
+	consensus.OnceInitImpawnState(config,statedb)
 	root = statedb.IntermediateRoot(false)
 	statedb.Commit(false)
 	statedb.Database().TrieDB().Commit(root, true)
