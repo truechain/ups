@@ -34,7 +34,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/truechain/truechain-engineering-code/log"
+	"github.com/truechain/ups/log"
 )
 
 // Handler is the global debugging handler.

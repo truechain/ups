@@ -26,10 +26,10 @@ import (
 
 	"github.com/fjl/memsize/memsizeui"
 	colorable "github.com/mattn/go-colorable"
-	"github.com/truechain/truechain-engineering-code/log"
-	"github.com/truechain/truechain-engineering-code/metrics"
-	"github.com/truechain/truechain-engineering-code/metrics/exp"
 	"github.com/mattn/go-isatty"
+	"github.com/truechain/ups/log"
+	"github.com/truechain/ups/metrics"
+	"github.com/truechain/ups/metrics/exp"
 	"gopkg.in/urfave/cli.v1"
 )
 
