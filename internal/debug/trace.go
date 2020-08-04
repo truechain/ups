@@ -23,7 +23,7 @@ import (
 	"os"
 	"runtime/trace"
 
-	"github.com/truechain/truechain-engineering-code/log"
+	"github.com/truechain/ups/log"
 )
 
 // StartGoTrace turns on tracing, writing to the given file.
