@@ -56,7 +56,6 @@ var (
 			MinimumFruitDifficulty: big.NewInt(262144),
 			DurationLimit:          big.NewInt(600),
 		}),
-		TIP3: &BlockConfig{FastNumber: big.NewInt(1500000)},
 	}
 
 	// MainnetTrustedCheckpoint contains the light client trusted checkpoint for the main network.
@@ -88,7 +87,6 @@ var (
 			MinimumFruitDifficulty: big.NewInt(200),
 			DurationLimit:          big.NewInt(600),
 		}),
-		TIP3: &BlockConfig{FastNumber: big.NewInt(450000)},
 	}
 
 	// TestnetTrustedCheckpoint contains the light client trusted checkpoint for the Ropsten test network.
@@ -120,7 +118,6 @@ var (
 			MinimumFruitDifficulty: big.NewInt(100),
 			DurationLimit:          big.NewInt(150),
 		}),
-		TIP3: &BlockConfig{FastNumber: big.NewInt(380000)},
 	}
 
 	SingleNodeChainConfig = &ChainConfig{
@@ -130,7 +127,6 @@ var (
 			MinimumFruitDifficulty: big.NewInt(2),
 			DurationLimit:          big.NewInt(120),
 		}),
-		TIP3: &BlockConfig{FastNumber: big.NewInt(380000)},
 	}
 
 	// TestnetTrustedCheckpoint contains the light client trusted checkpoint for the Ropsten test network.
@@ -147,12 +143,12 @@ var (
 	chainId = big.NewInt(9223372036854775790)
 	// This configuration is intentionally not using keyed fields to force anyone
 	// adding flags to the config to also have to set these fields.
-	AllMinervaProtocolChanges = &ChainConfig{ChainID: chainId, Minerva: new(MinervaConfig), TIP3: &BlockConfig{FastNumber: big.NewInt(0)}}
+	AllMinervaProtocolChanges = &ChainConfig{ChainID: chainId, Minerva: new(MinervaConfig)}
 
 	// This configuration is intentionally not using keyed fields to force anyone
 	// adding flags to the config to also have to set these fields.
 
-	TestChainConfig = &ChainConfig{ChainID: chainId, Minerva: &MinervaConfig{MinimumDifficulty, MinimumFruitDifficulty, DurationLimit}, TIP3: &BlockConfig{FastNumber: big.NewInt(0)}}
+	TestChainConfig = &ChainConfig{ChainID: chainId, Minerva: &MinervaConfig{MinimumDifficulty, MinimumFruitDifficulty, DurationLimit}}
 )
 
 // TrustedCheckpoint represents a set of post-processed trie roots (CHT and
@@ -211,8 +207,6 @@ type ChainConfig struct {
 	// Various consensus engines
 	Minerva *MinervaConfig `json:"minerva"`
 	//Clique *CliqueConfig  `json:"clique,omitempty"`
-
-	TIP3 *BlockConfig `json:"tip3"`
 
 	TIPStake *BlockConfig `json:"tipstake"`
 }
@@ -415,26 +409,15 @@ func (err *ConfigCompatError) Error() string {
 // phases.
 type Rules struct {
 	ChainID *big.Int
-	IsTIP3  bool
 }
 
 // Rules ensures c's ChainID is not nil.
-func (c *ChainConfig) Rules(num *big.Int) Rules {
+func (c *ChainConfig) Rules() Rules {
 	chainID := c.ChainID
 	if chainID == nil {
 		chainID = new(big.Int)
 	}
 	return Rules{
 		ChainID: new(big.Int).Set(chainID),
-		IsTIP3:  c.IsTIP3(num),
 	}
 }
-
-// IsTIP3 returns whether num is either equal to the IsTIP3 fork block or greater.
-func (c *ChainConfig) IsTIP3(num *big.Int) bool {
-	if c.TIP3 == nil {
-		return false
-	}
-	return isForked(c.TIP3.FastNumber, num)
-}
-
