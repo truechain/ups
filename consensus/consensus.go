@@ -140,5 +140,5 @@ func makeImpawInitState(config *params.ChainConfig,state *state.StateDB) bool {
 	return true
 }
 func OnceInitImpawnState(config *params.ChainConfig,state *state.StateDB) bool {
-	return makeImpawInitState(config,state,fastNumber)
+	return makeImpawInitState(config,state)
 }
