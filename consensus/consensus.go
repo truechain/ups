@@ -121,38 +121,24 @@ type PoW interface {
 	Engine
 }
 
-func IsTIP8() bool {
-	return true
-}
-func updateForkedPoint(forkedID, fastNumber *big.Int, config *params.ChainConfig) {
-	if config.TIP8.CID.Cmp(forkedID) == 0 && config.TIP8.FastNumber.Sign() == 0 && fastNumber != nil {
-		params.DposForkPoint = fastNumber.Uint64()
-		config.TIP8.FastNumber = new(big.Int).Add(fastNumber, common.Big1)
-		log.Info("TIP8 updateForkedPoint", "FastNumber", config.TIP8.FastNumber, "FirstNewEpochID", params.FirstNewEpochID, "DposForkPoint", params.DposForkPoint, "first", types.GetFirstEpoch())
-	}
-}
-
-func InitTIP8(config *params.ChainConfig) {
+func InitDPos(config *params.ChainConfig) {
 	params.FirstNewEpochID = common.Big1.Uint64()
 	params.DposForkPoint = 0
-	config.TIP8.FastNumber = new(big.Int).Set(common.Big0)
 }
-func makeImpawInitState(config *params.ChainConfig,state *state.StateDB,fastNumber *big.Int) bool {
-	if config.TIP7.FastNumber.Cmp(fastNumber) == 0 {
-		stateAddress := types.StakingAddress
-		key := common.BytesToHash(stateAddress[:])
-		obj := state.GetPOSState(stateAddress, key)
-		if len(obj) == 0 {
-			i := vm.NewImpawnImpl()
-			i.Save(state,stateAddress)
-			state.SetNonce(stateAddress,1)
-			state.SetCode(stateAddress,stateAddress[:])
-			log.Info("makeImpawInitState success")
-			return true
-		}
-	}
-	return false
+func makeImpawInitState(config *params.ChainConfig,state *state.StateDB) bool {
+	stateAddress := types.StakingAddress
+	key := common.BytesToHash(stateAddress[:])
+	obj := state.GetPOSState(stateAddress, key)
+	if len(obj) == 0 {
+		i := vm.NewImpawnImpl()
+		i.Save(state,stateAddress)
+		state.SetNonce(stateAddress,1)
+		state.SetCode(stateAddress,stateAddress[:])
+		log.Info("makeImpawInitState success")
+		return true
+	}			
+	return true
 }
-func OnceInitImpawnState(config *params.ChainConfig,state *state.StateDB,fastNumber *big.Int) bool {
+func OnceInitImpawnState(config *params.ChainConfig,state *state.StateDB) bool {
 	return makeImpawInitState(config,state,fastNumber)
 }

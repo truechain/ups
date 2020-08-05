@@ -164,7 +164,7 @@ func New(ctx *node.ServiceContext, config *Config) (*Upschain, error) {
 	}
 
 	ups.bloomIndexer.Start(ups.blockchain)
-	consensus.InitTIP8(chainConfig)
+	consensus.InitDPos(chainConfig)
 	if config.TxPool.Journal != "" {
 		config.TxPool.Journal = ctx.ResolvePath(config.TxPool.Journal)
 	}

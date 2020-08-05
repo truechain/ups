@@ -34,9 +34,9 @@ func TestImpawnImplDoElections(t *testing.T) {
 		pub := crypto.FromECDSAPub(&priKey.PublicKey)
 		if i % 2 == 0 {
 			amount := new(big.Int).Mul(big.NewInt(20000),big.NewInt(1e18))
-			impl.InsertSAccount2(0,0, from, pub, amount, big.NewInt(50), true)
+			impl.InsertSAccount2(0, from, pub, amount, big.NewInt(50), true)
 		} else {
-			impl.InsertSAccount2(0, 0,from, pub, value, big.NewInt(50), true)
+			impl.InsertSAccount2(0, from, pub, value, big.NewInt(50), true)
 		}
 	}
 
@@ -51,7 +51,7 @@ func TestImpawnImplDoElections(t *testing.T) {
 		priKey, _ := crypto.GenerateKey()
 		from := crypto.PubkeyToAddress(priKey.PublicKey)
 		pub := crypto.FromECDSAPub(&priKey.PublicKey)
-		impl.InsertSAccount2(395+i,0, from, pub, value, big.NewInt(50), true)
+		impl.InsertSAccount2(395+i, from, pub, value, big.NewInt(50), true)
 		priKeyDA, _ := crypto.GenerateKey()
 		daAddress := crypto.PubkeyToAddress(priKeyDA.PublicKey)
 		impl.InsertDAccount2(395+i, daAddress, from, value)
@@ -66,7 +66,7 @@ func TestImpawnImplDoElections(t *testing.T) {
 		priKey, _ := crypto.GenerateKey()
 		from := crypto.PubkeyToAddress(priKey.PublicKey)
 		pub := crypto.FromECDSAPub(&priKey.PublicKey)
-		impl.InsertSAccount2(496+i,0, from, pub, value, big.NewInt(50), true)
+		impl.InsertSAccount2(496+i, from, pub, value, big.NewInt(50), true)
 		priKeyDA, _ := crypto.GenerateKey()
 		daAddress := crypto.PubkeyToAddress(priKeyDA.PublicKey)
 		impl.InsertDAccount2(496+i, daAddress, from, value)
@@ -81,7 +81,7 @@ func TestImpawnImplDoElections(t *testing.T) {
 		priKey, _ := crypto.GenerateKey()
 		from := crypto.PubkeyToAddress(priKey.PublicKey)
 		pub := crypto.FromECDSAPub(&priKey.PublicKey)
-		impl.InsertSAccount2(895+i, 0,from, pub, value, big.NewInt(50), true)
+		impl.InsertSAccount2(895+i, from, pub, value, big.NewInt(50), true)
 		priKeyDA, _ := crypto.GenerateKey()
 		daAddress := crypto.PubkeyToAddress(priKeyDA.PublicKey)
 		impl.InsertDAccount2(895+i, daAddress, from, value)
@@ -106,7 +106,7 @@ func TestImpawnImplReward(t *testing.T) {
 		priKey, _ := crypto.GenerateKey()
 		from := crypto.PubkeyToAddress(priKey.PublicKey)
 		pub := crypto.FromECDSAPub(&priKey.PublicKey)
-		impl.InsertSAccount2(0,0, from, pub, value, big.NewInt(50), true)
+		impl.InsertSAccount2(0, from, pub, value, big.NewInt(50), true)
 	}
 
 	_, err := impl.DoElections(1, 0)
@@ -120,7 +120,7 @@ func TestImpawnImplReward(t *testing.T) {
 		priKey, _ := crypto.GenerateKey()
 		from := crypto.PubkeyToAddress(priKey.PublicKey)
 		pub := crypto.FromECDSAPub(&priKey.PublicKey)
-		impl.InsertSAccount2(396+i,0, from, pub, value, big.NewInt(50), true)
+		impl.InsertSAccount2(396+i, from, pub, value, big.NewInt(50), true)
 		priKeyDA, _ := crypto.GenerateKey()
 		daAddress := crypto.PubkeyToAddress(priKeyDA.PublicKey)
 		impl.InsertDAccount2(396+i, daAddress, from, value)
@@ -142,7 +142,7 @@ func TestImpawnImplReward(t *testing.T) {
 		priKey, _ := crypto.GenerateKey()
 		from := crypto.PubkeyToAddress(priKey.PublicKey)
 		pub := crypto.FromECDSAPub(&priKey.PublicKey)
-		impl.InsertSAccount2(496+i, 0,from, pub, value, big.NewInt(50), true)
+		impl.InsertSAccount2(496+i,from, pub, value, big.NewInt(50), true)
 		priKeyDA, _ := crypto.GenerateKey()
 		daAddress := crypto.PubkeyToAddress(priKeyDA.PublicKey)
 		impl.InsertDAccount2(496+i, daAddress, from, value)
@@ -156,7 +156,7 @@ func TestImpawnImplReward(t *testing.T) {
 		priKey, _ := crypto.GenerateKey()
 		from := crypto.PubkeyToAddress(priKey.PublicKey)
 		pub := crypto.FromECDSAPub(&priKey.PublicKey)
-		impl.InsertSAccount2(895+i,0, from, pub, value, big.NewInt(50), true)
+		impl.InsertSAccount2(895+i, from, pub, value, big.NewInt(50), true)
 		priKeyDA, _ := crypto.GenerateKey()
 		daAddress := crypto.PubkeyToAddress(priKeyDA.PublicKey)
 		impl.InsertDAccount2(895+i, daAddress, from, value)
@@ -185,7 +185,7 @@ func TestImpawnImplRedeem(t *testing.T) {
 		priKey, _ := crypto.GenerateKey()
 		from := crypto.PubkeyToAddress(priKey.PublicKey)
 		pub := crypto.FromECDSAPub(&priKey.PublicKey)
-		impl.InsertSAccount2(20+i,0, from, pub, value, big.NewInt(50), true)
+		impl.InsertSAccount2(20+i, from, pub, value, big.NewInt(50), true)
 		priKeyDA, _ := crypto.GenerateKey()
 		daAddress := crypto.PubkeyToAddress(priKeyDA.PublicKey)
 		impl.InsertDAccount2(20+i, daAddress, from, value)
@@ -227,7 +227,7 @@ func TestImpawnImplRedeem(t *testing.T) {
 		priKey, _ := crypto.GenerateKey()
 		from := crypto.PubkeyToAddress(priKey.PublicKey)
 		pub := crypto.FromECDSAPub(&priKey.PublicKey)
-		impl.InsertSAccount2(28+i,0, from, pub, value, big.NewInt(0), true)
+		impl.InsertSAccount2(28+i, from, pub, value, big.NewInt(0), true)
 		priKeyDA, _ := crypto.GenerateKey()
 		daAddress := crypto.PubkeyToAddress(priKeyDA.PublicKey)
 		impl.InsertDAccount2(28+i, daAddress, from, value)
@@ -250,7 +250,7 @@ func TestImpawnImpl(t *testing.T) {
 		from := crypto.PubkeyToAddress(priKey.PublicKey)
 		pub := crypto.FromECDSAPub(&priKey.PublicKey)
 		fmt.Println(" ", from.String())
-		impl.InsertSAccount2(20+i,0, from, pub, new(big.Int).Sub(value, big.NewInt(int64(10*i))), big.NewInt(0), true)
+		impl.InsertSAccount2(20+i, from, pub, new(big.Int).Sub(value, big.NewInt(int64(10*i))), big.NewInt(0), true)
 		priKeyDA, _ := crypto.GenerateKey()
 		daAddress := crypto.PubkeyToAddress(priKeyDA.PublicKey)
 		impl.InsertDAccount2(20+i, daAddress, from, new(big.Int).Sub(value, big.NewInt(int64(10*i))))
@@ -855,23 +855,22 @@ func TestFunc(t *testing.T) {
 }
 func test_func(step int) {
 	impawn := NewImpawnImpl()
-	effectHeight := uint64(10000)
 	priKey, _ := crypto.GenerateKey()
 	pk := crypto.FromECDSAPub(&priKey.PublicKey)
 	fmt.Println("first insert:")
-	err := impawn.InsertSAccount2(0,effectHeight,common.Address{'1'},pk,new(big.Int).Set(params.ElectionMinLimitForStaking),big.NewInt(10),true)
+	err := impawn.InsertSAccount2(0,common.Address{'1'},pk,new(big.Int).Set(params.ElectionMinLimitForStaking),big.NewInt(10),true)
 	if err != nil {
 		fmt.Println("InsertSAccount1:",err)
 		return
 	} 
 	print_sas(impawn.GetAllStakingAccount())
-	err = impawn.InsertSAccount2(0,effectHeight,common.Address{'1'},pk,new(big.Int).Mul(big.NewInt(10000), big.NewInt(1e18)),big.NewInt(500),true)
+	err = impawn.InsertSAccount2(0,common.Address{'1'},pk,new(big.Int).Mul(big.NewInt(10000), big.NewInt(1e18)),big.NewInt(500),true)
 	if err != nil {
 		fmt.Println("InsertSAccount1:",err)
 		return
 	} 
 	print_sas(impawn.GetAllStakingAccount())
-	err = impawn.Shift(1,effectHeight)
+	err = impawn.Shift(1)
 	if err != nil {
 		fmt.Println("Shift1:",err)
 		return
@@ -880,7 +879,7 @@ func test_func(step int) {
 	print_sas(impawn.GetAllStakingAccount())
 	if step == 0 {
 		fmt.Println("second insert:")
-		err = impawn.InsertSAccount2(500,effectHeight,common.Address{'1'},pk,big.NewInt(100),big.NewInt(20),true)
+		err = impawn.InsertSAccount2(500,common.Address{'1'},pk,big.NewInt(100),big.NewInt(20),true)
 		if err != nil {
 			fmt.Println("InsertSAccount2:",err)
 			return
@@ -926,11 +925,11 @@ func test_func(step int) {
 	fmt.Println("accs:",accs)
 	print_sas(impawn.GetAllStakingAccount())
 }
-func make_sas(impawn *ImpawnImpl,h,eh uint64,addrs []common.Address,pk[][]byte,values []*big.Int) error{
+func make_sas(impawn *ImpawnImpl,h uint64,addrs []common.Address,pk[][]byte,values []*big.Int) error{
 	l := len(addrs)
 	var err error
 	for i:=0;i<l;i++ {
-		err = impawn.InsertSAccount2(h,eh,addrs[i],pk[i],values[i],big.NewInt(10),true)
+		err = impawn.InsertSAccount2(h,addrs[i],pk[i],values[i],big.NewInt(10),true)
 		if err != nil {
 			fmt.Println("InsertSAccount1:",err,"index:",i)
 			return err
@@ -1067,7 +1066,7 @@ func TestFetch(t *testing.T) {
 		new(big.Int).Set(params.ElectionMinLimitForStaking),
 		big.NewInt(500000),
 	}
-	err := make_sas(impawn,0,0,saAddrs,pks,values)
+	err := make_sas(impawn,0,saAddrs,pks,values)
 	if err != nil {
 		fmt.Println("make_sas:",err)
 		return
@@ -1166,7 +1165,7 @@ func TestClear(t *testing.T) {
 		new(big.Int).Set(params.ElectionMinLimitForStaking),
 		big.NewInt(500000),
 	}
-	err := make_sas(impawn,0,0,saAddrs,pks,values)
+	err := make_sas(impawn,0,saAddrs,pks,values)
 	if err != nil {
 		fmt.Println("make_sas:",err)
 		return
@@ -1276,7 +1275,6 @@ func TestModify(t *testing.T) {
 	params.MaxRedeemHeight = uint64(5000)
 	params.NewEpochLength = uint64(10000)
 	impawn := NewImpawnImpl()
-	effectHeight := uint64(20000)
 	// effectid := uint64(3)
 	// rewardAmount := new(big.Int).Mul(big.NewInt(60), big.NewInt(1e18))
 	pks := getPks(4)
@@ -1292,7 +1290,7 @@ func TestModify(t *testing.T) {
 		new(big.Int).Set(params.ElectionMinLimitForStaking),
 		big.NewInt(500000),
 	}
-	err := make_sas(impawn,0,effectHeight,saAddrs,pks,values)
+	err := make_sas(impawn,0,saAddrs,pks,values)
 	if err != nil {
 		fmt.Println("make_sas:",err)
 		return
@@ -1337,7 +1335,7 @@ func TestModify(t *testing.T) {
 
 	fmt.Println("Shift2.................")
 	print_election(impawn,2)
-	err = impawn.Shift(2,effectHeight)
+	err = impawn.Shift(2)
 	if err != nil {
 		fmt.Println("Shift1:",err)
 		return
@@ -1345,7 +1343,7 @@ func TestModify(t *testing.T) {
 	print_sas(impawn.GetAllStakingAccount())
 	fmt.Println("Shift3..................")
 	print_election(impawn,3)
-	err = impawn.Shift(3,effectHeight)
+	err = impawn.Shift(3)
 	if err != nil {
 		fmt.Println("Shift1:",err)
 		return

@@ -256,32 +256,27 @@ func (g *Genesis) ToFastBlock(db upsdb.Database) *types.Block {
 		}
 	}
 	consensus.OnceInitImpawnState(g.Config,statedb)
-	if consensus.IsTIP8() {
-		impl := vm.NewImpawnImpl()
-		hh := g.Number
-		if hh != 0 {
-			hh = hh - 1
-		}
-		for _, member := range g.Committee {
-			err := impl.InsertSAccount2(hh,g.Config.TIP10.FastNumber.Uint64(), member.Coinbase, member.Publickey, big.NewInt(1000000000000000000), big.NewInt(100), true)
-			if err != nil {
-				log.Error("ToFastBlock InsertSAccount", "error", err)
-			}
-			statedb.AddBalance(types.StakingAddress, big.NewInt(1000000000000000000))
-		}
-		_, err := impl.DoElections(1, 0)
+	impl := vm.NewImpawnImpl()
+	hh := g.Number
+	for _, member := range g.Committee {
+		err := impl.InsertSAccount2(hh,member.Coinbase, member.Publickey, big.NewInt(1000000000000000000), big.NewInt(100), true)
 		if err != nil {
-			log.Error("ToFastBlock DoElections", "error", err)
+			log.Error("ToFastBlock InsertSAccount", "error", err)
 		}
-		err = impl.Shift(1,g.Config.TIP10.FastNumber.Uint64())
-		if err != nil {
-			log.Error("ToFastBlock Shift", "error", err)
-		}
-		err = impl.Save(statedb, types.StakingAddress)
-		if err != nil {
-			log.Error("ToFastBlock IMPL Save", "error", err)
-		}
+		statedb.AddBalance(types.StakingAddress, big.NewInt(1000000000000000000))
 	}
+	_, err := impl.DoElections(1, 0)
+	if err != nil {
+		log.Error("ToFastBlock DoElections", "error", err)
+	}
+	err = impl.Shift(1)
+	if err != nil {
+		log.Error("ToFastBlock Shift", "error", err)
+	}
+	err = impl.Save(statedb, types.StakingAddress)
+	if err != nil {
+		log.Error("ToFastBlock IMPL Save", "error", err)
+	}		
 
 	root := statedb.IntermediateRoot(false)
 

@@ -482,12 +482,7 @@ func (e *Election) SubscribeElectionEvent(ch chan<- types.ElectionEvent) event.S
 func (e *Election) SetEngine(engine consensus.Engine) {
 	e.engine = engine
 }
-func (e *Election) IsTIP8(fastHeadNumber *big.Int) bool {
-	return true
-}
-func (e *Election) isTIP8FromCID(cid uint64) bool {
-	return new(big.Int).SetUint64(cid).Cmp(e.chainConfig.TIP8.CID) >= 0
-}
+
 func printCommittee(c *committee) {
 	log.Info("Committee Info", "ID", c.id, "count", len(c.members), "start", c.beginFastNumber)
 	for _, member := range c.members {

@@ -215,8 +215,6 @@ func newTestPOSManager(sBlocks int, executableTx func(uint64, *core.BlockGen, *c
 	params.MaxRedeemHeight = 1000 // about 15 days
 
 	gspec.Config.TIP7 = &params.BlockConfig{FastNumber: big.NewInt(0)}
-	gspec.Config.TIP8 = &params.BlockConfig{FastNumber: big.NewInt(0), CID: big.NewInt(-1)}
-	gspec.Config.TIP10 = &params.BlockConfig{FastNumber: big.NewInt(0)}
 
 	genesis := gspec.MustFastCommit(db)
 	blockchain, _ := core.NewBlockChain(db, nil, gspec.Config, engine, vm.Config{})
@@ -228,9 +226,6 @@ func newTestPOSManager(sBlocks int, executableTx func(uint64, *core.BlockGen, *c
 
 			header := gen.GetHeader()
 			stateDB := gen.GetStateDB()
-			//if gspec.Config.TIP8.FastNumber != nil && gspec.Config.TIP8.FastNumber.Sign() > 0 {
-			//	executableTx(header.Number.Uint64()-gspec.Config.TIP8.FastNumber.Uint64()+9600, gen, blockchain, header, stateDB)
-			//}
 			executableTx(header.Number.Uint64(), gen, blockchain, header, stateDB)
 		})
 		if _, err := blockchain.InsertChain(chain); err != nil {
@@ -239,7 +234,7 @@ func newTestPOSManager(sBlocks int, executableTx func(uint64, *core.BlockGen, *c
 		parentFast = blockchain.CurrentBlock()
 	}
 
-	consensus.InitTIP8(gspec.Config)
+	consensus.InitDPos(gspec.Config)
 	fmt.Println("first ", types.GetFirstEpoch())
 	// Create the pos manager with the base fields
 	manager := &POSManager{

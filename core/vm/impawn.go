@@ -449,22 +449,16 @@ func (s *StakingAccount) getValidStaking(hh uint64) *big.Int {
 func (s *StakingAccount) getValidStakingOnly(hh uint64) *big.Int {
 	return s.Unit.getValidStaking(hh)
 }
-func (s *StakingAccount) merge(epochid, hh,effectHeight uint64) {
+func (s *StakingAccount) merge(epochid, hh uint64) {
 	s.Unit.merge(epochid, hh)
-	if hh >= effectHeight {
-		das := make([]*DelegationAccount,0,0)
-		for _, v := range s.Delegation {
-			v.merge(epochid, hh)
-			if v.isValid() {
-				das = append(das,v)
-			}
-		}
-		s.Delegation = das
-	} else {
-		for _, v := range s.Delegation {
-			v.merge(epochid, hh)
+	das := make([]*DelegationAccount,0,0)
+	for _, v := range s.Delegation {
+		v.merge(epochid, hh)
+		if v.isValid() {
+			das = append(das,v)
 		}
 	}
+	s.Delegation = das	
 }
 func (s *StakingAccount) getDA(addr common.Address) *DelegationAccount {
 	for _, v := range s.Delegation {
@@ -561,12 +555,10 @@ func (s *SAImpawns) getSA(addr common.Address) *StakingAccount {
 	}
 	return nil
 }
-func (s *SAImpawns) update(sa1 *StakingAccount, hh uint64, next, move bool,effectHeight uint64) {
+func (s *SAImpawns) update(sa1 *StakingAccount, hh uint64, next, move bool) {
 	sa := s.getSA(sa1.Unit.Address)
 	if sa == nil {
-		if hh >= effectHeight {
-			sa1.changeAlterableInfo()
-		}
+		sa1.changeAlterableInfo()
 		*s = append(*s, sa1)
 		s.sort(hh, false)
 	} else {
@@ -831,7 +823,7 @@ func (i *ImpawnImpl) reward(height uint64, allAmount *big.Int) ([]*types.SARewar
 
 /////////////////////////////////////////////////////////////////////////////////
 // move the accounts from prev to next epoch and keeps the prev account still here
-func (i *ImpawnImpl) move(prev, next,effectHeight uint64) error {
+func (i *ImpawnImpl) move(prev, next uint64) error {
 	nextEpoch := types.GetEpochFromID(next)
 	if nextEpoch == nil {
 		return types.ErrOverEpochID
@@ -846,10 +838,10 @@ func (i *ImpawnImpl) move(prev, next,effectHeight uint64) error {
 	}
 	for _, v := range prevInfos {
 		vv := v.clone()
-		vv.merge(prev, nextEpoch.BeginHeight,effectHeight)
+		vv.merge(prev, nextEpoch.BeginHeight)
 		if vv.isvalid() {
 			vv.Committee = false
-			nextInfos.update(vv, nextEpoch.BeginHeight, true, true,effectHeight)
+			nextInfos.update(vv, nextEpoch.BeginHeight, true, true)
 		}
 	}
 	i.accounts[next] = nextInfos
@@ -895,7 +887,7 @@ func (i *ImpawnImpl) DoElections(epochid, height uint64) ([]*StakingAccount, err
 
 // Shift will move the staking account which has election flag to the next epoch
 // it will be save the whole state in the current epoch end block after it called by consensus
-func (i *ImpawnImpl) Shift(epochid,effectHeight uint64) error {
+func (i *ImpawnImpl) Shift(epochid uint64) error {
 	lastReward := i.lastReward
 	minEpoch := types.GetEpochFromHeight(lastReward)
 	min := i.getMinEpochID()
@@ -910,7 +902,7 @@ func (i *ImpawnImpl) Shift(epochid,effectHeight uint64) error {
 	}
 	i.SetCurrentEpoch(epochid)
 	prev := epochid - 1
-	return i.move(prev, epochid,effectHeight)
+	return i.move(prev, epochid)
 }
 
 // CancelSAccount cancel amount of asset for staking account,it will be work in next epoch
@@ -1072,7 +1064,7 @@ func (i *ImpawnImpl) insertSAccount(height uint64, sa *StakingAccount) error {
 	}
 	return nil
 }
-func (i *ImpawnImpl) InsertSAccount2(height,effectHeight uint64, addr common.Address, pk []byte, val *big.Int, fee *big.Int, auto bool) error {
+func (i *ImpawnImpl) InsertSAccount2(height uint64, addr common.Address, pk []byte, val *big.Int, fee *big.Int, auto bool) error {
 	if val.Sign() <= 0 || height < 0 || fee.Sign() < 0 || fee.Cmp(types.Base) > 0 {
 		return types.ErrInvalidParam
 	}
@@ -1101,11 +1093,9 @@ func (i *ImpawnImpl) InsertSAccount2(height,effectHeight uint64, addr common.Add
 		},
 		Modify: &AlterableInfo{},
 	}
-	if height >= effectHeight {
-		sa.Modify = &AlterableInfo{
-			Fee: 		new(big.Int).Set(types.InvalidFee),
-			VotePubkey:	[]byte{},
-		}
+	sa.Modify = &AlterableInfo{
+		Fee: 		new(big.Int).Set(types.InvalidFee),
+		VotePubkey:	[]byte{},
 	}
 	return i.insertSAccount(height, sa)
 }

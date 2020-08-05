@@ -390,7 +390,7 @@ func (agent *PbftAgent) loop() {
 	defer agent.stop()
 
 	current := agent.fastChain.CurrentBlock()
-	if agent.election.IsTIP8(new(big.Int).Add(current.Number(), common.Big1)) {
+	{
 		first := types.GetFirstEpoch()
 		epoch := first
 		if current.Number().Uint64()+1 > epoch.BeginHeight {
@@ -571,7 +571,7 @@ func (agent *PbftAgent) loop() {
 			go agent.putCacheInsertChain(ch.Block)
 
 			num := ch.Block.Number()
-			if agent.election.IsTIP8(new(big.Int).Add(num, common.Big1)) {
+			{
 				epoch := types.GetFirstEpoch()
 				if num.Uint64()+1 == epoch.BeginHeight {
 					log.Info("Prepare new epoch", "id", epoch.EpochID, "block", num)
@@ -597,7 +597,7 @@ func (agent *PbftAgent) loop() {
 				}
 			}
 
-			if agent.election.IsTIP8(new(big.Int).Add(num, common.Big1)) {
+			{
 				next := num.Uint64() + 1
 				epoch := types.GetEpochFromHeight(next)
 
