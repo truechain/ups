@@ -214,8 +214,6 @@ func newTestPOSManager(sBlocks int, executableTx func(uint64, *core.BlockGen, *c
 	params.NewEpochLength = 2000  // about 1.5 days
 	params.MaxRedeemHeight = 1000 // about 15 days
 
-	gspec.Config.TIP7 = &params.BlockConfig{FastNumber: big.NewInt(0)}
-
 	genesis := gspec.MustFastCommit(db)
 	blockchain, _ := core.NewBlockChain(db, nil, gspec.Config, engine, vm.Config{})
 

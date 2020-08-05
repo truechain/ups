@@ -150,12 +150,7 @@ func getFisrtState() *state.StateDB {
 	statedb, _ := state.New(common.Hash{}, state.NewDatabase(db))
 	return statedb
 }
-func TestTip7(t *testing.T) {
-	statedb := getFisrtState()
-	toFirstBlock(statedb)
 
-	fmt.Println("finish")
-}
 func generateAddr() common.Address {
 	priv,_ := crypto.GenerateKey()
 	privHex := hex.EncodeToString(crypto.FromECDSA(priv))

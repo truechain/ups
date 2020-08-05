@@ -57,7 +57,6 @@ var (
 			DurationLimit:          big.NewInt(600),
 		}),
 		TIP3: &BlockConfig{FastNumber: big.NewInt(1500000)},
-		TIP7: &BlockConfig{FastNumber: big.NewInt(6226000)},
 	}
 
 	// MainnetTrustedCheckpoint contains the light client trusted checkpoint for the main network.
@@ -90,7 +89,6 @@ var (
 			DurationLimit:          big.NewInt(600),
 		}),
 		TIP3: &BlockConfig{FastNumber: big.NewInt(450000)},
-		TIP7: &BlockConfig{FastNumber: big.NewInt(4666000)},
 	}
 
 	// TestnetTrustedCheckpoint contains the light client trusted checkpoint for the Ropsten test network.
@@ -123,7 +121,6 @@ var (
 			DurationLimit:          big.NewInt(150),
 		}),
 		TIP3: &BlockConfig{FastNumber: big.NewInt(380000)},
-		TIP7: &BlockConfig{FastNumber: big.NewInt(0)},
 	}
 
 	SingleNodeChainConfig = &ChainConfig{
@@ -134,7 +131,6 @@ var (
 			DurationLimit:          big.NewInt(120),
 		}),
 		TIP3: &BlockConfig{FastNumber: big.NewInt(380000)},
-		TIP7: &BlockConfig{FastNumber: big.NewInt(0)},
 	}
 
 	// TestnetTrustedCheckpoint contains the light client trusted checkpoint for the Ropsten test network.
@@ -151,14 +147,12 @@ var (
 	chainId = big.NewInt(9223372036854775790)
 	// This configuration is intentionally not using keyed fields to force anyone
 	// adding flags to the config to also have to set these fields.
-	AllMinervaProtocolChanges = &ChainConfig{ChainID: chainId, Minerva: new(MinervaConfig), TIP3: &BlockConfig{FastNumber: big.NewInt(0)},
-		TIP7: nil}
+	AllMinervaProtocolChanges = &ChainConfig{ChainID: chainId, Minerva: new(MinervaConfig), TIP3: &BlockConfig{FastNumber: big.NewInt(0)}}
 
 	// This configuration is intentionally not using keyed fields to force anyone
 	// adding flags to the config to also have to set these fields.
 
-	TestChainConfig = &ChainConfig{ChainID: chainId, Minerva: &MinervaConfig{MinimumDifficulty, MinimumFruitDifficulty, DurationLimit}, TIP3: &BlockConfig{FastNumber: big.NewInt(0)},
-		TIP7: nil}
+	TestChainConfig = &ChainConfig{ChainID: chainId, Minerva: &MinervaConfig{MinimumDifficulty, MinimumFruitDifficulty, DurationLimit}, TIP3: &BlockConfig{FastNumber: big.NewInt(0)}}
 )
 
 // TrustedCheckpoint represents a set of post-processed trie roots (CHT and
@@ -219,7 +213,6 @@ type ChainConfig struct {
 	//Clique *CliqueConfig  `json:"clique,omitempty"`
 
 	TIP3 *BlockConfig `json:"tip3"`
-	TIP7 *BlockConfig `json:"tip7"`
 
 	TIPStake *BlockConfig `json:"tipstake"`
 }
@@ -445,9 +438,3 @@ func (c *ChainConfig) IsTIP3(num *big.Int) bool {
 	return isForked(c.TIP3.FastNumber, num)
 }
 
-func (c *ChainConfig) IsTIP7(num *big.Int) bool {
-	if c.TIP7 == nil {
-		return false
-	}
-	return isForked(c.TIP7.FastNumber, num)
-}

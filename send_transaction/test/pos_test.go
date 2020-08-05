@@ -137,7 +137,6 @@ func TestDepositGetDeposit(t *testing.T) {
 ///////////////////////////////////////////////////////////////////////
 func TestSendTX(t *testing.T) {
 	params.MinTimeGap = big.NewInt(0)
-	gspec.Config.TIP7 = &params.BlockConfig{FastNumber: big.NewInt(0)}
 
 	genesis := gspec.MustFastCommit(db)
 	blockchain, _ := core.NewBlockChain(db, nil, gspec.Config, engine, vm.Config{})
@@ -157,7 +156,6 @@ func TestSendTX(t *testing.T) {
 func TestRewardTime(t *testing.T) {
 	params.MinTimeGap = big.NewInt(0)
 	params.ElectionMinLimitForStaking = new(big.Int).Mul(big.NewInt(1), big.NewInt(1e18))
-	gspec.Config.TIP7 = &params.BlockConfig{FastNumber: big.NewInt(0)}
 
 	genesis := gspec.MustFastCommit(db)
 	blockchain, _ := core.NewBlockChain(db, nil, gspec.Config, engine, vm.Config{})
