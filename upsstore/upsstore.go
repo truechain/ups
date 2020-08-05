@@ -2,7 +2,7 @@ package upsstore
 
 import (
 	"bytes"
-	// "context"
+	"sync"
 	"errors"
 	"fmt"
 	"os"
@@ -68,10 +68,21 @@ type UpsFile struct {
 	name 	string
 	hash 	string
 	address common.Address
+	wg 		*sync.WaitGroup
+}
+func NewUpsFile(name string,addr common.Address,data []byte) *UpsFile {
+	return &UpsFile{
+		name:	name,
+		address: addr,
+		data:	data,
+		wg:		&sync.WaitGroup{},
+	}
 }
 func (u *UpsFile) Event() {
+	u.wg.Done()
 }
 func (u *UpsFile) Wait() {
+	u.wg.Wait()
 }
 func (u *UpsFile) getFileNameInCache(cfg *ipfsConfig) string {
 	if cfg == nil {
