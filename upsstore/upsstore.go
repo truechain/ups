@@ -14,17 +14,19 @@ import (
 	// "github.com/truechain/ups/common/hexutil"
 	// "github.com/truechain/ups/common/math"
 	// "github.com/truechain/ups/core"
-	// "github.com/truechain/ups/core/rawdb"
 	"github.com/truechain/ups/core/types"
-	// "github.com/truechain/ups/core/vm"
 	// "github.com/truechain/ups/crypto"
 	"github.com/truechain/ups/log"
-	// "github.com/truechain/ups/p2p"
 	// "github.com/truechain/ups/params"
 	// "github.com/truechain/ups/rlp"
-	// "github.com/truechain/ups/rpc"
 	shell "github.com/ipfs/go-ipfs-api"
 )
+var upsFileMgr = NewFileMgr()
+
+func init() {
+	cfg := getDefaultIpfsConfig()
+	upsFileMgr.LoadFromCache(cfg)
+}
 
 func FileExists(file string) (bool, error) {
 	_, err := os.Stat(file)
@@ -131,6 +133,7 @@ func (u *UpsFile) baseCopy(o *UpsFile) {
 type FileMgr struct {
 	caches 	map[common.Hash][]*UpsFile	
 	max 	int
+	lock 	sync.RWMutex
 }
 func NewFileMgr() *FileMgr {
 	return &FileMgr{
@@ -139,7 +142,7 @@ func NewFileMgr() *FileMgr {
 	}
 } 
 func GetGlobalFileMgr() *FileMgr {
-	return nil
+	return upsFileMgr
 }
 func (m *FileMgr) LoadFromCache(cfg *ipfsConfig) error {
 	return filepath(cfg.dir,func(path string, info os.FileInfo, err error) error{
@@ -172,10 +175,14 @@ func (m *FileMgr) LoadFromCache(cfg *ipfsConfig) error {
 	})
 }
 func (m *FileMgr) FileExist(hash common.Hash) bool {
+	m.lock.RLock()
+	defer m.lock.RUnlock()
 	_,ok := m.caches[hash]
 	return ok
 }
 func (m *FileMgr) GetFileByHashCode(hash string) *UpsFile {
+	m.lock.RLock()
+	defer m.lock.RUnlock()
 	for _,val := range m.caches {
 		v := val[0]
 		if v.hash == hash {
@@ -185,6 +192,8 @@ func (m *FileMgr) GetFileByHashCode(hash string) *UpsFile {
 	return nil
 }
 func (m *FileMgr) GetFile(h common.Hash,addr common.Address) (*UpsFile,bool){
+	m.lock.RLock()
+	defer m.lock.RUnlock()
 	if val,ok := m.caches[h]; ok {
 		for _,v :=range val {
 			if v.address == addr {
@@ -196,6 +205,8 @@ func (m *FileMgr) GetFile(h common.Hash,addr common.Address) (*UpsFile,bool){
 	return nil,false
 }
 func (m *FileMgr) addFile(o *UpsFile) error {
+	m.lock.Lock()
+	defer m.lock.Unlock()
 	if val,ok := m.caches[o.GetFileHash()]; ok {
 		val = append(val,o)
 		m.caches[o.GetFileHash()] = val
@@ -206,7 +217,7 @@ func (m *FileMgr) addFile(o *UpsFile) error {
 }
 
 /////////////////////////////////////////////////////////////////////////////////
-// filename: name_codehash
+// filename: name_codehash_address
 func cacheFileToHard(cfg *ipfsConfig,file *UpsFile) error {
 	if file == nil {
 		return errors.New("file is nil")
