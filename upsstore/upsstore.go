@@ -79,11 +79,12 @@ func NewUpsFile(name string,addr common.Address,data []byte) *UpsFile {
 		cache:	false,
 	}
 }
-func (u *UpsFile) UpdataFileHash() {
+func (u *UpsFile) UpdataFileHash() *UpsFile {
 	u.fileHash = types.RlpHash([]interface{}{
 		u.name,
 		u.data,
 	})
+	return u
 }
 func (u *UpsFile) GetFileHash() common.Hash {
 	if u.fileHash == common.Hash{} {
@@ -108,7 +109,7 @@ func (u *UpsFile) getFileNameInCache(cfg *ipfsConfig) string {
 	filename := filepath.Join(cfg.dir,file.name)
 	return filename
 }
-func (u *UpsFile) setFileHash(hash string) {
+func (u *UpsFile) setFileHashCode(hash string) {
 	u.hash = hash
 }
 func (u *UpsFile) equal(o *UpsFile) bool {
@@ -210,7 +211,7 @@ func executeUpload(cfg *ipfsConfig,file *UpsFile) error {
 		log.Error("executeUpload", "name", filename, "err", err)
 		return err
 	}
-	file.setFileHash(cid)
+	file.setFileHashCode(cid)
 	file.Finish()
 	return nil
 }
@@ -259,7 +260,24 @@ func AddFile(file *UpsFile) error {
 	return nil
 }
 func GetFile(name,hash string,addr common.Address) *UpsFile {
-	
+	// 1. check the file in the cache with the file's hash
+	// 2. encryption the file
+	// 3. get file from ipfs
+	mgr := GetGlobalFileMgr()
+	f := mgr.GetFileByHashCode(hash)
+	if f != nil {
+		return f
+	} else {
+		file := NewUpsFile(name,addr,nil)
+		file.setFileHashCode(hash)
+		cfg := getDefaultIpfsConfig()
+		go func(){
+			executeUpload(cfg,file.Event())
+		}()
+		mgr.addFile(file.UpdataFileHash())
+		file.Wait()
+		return file
+	}
 	return nil
 }
 
