@@ -106,7 +106,8 @@ func (u *UpsFile) getFileNameInCache(cfg *ipfsConfig) string {
 	if cfg == nil {
 		cfg = getDefaultIpfsConfig()
 	}
-	filename := filepath.Join(cfg.dir,file.name)
+	filename := u.name + "_" + u.hash + "_" + u.address.String()
+	filename = filepath.Join(cfg.dir,filename)
 	return filename
 }
 func (u *UpsFile) setFileHashCode(hash string) {
@@ -117,6 +118,9 @@ func (u *UpsFile) equal(o *UpsFile) bool {
 }
 func (u *UpsFile) fileCache(c bool) {
 	u.cache = c
+}
+func (u *UpsFile) isFileCache() bool {
+	return u.cache
 }
 func (u *UpsFile) baseCopy(o *UpsFile) {
 	u.data,u.name,u.hash = o.data,o.name,o.hash
@@ -138,10 +142,38 @@ func GetGlobalFileMgr() *FileMgr {
 	return nil
 }
 func (m *FileMgr) LoadFromCache(cfg *ipfsConfig) error {
-	return nil
+	return filepath(cfg.dir,func(path string, info os.FileInfo, err error) error{
+		if err != nil {
+            return err
+		}
+		if info.IsDir() {
+			return nil
+		}
+		filename := filepath.Base(path)
+		strs := sstrings.Split(filename,"_")
+		if len(strs) != 3 {
+			return errors.New("wrong format of the file name")
+		}
+		name,hashcode,hexAddr := strs[0],strs[1],strs[2]
+		
+		if f, err := os.Open(filename); err != nil {
+			return err
+		} else {
+			defer f.Close()
+			if fd, err := ioutil.ReadAll(f); err != nil {
+				return err
+			} else {
+				uf := NewUpsFile(name,common.HexToAddress(hexAddr),fd)
+				uf.setFileHashCode(hashcode)
+				mgr.addFile(uf)
+			}
+		}
+		return nil
+	})
 }
 func (m *FileMgr) FileExist(hash common.Hash) bool {
-	return false
+	_,ok := m.caches[hash]
+	return ok
 }
 func (m *FileMgr) GetFileByHashCode(hash string) *UpsFile {
 	for _,val := range m.caches {
@@ -174,9 +206,13 @@ func (m *FileMgr) addFile(o *UpsFile) error {
 }
 
 /////////////////////////////////////////////////////////////////////////////////
+// filename: name_codehash
 func cacheFileToHard(cfg *ipfsConfig,file *UpsFile) error {
 	if file == nil {
 		return errors.New("file is nil")
+	}
+	if file.isFileCache() {
+		return nil
 	}
 	filename := file.getFileNameInCache(cfg)
 	dstFile, err := os.OpenFile(filename, os.O_CREATE|os.O_WRONLY, os.ModePerm)
@@ -249,13 +285,15 @@ func AddFile(file *UpsFile) error {
 		// 2. cache the file in the local node
 		// 3. upload the file to ipfs
 		cfg := getDefaultIpfsConfig()
-		if err := cacheFileToHard(cfg,file); err != nil {
-			return err
-		}
 		go func(){
 			executeUpload(cfg,file.Event())
 		}()
 		file.Wait()
+		go func() {
+			if err := cacheFileToHard(cfg,file); err != nil {
+				return err
+			}
+		}()
 	}
 	return nil
 }
