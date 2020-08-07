@@ -4,16 +4,15 @@ import (
 	"bytes"
 	"sync"
 	"errors"
-	"fmt"
+	// "fmt"
+	"strings"
+	"io/ioutil"
 	"os"
 	"bufio"
 	"path/filepath"
 	// "math/big"
 	// "time"
 	"github.com/truechain/ups/common"
-	// "github.com/truechain/ups/common/hexutil"
-	// "github.com/truechain/ups/common/math"
-	// "github.com/truechain/ups/core"
 	"github.com/truechain/ups/core/types"
 	// "github.com/truechain/ups/crypto"
 	"github.com/truechain/ups/log"
@@ -81,7 +80,7 @@ func NewUpsFile(name string,addr common.Address,data []byte) *UpsFile {
 		cache:	false,
 	}
 }
-func (u *UpsFile) UpdataFileHash() *UpsFile {
+func (u *UpsFile) UpdateFileHash() *UpsFile {
 	u.fileHash = types.RlpHash([]interface{}{
 		u.name,
 		u.data,
@@ -89,11 +88,13 @@ func (u *UpsFile) UpdataFileHash() *UpsFile {
 	return u
 }
 func (u *UpsFile) GetFileHash() common.Hash {
-	if u.fileHash == common.Hash{} {
+	empty := common.Hash{}
+	if u.fileHash == empty {
 		u.UpdateFileHash()
 	}
 	return u.fileHash
 }
+
 func (u *UpsFile) Finish() {
 	u.wg.Done()
 }
@@ -151,7 +152,7 @@ func GetGlobalFileMgr() *FileMgr {
 	return upsFileMgr
 }
 func (m *FileMgr) LoadFromCache(cfg *ipfsConfig) error {
-	return filepath(cfg.dir,func(path string, info os.FileInfo, err error) error{
+	return filepath.Walk(cfg.dir,func(path string, info os.FileInfo, err error) error{
 		if err != nil {
             return err
 		}
@@ -159,7 +160,7 @@ func (m *FileMgr) LoadFromCache(cfg *ipfsConfig) error {
 			return nil
 		}
 		filename := filepath.Base(path)
-		strs := sstrings.Split(filename,"_")
+		strs := strings.Split(filename,"_")
 		if len(strs) != 3 {
 			return errors.New("wrong format of the file name")
 		}
@@ -174,7 +175,7 @@ func (m *FileMgr) LoadFromCache(cfg *ipfsConfig) error {
 			} else {
 				uf := NewUpsFile(name,common.HexToAddress(hexAddr),fd)
 				uf.setFileHashCode(hashcode)
-				mgr.addFile(uf)
+				m.addFile(uf)
 			}
 		}
 		return nil
@@ -206,7 +207,7 @@ func (m *FileMgr) GetFile(h common.Hash,addr common.Address) (*UpsFile,bool){
 				return v,true
 			}
 		}
-		return v,false
+		return val[0],false
 	}
 	return nil,false
 }
@@ -250,7 +251,7 @@ func removeFileInCache(cfg *ipfsConfig,name string) error {
 	if cfg == nil {
 		cfg = getDefaultIpfsConfig()
 	}
-	filename := filepath.Join(cfg.dir,file.name)
+	filename := filepath.Join(cfg.dir,name)
 	os.Remove(filename)
 	return nil
 }
@@ -261,7 +262,7 @@ func executeUpload(cfg *ipfsConfig,file *UpsFile) error {
 	sh := shell.NewShell(cfg.url)
 	cid, err := sh.Add(bytes.NewReader(file.data))
 	if err != nil {
-		log.Error("executeUpload", "name", filename, "err", err)
+		log.Error("executeUpload", "name", file.name, "err", err)
 		return err
 	}
 	file.setFileHashCode(cid)
@@ -291,7 +292,7 @@ func executeDownload(cfg *ipfsConfig,file *UpsFile) error {
 /////////////////////////////////////////////////////////////////////////////////
 func AddFile(file *UpsFile) error {
 	mgr := GetGlobalFileMgr()
-	f1,user := mgr.GetFile(file.GetFileHash())
+	f1,user := mgr.GetFile(file.GetFileHash(),file.address)
 	if f1 != nil {
 		file.baseCopy(f1)
 		if !user {
@@ -306,10 +307,11 @@ func AddFile(file *UpsFile) error {
 			executeUpload(cfg,file.Event())
 		}()
 		file.Wait()
-		go func() {
+		go func() error {
 			if err := cacheFileToHard(cfg,file); err != nil {
 				return err
 			}
+			return nil
 		}()
 	}
 	return nil
@@ -334,7 +336,7 @@ func GetFile(name,hash string,addr common.Address) (*UpsFile,error) {
 		if err != nil {
 			return nil,err
 		}
-		mgr.addFile(file.UpdataFileHash())
+		mgr.addFile(file.UpdateFileHash())
 		return file,nil
 	}
 }
