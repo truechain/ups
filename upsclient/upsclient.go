@@ -735,7 +735,7 @@ func (ec *Client) UploadFile(ctx context.Context,path string,prv *ecdsa.PrivateK
 	return ec.uploadFile(ctx,args)
 }
 
-func (ec *Client) GetFile(ctx context.Context,name string,hash common.Hash) (map[string]interface{}, error) {
+func (ec *Client) GetFile(ctx context.Context,name,hash string) (map[string]interface{}, error) {
 	var result map[string]interface{}
 	err := ec.c.CallContext(ctx, &result, "ups_getFile", name,hash)
 	if err != nil {

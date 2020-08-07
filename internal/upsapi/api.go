@@ -44,6 +44,7 @@ import (
 	"github.com/truechain/ups/params"
 	"github.com/truechain/ups/rlp"
 	"github.com/truechain/ups/rpc"
+	"github.com/truechain/ups/upsstore"
 )
 
 const (
@@ -1805,15 +1806,23 @@ func (s *PublicFileAPI) UploadFile(ctx context.Context, fArgs FileArgs) (hexutil
 		return nil,err
 	}
 	addr := crypto.PubkeyToAddress(*pk)
-	log.Info("UploadFile", "Name", fArgs.Name,"addr",addr)
-	return nil,nil
-}
-func (s *PublicFileAPI) GetFile(ctx context.Context,name string, fHash common.Hash) (map[string]interface{},error) {
-	res := &CatFileResult{
-		Name: name,
+	uf := upsstore.NewUpsFile(fArgs.Name,addr,[]byte(*fArgs.Data))
+	if err := upsstore.AddFile(uf); err != nil {
+		return nil,err
+	} else {
+		hc := uf.GetFileHashCode()
+		log.Info("UploadFile", "Name", fArgs.Name,"addr",addr,"hashcode",hc)
+		return hexutil.Bytes([]byte(hc)),nil
 	}
-	obj := make(map[string]interface{})
-	obj["name"] = res.Name
-	obj["data"] = hexutil.Bytes(res.Data)
-	return obj,nil
+}
+func (s *PublicFileAPI) GetFile(ctx context.Context,name,fHash string) (map[string]interface{},error) {
+	
+	if uf,err := upsstore.GetFile(name,fhash,common.Address{}); err != nil {
+		return nil,err
+	} else {
+		obj := make(map[string]interface{})
+		obj["name"] = name
+		obj["data"] = hexutil.Bytes(uf.GetData())
+		return obj,nil
+	}
 }
