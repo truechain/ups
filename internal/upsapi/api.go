@@ -1817,7 +1817,7 @@ func (s *PublicFileAPI) UploadFile(ctx context.Context, fArgs FileArgs) (hexutil
 }
 func (s *PublicFileAPI) GetFile(ctx context.Context,name,fHash string) (map[string]interface{},error) {
 	
-	if uf,err := upsstore.GetFile(name,fhash,common.Address{}); err != nil {
+	if uf,err := upsstore.GetFile(name,fHash,common.Address{}); err != nil {
 		return nil,err
 	} else {
 		obj := make(map[string]interface{})
