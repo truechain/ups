@@ -260,6 +260,7 @@ func executeUpload(cfg *ipfsConfig,file *UpsFile) error {
 	if cfg == nil {
 		cfg = getDefaultIpfsConfig()
 	}
+	defer file.Finish()
 	sh := shell.NewShell(cfg.url)
 	cid, err := sh.Add(bytes.NewReader(file.data))
 	if err != nil {
@@ -267,13 +268,14 @@ func executeUpload(cfg *ipfsConfig,file *UpsFile) error {
 		return err
 	}
 	file.setFileHashCode(cid)
-	file.Finish()
+	
 	return nil
 }
 func executeDownload(cfg *ipfsConfig,file *UpsFile) error {
 	if cfg == nil {
 		cfg = getDefaultIpfsConfig()
 	}
+	defer file.Finish()
 	sh := shell.NewShell(cfg.url)
 	read, err := sh.Cat(file.hash)
 	if err != nil {
@@ -287,7 +289,6 @@ func executeDownload(cfg *ipfsConfig,file *UpsFile) error {
 		return err
 	}
 	file.data = data
-	file.Finish()
 	return nil
 }
 /////////////////////////////////////////////////////////////////////////////////
