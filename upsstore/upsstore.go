@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"sync"
 	"errors"
-	// "fmt"
+	"fmt"
 	"strings"
 	"io/ioutil"
 	"os"
@@ -256,6 +256,7 @@ func removeFileInCache(cfg *ipfsConfig,name string) error {
 	return nil
 }
 func executeUpload(cfg *ipfsConfig,file *UpsFile) error {
+	fmt.Println("begin upload....")
 	if cfg == nil {
 		cfg = getDefaultIpfsConfig()
 	}
@@ -303,10 +304,16 @@ func AddFile(file *UpsFile) error {
 		// 2. cache the file in the local node
 		// 3. upload the file to ipfs
 		cfg := getDefaultIpfsConfig()
+		var err error
+		file.Event()
 		go func(){
-			executeUpload(cfg,file.Event())
+			err = executeUpload(cfg,file)
 		}()
 		file.Wait()
+		fmt.Println("finish wait...")
+		if err != nil {
+			return err
+		}
 		go func() error {
 			if err := cacheFileToHard(cfg,file); err != nil {
 				return err
@@ -329,8 +336,9 @@ func GetFile(name,hash string,addr common.Address) (*UpsFile,error) {
 		file.setFileHashCode(hash)
 		cfg := getDefaultIpfsConfig()
 		var err error
+		file.Event()
 		go func(){
-			err = executeUpload(cfg,file.Event())
+			err = executeUpload(cfg,file)
 		}()
 		file.Wait()
 		if err != nil {
