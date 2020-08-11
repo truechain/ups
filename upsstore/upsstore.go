@@ -58,7 +58,7 @@ type ipfsConfig struct {
 }
 func getDefaultIpfsConfig() *ipfsConfig {
 	return &ipfsConfig{
-		url:	"localhost:5001",
+		url:	"localhost:5002",
 		dir:	"./cacheFile",
 	}
 }
@@ -76,7 +76,7 @@ func NewUpsFile(name string,addr common.Address,data []byte) *UpsFile {
 		name:	name,
 		address: addr,
 		data:	data,
-		wg:		&sync.WaitGroup{},
+		wg:		new(sync.WaitGroup),
 		cache:	false,
 	}
 }
@@ -268,9 +268,10 @@ func executeUpload(cfg *ipfsConfig,file *UpsFile) error {
 		return err
 	}
 	file.setFileHashCode(cid)
-	
+	fmt.Println("end upload....")
 	return nil
 }
+
 func executeDownload(cfg *ipfsConfig,file *UpsFile) error {
 	if cfg == nil {
 		cfg = getDefaultIpfsConfig()
@@ -305,15 +306,12 @@ func AddFile(file *UpsFile) error {
 		// 2. cache the file in the local node
 		// 3. upload the file to ipfs
 		cfg := getDefaultIpfsConfig()
-		var err error
 		file.Event()
-		go func(){
-			err = executeUpload(cfg,file)
-		}()
+		go executeUpload(cfg,file)
 		file.Wait()
 		fmt.Println("finish wait...")
-		if err != nil {
-			return err
+		if len(file.GetFileHashCode()) <= 0 {
+			return errors.New("upload file fail")
 		}
 		go func() error {
 			if err := cacheFileToHard(cfg,file); err != nil {
@@ -336,14 +334,12 @@ func GetFile(name,hash string,addr common.Address) (*UpsFile,error) {
 		file := NewUpsFile(name,addr,nil)
 		file.setFileHashCode(hash)
 		cfg := getDefaultIpfsConfig()
-		var err error
+
 		file.Event()
-		go func(){
-			err = executeUpload(cfg,file)
-		}()
+		go executeDownload(cfg,file)
 		file.Wait()
-		if err != nil {
-			return nil,err
+		if len(file.data) <= 0 {
+			return nil,errors.New("Download file fail")
 		}
 		mgr.addFile(file.UpdateFileHash())
 		return file,nil

@@ -28,8 +28,10 @@ func Test_01(t *testing.T) {
 	addr := common.BytesToAddress([]byte{0,0,0,0,1})
 	uf := get_file(name,addr)
 	err := AddFile(uf)
+	time.Sleep(5 * time.Second)
 	if err != nil {
 		fmt.Println("err",err)
+		return 
 	}
 	hashcode := uf.GetFileHashCode()
 	fmt.Println("hashcode",hashcode)
@@ -39,4 +41,26 @@ func Test_01(t *testing.T) {
 	} else {
 		fmt.Println("name:",uf2.name)
 	}
+}
+
+func run_01() {
+	fmt.Println("begin upload....")
+	// if cfg == nil {
+	// 	cfg = getDefaultIpfsConfig()
+	// }
+	// file.Finish()
+	// sh := shell.NewShell(cfg.url)
+	// cid, err := sh.Add(bytes.NewReader(file.data))
+	// if err != nil {
+	// 	log.Error("executeUpload", "name", file.name, "err", err)
+	// 	return err
+	// }
+	// file.setFileHashCode(cid)
+	fmt.Println("end upload....")
+}
+func Test_02(t *testing.T) {
+	fmt.Println("begin wait...")
+	go run_01()
+	time.Sleep(5 * time.Second)
+	fmt.Println("finish wait...")
 }
