@@ -579,36 +579,34 @@ func MakeDataDir(ctx *cli.Context) string {
 // from a file or as a specified hex value. If neither flags were provided, this
 // method returns nil and an emphemeral key is to be generated.
 func setNodeKey(ctx *cli.Context, cfg *p2p.Config) {
-	// var (
-	// 	hex  = ctx.GlobalString(NodeKeyHexFlag.Name)
-	// 	file = ctx.GlobalString(NodeKeyFileFlag.Name)
-	// 	key  *ecdsa.PrivateKey
-	// 	err  error
-	// )
-	// switch {
-	// case file != "" && hex != "":
-	// 	Fatalf("Options %q and %q are mutually exclusive", NodeKeyFileFlag.Name, NodeKeyHexFlag.Name)
-	// case file != "":
-	// 	if key, err = crypto.LoadECDSA(file); err != nil {
-	// 		Fatalf("Option %q: %v", NodeKeyFileFlag.Name, err)
-	// 	}
-	// 	cfg.PrivateKey = key
-	// case hex != "":
-	// 	if key, err = crypto.HexToECDSA(hex); err != nil {
-	// 		Fatalf("Option %q: %v", NodeKeyHexFlag.Name, err)
-	// 	}
-	// 	cfg.PrivateKey = key
-	// }
-
+	var (
+		hex  = ctx.GlobalString(NodeKeyHexFlag.Name)
+		file = ctx.GlobalString(NodeKeyFileFlag.Name)
+		key  *ecdsa.PrivateKey
+		err  error
+	)
+	switch {
+	case file != "" && hex != "":
+		Fatalf("Options %q and %q are mutually exclusive", NodeKeyFileFlag.Name, NodeKeyHexFlag.Name)
+	case file != "":
+		if key, err = crypto.LoadECDSA(file); err != nil {
+			Fatalf("Option %q: %v", NodeKeyFileFlag.Name, err)
+		}
+		cfg.PrivateKey = key
+	case hex != "":
+		if key, err = crypto.HexToECDSA(hex); err != nil {
+			Fatalf("Option %q: %v", NodeKeyHexFlag.Name, err)
+		}
+		cfg.PrivateKey = key
 	// add read PrivateKey from config file
-
-	if len(cfg.P2PKey) > 0 {
+	case len(cfg.P2PKey) > 0:
 		if key, err := crypto.ToECDSA(cfg.P2PKey); err != nil {
 			Fatalf("Option %v: %v", cfg.P2PKey, err)
 		} else {
 			cfg.PrivateKey = key
 		}
 	}
+
 }
 
 func setBftCommitteeKey(ctx *cli.Context, cfg *ups.Config) {
