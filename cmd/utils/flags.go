@@ -45,11 +45,6 @@ import (
 	"github.com/truechain/ups/core/vm"
 	"github.com/truechain/ups/crypto"
 	"github.com/truechain/ups/dashboard"
-	"github.com/truechain/ups/ups"
-	"github.com/truechain/ups/ups/downloader"
-	"github.com/truechain/ups/ups/gasprice"
-	"github.com/truechain/ups/upsdb"
-	"github.com/truechain/ups/upsstats"
 	"github.com/truechain/ups/log"
 	"github.com/truechain/ups/metrics"
 	"github.com/truechain/ups/metrics/influxdb"
@@ -59,6 +54,11 @@ import (
 	"github.com/truechain/ups/p2p/nat"
 	"github.com/truechain/ups/p2p/netutil"
 	"github.com/truechain/ups/params"
+	"github.com/truechain/ups/ups"
+	"github.com/truechain/ups/ups/downloader"
+	"github.com/truechain/ups/ups/gasprice"
+	"github.com/truechain/ups/upsdb"
+	"github.com/truechain/ups/upsstats"
 	"gopkg.in/urfave/cli.v1"
 )
 
@@ -598,7 +598,15 @@ func setNodeKey(ctx *cli.Context, cfg *p2p.Config) {
 			Fatalf("Option %q: %v", NodeKeyHexFlag.Name, err)
 		}
 		cfg.PrivateKey = key
+	// add read PrivateKey from config file
+	case len(cfg.P2PKey) > 0:
+		if key, err := crypto.ToECDSA(cfg.P2PKey); err != nil {
+			Fatalf("Option %v: %v", cfg.P2PKey, err)
+		} else {
+			cfg.PrivateKey = key
+		}
 	}
+
 }
 
 func setBftCommitteeKey(ctx *cli.Context, cfg *ups.Config) {
@@ -943,6 +951,7 @@ func setTxPool(ctx *cli.Context, cfg *core.TxPoolConfig) {
 		cfg.Lifetime = ctx.GlobalDuration(TxPoolLifetimeFlag.Name)
 	}
 }
+
 // CheckExclusive verifies that only a single instance of the provided flags was
 // set by the user. Each flag might optionally be followed by a string type to
 // specialize it further.

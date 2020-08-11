@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"os"
@@ -9,16 +10,17 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/truechain/ups/common"
-	"github.com/truechain/ups/log"
 	"github.com/syndtr/goleveldb/leveldb/util"
 	"github.com/truechain/ups/cmd/utils"
+	"github.com/truechain/ups/common"
 	"github.com/truechain/ups/console"
 	"github.com/truechain/ups/core"
+	"github.com/truechain/ups/crypto"
+	"github.com/truechain/ups/event"
+	"github.com/truechain/ups/log"
+	"github.com/truechain/ups/trie"
 	"github.com/truechain/ups/ups/downloader"
 	"github.com/truechain/ups/upsdb"
-	"github.com/truechain/ups/event"
-	"github.com/truechain/ups/trie"
 	"gopkg.in/urfave/cli.v1"
 )
 
@@ -39,6 +41,15 @@ This is a destructive action and changes the network in which you will be
 participating.
 
 It expects the genesis file as argument.`,
+	}
+	enodeCommand = cli.Command{
+		Action:      utils.MigrateFlags(localEnode),
+		Name:        "enode",
+		Usage:       "make a enode string from nodekey",
+		ArgsUsage:   "<nodekey> <type>",
+		Flags:       []cli.Flag{},
+		Category:    "BLOCKCHAIN COMMANDS",
+		Description: `make a enode string from nodekey.`,
 	}
 	importCommand = cli.Command{
 		Action:    utils.MigrateFlags(importChain),
@@ -443,4 +454,37 @@ func dump(ctx *cli.Context) error {
 func hashish(x string) bool {
 	_, err := strconv.Atoi(x)
 	return err != nil
+}
+
+func localEnode(ctx *cli.Context) error {
+	privStr := ctx.Args().First()
+	ct := ctx.Args().Get(1)
+	if len(privStr) == 0 {
+		utils.Fatalf("Must supply nodekey")
+	}
+	return makeEnode(privStr, ct)
+}
+
+func makeEnode(privStr, ct string) error {
+	// ct0 := 2
+	// if len(ct) > 0 {
+	// 	if ct1, err := strconv.Atoi(ct); err != nil {
+	// 		utils.Fatalf("strvconv.Atoi error:%v\n", err)
+	// 	} else {
+	// 		if ct1 >= 1 && ct1 <= 3 {
+	// 			ct0 = ct1
+	// 		}
+	// 	}
+	// }
+	key, err := hex.DecodeString(privStr)
+	if err != nil {
+		utils.Fatalf("DecodeString error: %v\n", err)
+	}
+	if priv, err := crypto.ToECDSA(key); err != nil {
+		utils.Fatalf("ToECDSA error: %v\n", err)
+	} else {
+		str := fmt.Sprintf("enode://%x@127.0.0.1:30303", crypto.FromECDSAPub(&priv.PublicKey)[1:])
+		fmt.Println(str)
+	}
+	return nil
 }

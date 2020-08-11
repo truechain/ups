@@ -17,11 +17,11 @@ import (
 	"github.com/truechain/ups/accounts/keystore"
 	"github.com/truechain/ups/cmd/utils"
 	"github.com/truechain/ups/console"
-	"github.com/truechain/ups/upsclient"
 	"github.com/truechain/ups/internal/debug"
 	"github.com/truechain/ups/log"
 	"github.com/truechain/ups/metrics"
 	"github.com/truechain/ups/node"
+	"github.com/truechain/ups/upsclient"
 	"gopkg.in/urfave/cli.v1"
 )
 
@@ -137,6 +137,7 @@ func init() {
 	app.Commands = []cli.Command{
 		// See chaincmd.go:
 		initCommand,
+		enodeCommand,
 		importCommand,
 		exportCommand,
 		importPreimagesCommand,
