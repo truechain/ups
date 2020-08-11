@@ -26,14 +26,14 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/truechain/ups/log"
 	"github.com/prometheus/prometheus/util/flock"
 	"github.com/truechain/ups/accounts"
-	"github.com/truechain/ups/upsdb"
 	"github.com/truechain/ups/event"
 	"github.com/truechain/ups/internal/debug"
+	"github.com/truechain/ups/log"
 	"github.com/truechain/ups/p2p"
 	"github.com/truechain/ups/rpc"
+	"github.com/truechain/ups/upsdb"
 )
 
 // Node is a container on which services can be registered.
