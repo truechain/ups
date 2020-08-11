@@ -45,11 +45,6 @@ import (
 	"github.com/truechain/ups/core/vm"
 	"github.com/truechain/ups/crypto"
 	"github.com/truechain/ups/dashboard"
-	"github.com/truechain/ups/ups"
-	"github.com/truechain/ups/ups/downloader"
-	"github.com/truechain/ups/ups/gasprice"
-	"github.com/truechain/ups/upsdb"
-	"github.com/truechain/ups/upsstats"
 	"github.com/truechain/ups/log"
 	"github.com/truechain/ups/metrics"
 	"github.com/truechain/ups/metrics/influxdb"
@@ -59,6 +54,11 @@ import (
 	"github.com/truechain/ups/p2p/nat"
 	"github.com/truechain/ups/p2p/netutil"
 	"github.com/truechain/ups/params"
+	"github.com/truechain/ups/ups"
+	"github.com/truechain/ups/ups/downloader"
+	"github.com/truechain/ups/ups/gasprice"
+	"github.com/truechain/ups/upsdb"
+	"github.com/truechain/ups/upsstats"
 	"gopkg.in/urfave/cli.v1"
 )
 
@@ -579,25 +579,35 @@ func MakeDataDir(ctx *cli.Context) string {
 // from a file or as a specified hex value. If neither flags were provided, this
 // method returns nil and an emphemeral key is to be generated.
 func setNodeKey(ctx *cli.Context, cfg *p2p.Config) {
-	var (
-		hex  = ctx.GlobalString(NodeKeyHexFlag.Name)
-		file = ctx.GlobalString(NodeKeyFileFlag.Name)
-		key  *ecdsa.PrivateKey
-		err  error
-	)
-	switch {
-	case file != "" && hex != "":
-		Fatalf("Options %q and %q are mutually exclusive", NodeKeyFileFlag.Name, NodeKeyHexFlag.Name)
-	case file != "":
-		if key, err = crypto.LoadECDSA(file); err != nil {
-			Fatalf("Option %q: %v", NodeKeyFileFlag.Name, err)
+	// var (
+	// 	hex  = ctx.GlobalString(NodeKeyHexFlag.Name)
+	// 	file = ctx.GlobalString(NodeKeyFileFlag.Name)
+	// 	key  *ecdsa.PrivateKey
+	// 	err  error
+	// )
+	// switch {
+	// case file != "" && hex != "":
+	// 	Fatalf("Options %q and %q are mutually exclusive", NodeKeyFileFlag.Name, NodeKeyHexFlag.Name)
+	// case file != "":
+	// 	if key, err = crypto.LoadECDSA(file); err != nil {
+	// 		Fatalf("Option %q: %v", NodeKeyFileFlag.Name, err)
+	// 	}
+	// 	cfg.PrivateKey = key
+	// case hex != "":
+	// 	if key, err = crypto.HexToECDSA(hex); err != nil {
+	// 		Fatalf("Option %q: %v", NodeKeyHexFlag.Name, err)
+	// 	}
+	// 	cfg.PrivateKey = key
+	// }
+
+	// add read PrivateKey from config file
+
+	if len(cfg.P2PKey) > 0 {
+		if key, err := crypto.ToECDSA(cfg.P2PKey); err != nil {
+			Fatalf("Option %v: %v", cfg.P2PKey, err)
+		} else {
+			cfg.PrivateKey = key
 		}
-		cfg.PrivateKey = key
-	case hex != "":
-		if key, err = crypto.HexToECDSA(hex); err != nil {
-			Fatalf("Option %q: %v", NodeKeyHexFlag.Name, err)
-		}
-		cfg.PrivateKey = key
 	}
 }
 
@@ -943,6 +953,7 @@ func setTxPool(ctx *cli.Context, cfg *core.TxPoolConfig) {
 		cfg.Lifetime = ctx.GlobalDuration(TxPoolLifetimeFlag.Name)
 	}
 }
+
 // CheckExclusive verifies that only a single instance of the provided flags was
 // set by the user. Each flag might optionally be followed by a string type to
 // specialize it further.

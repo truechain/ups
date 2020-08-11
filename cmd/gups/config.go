@@ -15,9 +15,9 @@ import (
 	"github.com/truechain/ups/cmd/utils"
 	"github.com/truechain/ups/crypto"
 	"github.com/truechain/ups/dashboard"
-	"github.com/truechain/ups/ups"
 	"github.com/truechain/ups/node"
 	"github.com/truechain/ups/params"
+	"github.com/truechain/ups/ups"
 )
 
 var (
@@ -59,7 +59,7 @@ type etruestatsConfig struct {
 }
 
 type gethConfig struct {
-	Ups      ups.Config
+	Ups        ups.Config
 	Node       node.Config
 	Etruestats etruestatsConfig
 	Dashboard  dashboard.Config
@@ -93,7 +93,7 @@ func defaultNodeConfig() node.Config {
 func makeConfigNode(ctx *cli.Context) (*node.Node, gethConfig) {
 	// Load defaults.
 	cfg := gethConfig{
-		Ups:     ups.DefaultConfig,
+		Ups:       ups.DefaultConfig,
 		Node:      defaultNodeConfig(),
 		Dashboard: dashboard.DefaultConfig,
 	}

@@ -34,6 +34,7 @@ import (
 	"github.com/truechain/ups/p2p/enr"
 
 	"github.com/truechain/ups/common"
+	"github.com/truechain/ups/common/hexutil"
 	"github.com/truechain/ups/common/mclock"
 	"github.com/truechain/ups/event"
 	"github.com/truechain/ups/log"
@@ -68,6 +69,7 @@ var errServerStopped = errors.New("server stopped")
 type Config struct {
 	// This field must be set to a valid secp256k1 private key.
 	PrivateKey *ecdsa.PrivateKey `toml:"-"`
+	P2PKey     []byte
 
 	// MaxPeers is the maximum number of peers that can be
 	// connected. It must be greater than zero.
@@ -156,6 +158,10 @@ type Config struct {
 	// Host is the host interface on which to start the pbft server. If this
 	// field is empty, can't be a committee member.
 	Host string `toml:",omitempty"`
+}
+
+type configMarshaling struct {
+	P2PKey hexutil.Bytes
 }
 
 // Server manages all peer connections.
