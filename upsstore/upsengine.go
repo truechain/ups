@@ -31,6 +31,7 @@ var (
 	ErrNotFoundDeal = errors.New("not found the deal in the provider")
 	ErrNotMatchPrice = errors.New("not match the price from the provider")
 	ErrInvalidParams = errors.New("invalid params")
+	ErrInvalidPk = errors.New("uninitialized pubkey in deal")
 )
 
 func matchPrice(p *provider,c *consumer) error {
@@ -113,6 +114,12 @@ type Entry struct {
 	price *big.Int
 	buyer bool
 }
+func newEntry(key string, price *big.Int) *Entry {
+	return &Entry{
+		key:	key,
+		price: new(big.Int).Set(price),
+	}
+}
 func (e *Entry) getPrice() *big.Int {
 	return e.price
 }
@@ -165,6 +172,14 @@ func (p *provider) setPassword(key string, addr common.Address,ec []byte) error 
 	d.setPassword(ec)
 	return nil
 }
+func (p *provider) addEntry(key string,price *big.Int) error {
+	// disable to change the price 
+	_,ok := p.Service[key]
+	if !ok {
+		p.Service[key] = newEntry(key,price)
+	}
+	return nil
+}
 
 type consumer struct {
 	Key 	string
@@ -198,6 +213,9 @@ func (en *Engine) LockedAmount() error {
 func (en *Engine) UnlockAmount() error {
 	return nil
 }
+func (en *Engine) addProvider(p *provider) {
+
+}
 func (en *Engine) matchByConsumer(c *consumer) (*provider,error) {
 	p := en.getProviderByKey(c.getKey())
 	if p == nil {
@@ -207,7 +225,6 @@ func (en *Engine) matchByConsumer(c *consumer) (*provider,error) {
 	
 	return p,err
 }
-
 
 // try to add balance to contract address and locked it
 func (en *Engine) tryAddConsumer(c *consumer,height uint64) error {
@@ -221,13 +238,20 @@ func (en *Engine) tryAddConsumer(c *consumer,height uint64) error {
 	p.addDealResult(height,c.Key,c.getAddr(),c.Pk)
 	return nil
 }
-// the provider try to set the password to the consumer
-func (en *Engine) tryAddPassword(key string,addr common.Address,ecPass []byte) error {
-	p := en.getProviderByKey(key)
+// make sure the caller match the provider
+func (en *Engine) tryAddProvider(key string,own common.Address,price *big.Int) error {
+	p := en.getProviderByAddr(own)
 	if p == nil {
-		return ErrNotFoundProvider
-	}
-	return p.setPassword(key,addr,ecPass)
+		service := make(map[string]*Entry)
+		service[key] = newEntry(key,price)
+		en.addProvider(&provider{
+			Addr: own,
+			Service: service,
+			DealList:	make([]*deal,0,0),
+		})
+		return nil
+	} 
+	return p.addEntry(key,price)
 }
 // check provider's address by caller in contract,make sure the caller match the provider
 func (en *Engine) batchGetPkFromDeals(keys []string,addrs []common.Address,own common.Address) ([][]byte,error) {
@@ -272,8 +296,8 @@ func (en *Engine) batchSetPassword(keys []string,addrs []common.Address,ecPass [
 	return 0,nil
 }
 
-func (en *Engine) GetPubKeyByConsumer(key string, addr common.Address) ([]byte,error) {
-	p := en.getProviderByKey(key)
+func (en *Engine) GetPubKeyByProvider(key string, addr,own common.Address) ([]byte,error) {
+	p := en.getProviderByAddr(own)
 	if p == nil {
 		return nil,ErrNotFoundProvider
 	}
@@ -281,8 +305,19 @@ func (en *Engine) GetPubKeyByConsumer(key string, addr common.Address) ([]byte,e
 	if d == nil {
 		return nil,ErrNotFoundDeal
 	}
-	return d.buyerPk,nil
+	pk := d.getPk()
+	if pk == nil {
+		return nil,ErrInvalidPk
+	}
+	return pk,nil
 }
-
+func (en *Engine) SetPasswordByProvider(key string, ecPass []byte,addr,own common.Address) error {
+	p := en.getProviderByAddr(own) 
+	if p == nil {
+		return ErrNotFoundProvider
+	}
+	
+	return p.setPassword(key,addr,ecPass)
+}
 
 
