@@ -3,14 +3,15 @@ package upsstore
 import (
 	// "fmt"
 	"math/big"
-	// "math/rand"
+	"crypto/rand"
 	// "time"
 	"bytes"
 	"errors"
 	"github.com/truechain/ups/common"
 	// "github.com/truechain/ups/core/state"
 	// "github.com/truechain/ups/core/types"
-	// "github.com/truechain/ups/crypto"
+	"github.com/truechain/ups/crypto"
+	"github.com/truechain/ups/crypto/ecies"
 	// "github.com/truechain/ups/log"
 	// "github.com/truechain/ups/params"
 	// "github.com/truechain/ups/rlp"
@@ -58,19 +59,47 @@ func allBalance() *big.Int {
 	// all balance of the upsEngineAddress
 	return nil
 }
+func Encrypt(pk,msg []byte) ([]byte,error) {
+	if p,err := crypto.UnmarshalPubkey(pk); err != nil {
+		return nil,err
+	} else {
+		if cr, err := ecies.Encrypt(rand.Reader, ecies.ImportECDSAPublic(p), msg, nil, nil); err != nil {
+			return nil,err
+		} else {
+			return cr,nil
+		}
+	}
+}
+func Decrypt(priv,msg []byte) ([]byte,error) {
+	if p,err := crypto.ToECDSA(priv);err != nil {
+		return nil,err
+	} else {
+		priKey := ecies.ImportECDSA(p)
+		if dcr, err := priKey.Decrypt(msg, nil, nil); err != nil {
+			return nil,err
+		} else {
+			return dcr,nil
+		}
+	}
+}
+
+type deal struct {
+	key string
+	buyer common.Address
+	buyerPk []byte
+	password []byte
+	Height 	uint64
+}
+func (d *deal) MakePassword() error {
+	
+	return nil
+}
 
 type Entry struct {
 	key string
 	price *big.Int
 	buyer bool
 }
-type deal struct {
-	key string
-	buyer common.Address
-	password []byte
-	Height 	uint64
-}
-
 func (e *Entry) getPrice() *big.Int {
 	return e.price
 }
@@ -125,12 +154,7 @@ func (en *Engine) getProviderByKey(key string) *provider {
 func (en *Engine) Seller() {
 	
 }
-func (en *Engine) Encrypt() error {
-	return nil
-}
-func (en *Engine) Decrypt() error {
-	return nil
-}
+
 func (en *Engine) LockedAmount() error {
 	return nil
 }
