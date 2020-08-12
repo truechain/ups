@@ -99,6 +99,14 @@ func (d *deal) setPassword(ec []byte) {
 	d.password = make([]byte,len(ec))
 	copy(d.password,ec)
 }
+func (d *deal) getPk() []byte{
+	if len(d.buyerPk) > 0 {
+		pk := make([]byte,len(d.buyerPk))
+		copy(pk,d.buyerPk)
+		return pk
+	}
+	return nil
+}
 
 type Entry struct {
 	key string
@@ -128,7 +136,7 @@ func (p *provider) getPrice(key string) *big.Int {
 	}
 	return e.getPrice()
 }
-func (p *provider) getDealResultBy(key string,addr common.Address) *deal {
+func (p *provider) getDealResult(key string,addr common.Address) *deal {
 	for _,v := range p.DealList {
 		if key == v.key && bytes.Equal(addr[:],v.buyer[:]) {
 			return v
@@ -137,7 +145,7 @@ func (p *provider) getDealResultBy(key string,addr common.Address) *deal {
 	return nil
 }
 func (p *provider) addDealResult(height uint64,key string,addr common.Address,pk []byte) {
-	d := p.getDealResultBy(key,addr)
+	d := p.getDealResult(key,addr)
 	if d != nil {
 		return 
 	}
@@ -150,7 +158,7 @@ func (p *provider) addDealResult(height uint64,key string,addr common.Address,pk
 	return 
 }
 func (p *provider) setPassword(key string, addr common.Address,ec []byte) error {
-	d := p.getDealResultBy(key,addr)
+	d := p.getDealResult(key,addr)
 	if d == nil {
 		return ErrNotFoundDeal
 	}
@@ -180,8 +188,8 @@ type Engine struct {
 func (en *Engine) getProviderByKey(key string) *provider {
 	return nil
 }
-func (en *Engine) Seller() {
-	
+func (en *Engine) getProviderByAddr(own common.Address) *provider {
+	return nil
 }
 
 func (en *Engine) LockedAmount() error {
@@ -221,12 +229,55 @@ func (en *Engine) tryAddPassword(key string,addr common.Address,ecPass []byte) e
 	}
 	return p.setPassword(key,addr,ecPass)
 }
+// check provider's address by caller in contract,make sure the caller match the provider
+func (en *Engine) batchGetPkFromDeals(keys []string,addrs []common.Address,own common.Address) ([][]byte,error) {
+	l := len(keys)
+	if len(keys) != len(addrs) {
+		return nil, ErrInvalidParams
+	}
+	p := en.getProviderByAddr(own)
+	if p == nil {
+		return nil,ErrNotFoundProvider
+	}
+	res := make([][]byte,0,0)
+	for i:=0;i<l;i++ {
+		k,a := keys[i],addrs[i]
+		d := p.getDealResult(k,a)
+		if d != nil {
+			pk := d.getPk()
+			if pk != nil {
+				res = append(res,pk)
+				continue
+			}
+		} 
+		res = append(res,[]byte{0})		// invalid pk
+	}
+	return res,nil
+}
+func (en *Engine) batchSetPassword(keys []string,addrs []common.Address,ecPass [][]byte,own common.Address) (int,error) {
+	l := len(keys)
+	if len(keys) != len(addrs) || l != len(ecPass) {
+		return 0, ErrInvalidParams
+	}
+	p := en.getProviderByAddr(own)
+	if p == nil {
+		return 0,ErrNotFoundProvider
+	}
+	for i:=0;i<l;i++ {
+		k,a,ec := keys[i],addrs[i],ecPass[i]
+		if err := p.setPassword(k,a,ec); err != nil {
+			return i,err
+		}
+	}
+	return 0,nil
+}
+
 func (en *Engine) GetPubKeyByConsumer(key string, addr common.Address) ([]byte,error) {
 	p := en.getProviderByKey(key)
 	if p == nil {
 		return nil,ErrNotFoundProvider
 	}
-	d := p.getDealResultBy(key,addr)
+	d := p.getDealResult(key,addr)
 	if d == nil {
 		return nil,ErrNotFoundDeal
 	}
