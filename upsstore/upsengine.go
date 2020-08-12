@@ -5,6 +5,7 @@ import (
 	"math/big"
 	// "math/rand"
 	// "time"
+	"bytes"
 	"errors"
 	"github.com/truechain/ups/common"
 	// "github.com/truechain/ups/core/state"
@@ -19,7 +20,10 @@ import (
 // 交互式密钥交互过程,卖方设置价格,买方出价，卖方给出加密密钥(以买方公钥加密)，验证该加密密钥。
 // 本服务为单向服务合约
 
-var UpsEngineAddress = common.BytesToAddress([]byte{90})
+var (
+	UpsEngineAddress = common.BytesToAddress([]byte{90})
+	CleanDealFlag = false
+)
 
 var (
 	ErrNotFoundProvider = errors.New("not found the provider from the key")
@@ -60,6 +64,13 @@ type Entry struct {
 	price *big.Int
 	buyer bool
 }
+type deal struct {
+	key string
+	buyer common.Address
+	password []byte
+	Height 	uint64
+}
+
 func (e *Entry) getPrice() *big.Int {
 	return e.price
 }
@@ -67,6 +78,7 @@ func (e *Entry) getPrice() *big.Int {
 type provider struct {
 	Addr 		common.Address
 	Service 	map[string]*Entry
+	DealList 	[]*deal
 }
 func (p *provider) getService(key string) *Entry {
 	v,ok := p.Service[key]
@@ -81,6 +93,14 @@ func (p *provider) getPrice(key string) *big.Int {
 		return nil
 	}
 	return e.getPrice()
+}
+func (p *provider) getDealResultBy(key string,addr common.Address) *deal {
+	for _,v := range p.DealList {
+		if key == v.key && bytes.Equal(addr[:],v.buyer[:]) {
+			return v
+		}
+	}
+	return nil
 }
 
 type consumer struct {
@@ -131,7 +151,7 @@ func (en *Engine) tryAddConsumer(c *consumer) error {
 	// 1. add consumer and match the provider
 	// 2. the consumer store the money to the contract and locked it
 	// 3. the provider set the password encrypted by consumer's pk
-
+	
 	return nil
 }
 
