@@ -28,6 +28,7 @@ var (
 
 var (
 	ErrNotFoundProvider = errors.New("not found the provider from the key")
+	ErrNotFoundDeal = errors.New("not found the deal in the provider")
 	ErrNotMatchPrice = errors.New("not match the price from the provider")
 	ErrInvalidParams = errors.New("invalid params")
 )
@@ -82,6 +83,10 @@ func Decrypt(priv,msg []byte) ([]byte,error) {
 		}
 	}
 }
+func MakePassword() error {
+	
+	return nil
+}
 
 type deal struct {
 	key string
@@ -90,9 +95,9 @@ type deal struct {
 	password []byte
 	Height 	uint64
 }
-func (d *deal) MakePassword() error {
-	
-	return nil
+func (d *deal) setPassword(ec []byte) {
+	d.password = make([]byte,len(ec))
+	copy(d.password,ec)
 }
 
 type Entry struct {
@@ -131,6 +136,27 @@ func (p *provider) getDealResultBy(key string,addr common.Address) *deal {
 	}
 	return nil
 }
+func (p *provider) addDealResult(height uint64,key string,addr common.Address,pk []byte) {
+	d := p.getDealResultBy(key,addr)
+	if d != nil {
+		return 
+	}
+	p.DealList = append(p.DealList,&deal{
+		key:	key,
+		buyer:	addr,
+		buyerPk:	pk,
+		Height:	height,
+	})
+	return 
+}
+func (p *provider) setPassword(key string, addr common.Address,ec []byte) error {
+	d := p.getDealResultBy(key,addr)
+	if d == nil {
+		return ErrNotFoundDeal
+	}
+	d.setPassword(ec)
+	return nil
+}
 
 type consumer struct {
 	Key 	string
@@ -142,6 +168,9 @@ func (c *consumer) getKey() string {
 }
 func (c *consumer) getPrice() *big.Int {
 	return new(big.Int).Set(c.Price)
+}
+func (c *consumer) getAddr() common.Address {
+	return common.BytesToAddress(crypto.Keccak256(c.Pk[1:])[12:])
 }
 
 type Engine struct {
@@ -161,24 +190,48 @@ func (en *Engine) LockedAmount() error {
 func (en *Engine) UnlockAmount() error {
 	return nil
 }
-func (en *Engine) matchByConsumer(c *consumer) (*big.Int,error) {
+func (en *Engine) matchByConsumer(c *consumer) (*provider,error) {
 	p := en.getProviderByKey(c.getKey())
 	if p == nil {
 		return nil,ErrNotFoundProvider
 	}
 	err := matchPrice(p,c)
 	
-	return c.getPrice(),err
+	return p,err
 }
+
+
 // try to add balance to contract address and locked it
-func (en *Engine) tryAddConsumer(c *consumer) error {
+func (en *Engine) tryAddConsumer(c *consumer,height uint64) error {
 	// 1. add consumer and match the provider
 	// 2. the consumer store the money to the contract and locked it
 	// 3. the provider set the password encrypted by consumer's pk
-	
+	p,err := en.matchByConsumer(c)
+	if err != nil {
+		return err
+	}
+	p.addDealResult(height,c.Key,c.getAddr(),c.Pk)
 	return nil
 }
-
+// the provider try to set the password to the consumer
+func (en *Engine) tryAddPassword(key string,addr common.Address,ecPass []byte) error {
+	p := en.getProviderByKey(key)
+	if p == nil {
+		return ErrNotFoundProvider
+	}
+	return p.setPassword(key,addr,ecPass)
+}
+func (en *Engine) GetPubKeyByConsumer(key string, addr common.Address) ([]byte,error) {
+	p := en.getProviderByKey(key)
+	if p == nil {
+		return nil,ErrNotFoundProvider
+	}
+	d := p.getDealResultBy(key,addr)
+	if d == nil {
+		return nil,ErrNotFoundDeal
+	}
+	return d.buyerPk,nil
+}
 
 
 
