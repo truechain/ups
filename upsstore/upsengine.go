@@ -95,6 +95,7 @@ type deal struct {
 	buyerPk []byte
 	password []byte
 	Height 	uint64
+	payed bool
 }
 func (d *deal) setPassword(ec []byte) {
 	d.password = make([]byte,len(ec))
@@ -107,6 +108,12 @@ func (d *deal) getPk() []byte{
 		return pk
 	}
 	return nil
+}
+func (d *deal) isPayed() bool {
+	return d.payed
+}
+func (d *deal) finish() {
+	d.payed = true
 }
 
 type Entry struct {
@@ -161,6 +168,7 @@ func (p *provider) addDealResult(height uint64,key string,addr common.Address,pk
 		buyer:	addr,
 		buyerPk:	pk,
 		Height:	height,
+		payed:	false,
 	})
 	return 
 }
@@ -180,6 +188,17 @@ func (p *provider) addEntry(key string,price *big.Int) error {
 	}
 	return nil
 }
+func (p *provider) getAddress() common.Address {
+	return p.Addr
+}
+func (p *provider) isSuppy(key string) bool {
+	for k := range p.Service {
+		if k == key {
+			return true
+		}
+	}
+	return false
+}
 
 type consumer struct {
 	Key 	string
@@ -197,13 +216,22 @@ func (c *consumer) getAddr() common.Address {
 }
 
 type Engine struct {
-	
+	maker  map[common.Address]*provider
 }
 
 func (en *Engine) getProviderByKey(key string) *provider {
+	for _,v := range en.maker {
+		if v.isSuppy(key) {
+			return v
+		}
+	}
 	return nil
 }
 func (en *Engine) getProviderByAddr(own common.Address) *provider {
+	v,ok := en.maker[own]
+	if ok {
+		return v
+	}
 	return nil
 }
 
@@ -214,8 +242,9 @@ func (en *Engine) UnlockAmount() error {
 	return nil
 }
 func (en *Engine) addProvider(p *provider) {
-
+	en.maker[p.getAddress()] = p
 }
+
 func (en *Engine) matchByConsumer(c *consumer) (*provider,error) {
 	p := en.getProviderByKey(c.getKey())
 	if p == nil {
