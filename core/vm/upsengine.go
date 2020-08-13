@@ -1,21 +1,21 @@
-package upsstore
+package vm
 
 import (
 	// "fmt"
 	"math/big"
 	"crypto/rand"
-	// "time"
+	"strings"
 	"bytes"
 	"errors"
 	"github.com/truechain/ups/common"
+	"github.com/truechain/ups/accounts/abi"
 	// "github.com/truechain/ups/core/state"
 	// "github.com/truechain/ups/core/types"
 	"github.com/truechain/ups/crypto"
 	"github.com/truechain/ups/crypto/ecies"
-	// "github.com/truechain/ups/log"
+	"github.com/truechain/ups/log"
 	// "github.com/truechain/ups/params"
 	// "github.com/truechain/ups/rlp"
-	// shell "github.com/ipfs/go-ipfs-api"
 )
 
 // 交互式密钥交互过程,卖方设置价格,买方出价，卖方给出加密密钥(以买方公钥加密)，验证该加密密钥。
@@ -27,7 +27,6 @@ var (
 	MaxAutoRedeemHeight = 200
 	MaxAutoUnlockedHieght = 500
 )
-
 var (
 	ErrNotFoundProvider = errors.New("not found the provider from the key")
 	ErrNotFoundDeal = errors.New("not found the deal in the provider")
@@ -41,6 +40,73 @@ const (
 	DealRedeem
 	DealFinish
 )
+
+var abiEngine abi.ABI
+
+func init() {
+	abiEngine, _ = abi.JSON(strings.NewReader(ABIENGINEJSON))
+}
+
+///////////////API///////////////////////////////////////////////////////////////////////////
+// addProvider
+func addProvider(evm *EVM, contract *Contract, input []byte) (ret []byte, err error) {
+	args := struct {
+		Key	 []byte
+		Price  *big.Int
+	}{}
+	method, _ := abiStaking.Methods["addProvider"]
+
+	err = method.Inputs.Unpack(&args, input)
+	if err != nil {
+		log.Error("Unpack addProvider error", "err", err)
+		return nil, ErrStakingInvalidInput
+	}
+
+	from := contract.caller.Address()
+	engine := NewEngine()
+	err = engine.Load(evm.StateDB)
+	if err != nil {
+		log.Error("engine load error", "error", err)
+		return nil, err
+	}
+	err = engine.tryAddProvider(string(args.Key), from, args.Price)
+	if err != nil {
+		log.Error("tryAddProvider", "address", contract.caller.Address(),"Key",args.Key, "Price", args.Price, "error", err)
+		return nil, err
+	}
+
+	err = engine.Save(evm.StateDB)
+	if err != nil {
+		log.Error("engine save state error", "error", err)
+		return nil, err
+	}
+
+	event := abiStaking.Events["AddProvider"]
+	logData, err := event.Inputs.PackNonIndexed(args.Key, args.Price)
+	if err != nil {
+		log.Error("Pack AddProvider log error", "error", err)
+		return nil, err
+	}
+	topics := []common.Hash{
+		event.ID(),
+		common.BytesToHash(from[:]),
+	}
+	logN(evm, contract, topics, logData)
+	return nil, nil
+}
+// PostRequestKey
+func PostRequestKey(evm *EVM, contract *Contract, input []byte) (ret []byte, err error) {
+	return nil,nil
+}
+// SetFileKey
+func SetFileKey(evm *EVM, contract *Contract, input []byte) (ret []byte, err error) {
+	return nil,nil
+}
+// GetFileKey
+func GetFileKey(evm *EVM, contract *Contract, input []byte) (ret []byte, err error) {
+	return nil,nil
+}
+///////////////API///////////////////////////////////////////////////////////////////////////
 
 func matchPrice(p *provider,c *consumer) error {
 	if p == nil || c == nil {
@@ -94,10 +160,6 @@ func Decrypt(priv,msg []byte) ([]byte,error) {
 			return dcr,nil
 		}
 	}
-}
-func MakePassword() error {
-	
-	return nil
 }
 
 type deal struct {
@@ -268,7 +330,17 @@ func (c *consumer) getAddr() common.Address {
 type Engine struct {
 	maker  map[common.Address]*provider
 }
-
+func NewEngine() *Engine {
+	return &Engine{
+		maker: 	make(map[common.Address]*provider),
+	}
+}
+func (en *Engine) Load(state StateDB) error {
+	return nil
+}
+func (en *Engine) Save(state StateDB) error {
+	return nil
+}
 func (en *Engine) getProviderByKey(key string) *provider {
 	for _,v := range en.maker {
 		if v.isSuppy(key) {
@@ -282,13 +354,6 @@ func (en *Engine) getProviderByAddr(own common.Address) *provider {
 	if ok {
 		return v
 	}
-	return nil
-}
-
-func (en *Engine) LockedAmount() error {
-	return nil
-}
-func (en *Engine) UnlockAmount() error {
 	return nil
 }
 func (en *Engine) addProvider(p *provider) {
@@ -442,6 +507,9 @@ func (en *Engine) DoAction(ch uint64) error {
 	}
 	return en.actionClearDeal(ch)
 }
-///////////////API///////////////////////////////////////////////////////////////////////////
-///////////////API///////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+const ABIENGINEJSON = `
+
+`
 
