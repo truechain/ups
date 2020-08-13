@@ -136,6 +136,12 @@ func (d *deal) canRedeem(ch uint64) bool {
 	}
 	return false
 }
+func (d *deal) canClear() bool {
+	if d.state == DealRedeem || d.state == DealFinish {
+		return true
+	}
+	return false
+}
 func (d *deal) redeemed() {
 	d.state = DealRedeem
 }
@@ -233,6 +239,15 @@ func (p *provider) isSuppy(key string) bool {
 		}
 	}
 	return false
+}
+func (p *provider) clearDealList() {
+	tmp := make([]*deal,0,0)
+	for _,d := range p.DealList {
+		if !d.canClear() {
+			tmp = append(tmp,d)
+		}
+	}
+	p.DealList = tmp
 }
 
 type consumer struct {
@@ -384,7 +399,7 @@ func (en *Engine) SetPasswordByProvider(key string, ecPass []byte,addr,own commo
 	return p.setPassword(key,addr,ecPass)
 }
 // the balance will auto translate to the consumer for no deal when more than MaxAutoRedeemHeight height 
-func (en *Engine) ActionRedeemForConsumer(ch uint64) error {
+func (en *Engine) actionRedeemForConsumer(ch uint64) error {
 	// check the not finished deal
 	for _,p := range en.maker {
 		for _,d := range p.DealList {
@@ -397,7 +412,7 @@ func (en *Engine) ActionRedeemForConsumer(ch uint64) error {
 	return nil
 }
 // 
-func (en *Engine) ActionUnlockedForProvider(ch uint64) error {
+func (en *Engine) actionUnlockedForProvider(ch uint64) error {
 	for _,p := range en.maker {
 		for _,d := range p.DealList {
 			if d.isPayed() && int64(ch - d.getHeight()) > int64(MaxAutoUnlockedHieght) {
@@ -408,7 +423,25 @@ func (en *Engine) ActionUnlockedForProvider(ch uint64) error {
 	}
 	return nil
 }
-
+func (en *Engine) actionClearDeal(ch uint64) error {
+	if ch % 200 == 0 {
+		for _,p := range en.maker {
+			p.clearDealList()
+		}
+	}
+	return nil 
+}
+func (en *Engine) DoAction(ch uint64) error {
+	err := en.actionRedeemForConsumer(ch)
+	if err != nil {
+		return err
+	}
+	err = en.actionUnlockedForProvider(ch)
+	if err != nil {
+		return err
+	}
+	return en.actionClearDeal(ch)
+}
 ///////////////API///////////////////////////////////////////////////////////////////////////
 ///////////////API///////////////////////////////////////////////////////////////////////////
 
