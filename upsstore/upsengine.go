@@ -24,6 +24,8 @@ import (
 var (
 	UpsEngineAddress = common.BytesToAddress([]byte{90})
 	CleanDealFlag = false
+	MaxAutoRedeemHeight = 200
+	MaxAutoUnlockedHieght = 500
 )
 
 var (
@@ -32,6 +34,12 @@ var (
 	ErrNotMatchPrice = errors.New("not match the price from the provider")
 	ErrInvalidParams = errors.New("invalid params")
 	ErrInvalidPk = errors.New("uninitialized pubkey in deal")
+)
+const (
+	DealUnPaid byte = iota
+	DealPayed
+	DealRedeem
+	DealFinish
 )
 
 func matchPrice(p *provider,c *consumer) error {
@@ -53,10 +61,13 @@ func storeBalance(val *big.Int) error {
 	// add balance to state
 	return nil
 }
-func transToProvider(val *big.Int) error {
+func transToProvider(val *big.Int,addr common.Address) error {
 	// trans to the provider from the upsEngineAddress 
 	return nil
 } 
+func redeemToConsumer(val *big.Int,addr common.Address) error {
+	return nil
+}
 func allBalance() *big.Int {
 	// all balance of the upsEngineAddress
 	return nil
@@ -95,7 +106,8 @@ type deal struct {
 	buyerPk []byte
 	password []byte
 	Height 	uint64
-	payed bool
+	price 	*big.Int
+	state byte
 }
 func (d *deal) setPassword(ec []byte) {
 	d.password = make([]byte,len(ec))
@@ -109,11 +121,32 @@ func (d *deal) getPk() []byte{
 	}
 	return nil
 }
+func (d *deal) getHeight() uint64 {
+	return d.Height
+}
+func (d *deal) getPrice() *big.Int {
+	return new(big.Int).Set(d.price)
+}
 func (d *deal) isPayed() bool {
-	return d.payed
+	return d.state == DealPayed
+}
+func (d *deal) canRedeem(ch uint64) bool {
+	if int64(ch - d.Height) > int64(MaxAutoRedeemHeight) && d.state == DealUnPaid {
+		return true
+	}
+	return false
+}
+func (d *deal) redeemed() {
+	d.state = DealRedeem
+}
+func (d *deal) payed() {
+	d.state = DealPayed
 }
 func (d *deal) finish() {
-	d.payed = true
+	d.state = DealFinish
+}
+func (d *deal) doRedeem() error {
+	return redeemToConsumer(d.price,d.buyer)
 }
 
 type Entry struct {
@@ -158,7 +191,7 @@ func (p *provider) getDealResult(key string,addr common.Address) *deal {
 	}
 	return nil
 }
-func (p *provider) addDealResult(height uint64,key string,addr common.Address,pk []byte) {
+func (p *provider) addDealResult(height uint64,key string,addr common.Address,pk []byte,price *big.Int) {
 	d := p.getDealResult(key,addr)
 	if d != nil {
 		return 
@@ -168,7 +201,8 @@ func (p *provider) addDealResult(height uint64,key string,addr common.Address,pk
 		buyer:	addr,
 		buyerPk:	pk,
 		Height:	height,
-		payed:	false,
+		price:	new(big.Int).Set(price),
+		state:	DealUnPaid,
 	})
 	return 
 }
@@ -178,6 +212,7 @@ func (p *provider) setPassword(key string, addr common.Address,ec []byte) error 
 		return ErrNotFoundDeal
 	}
 	d.setPassword(ec)
+	d.payed()
 	return nil
 }
 func (p *provider) addEntry(key string,price *big.Int) error {
@@ -264,7 +299,7 @@ func (en *Engine) tryAddConsumer(c *consumer,height uint64) error {
 	if err != nil {
 		return err
 	}
-	p.addDealResult(height,c.Key,c.getAddr(),c.Pk)
+	p.addDealResult(height,c.Key,c.getAddr(),c.Pk,c.getPrice())
 	return nil
 }
 // make sure the caller match the provider
@@ -348,5 +383,32 @@ func (en *Engine) SetPasswordByProvider(key string, ecPass []byte,addr,own commo
 	
 	return p.setPassword(key,addr,ecPass)
 }
+// the balance will auto translate to the consumer for no deal when more than MaxAutoRedeemHeight height 
+func (en *Engine) ActionRedeemForConsumer(ch uint64) error {
+	// check the not finished deal
+	for _,p := range en.maker {
+		for _,d := range p.DealList {
+			if d.canRedeem(ch) {
+				d.doRedeem()
+				d.redeemed()
+			}
+		}
+	}
+	return nil
+}
+// 
+func (en *Engine) ActionUnlockedForProvider(ch uint64) error {
+	for _,p := range en.maker {
+		for _,d := range p.DealList {
+			if d.isPayed() && int64(ch - d.getHeight()) > int64(MaxAutoUnlockedHieght) {
+				transToProvider(d.getPrice(),p.getAddress())
+				d.finish()
+			}
+		}
+	}
+	return nil
+}
 
+///////////////API///////////////////////////////////////////////////////////////////////////
+///////////////API///////////////////////////////////////////////////////////////////////////
 
