@@ -34,10 +34,10 @@ import (
 	"github.com/truechain/ups/core/state"
 	"github.com/truechain/ups/core/types"
 	"github.com/truechain/ups/crypto"
-	"github.com/truechain/ups/upsdb"
 	"github.com/truechain/ups/log"
 	"github.com/truechain/ups/params"
 	"github.com/truechain/ups/rlp"
+	"github.com/truechain/ups/upsdb"
 )
 
 //go:generate gencodec -type Genesis -field-override genesisSpecMarshaling -out gen_genesis.go
@@ -255,15 +255,15 @@ func (g *Genesis) ToFastBlock(db upsdb.Database) *types.Block {
 			statedb.SetState(addr, key, value)
 		}
 	}
-	consensus.OnceInitImpawnState(g.Config,statedb)
+	consensus.OnceInitImpawnState(g.Config, statedb)
 	impl := vm.NewImpawnImpl()
 	hh := g.Number
 	for _, member := range g.Committee {
-		err := impl.InsertSAccount2(hh,member.Coinbase, member.Publickey, big.NewInt(1000000000000000000), big.NewInt(100), true)
+		err := impl.InsertSAccount2(hh, member.Coinbase, member.Publickey, params.ElectionMinLimitForStaking, big.NewInt(100), true)
 		if err != nil {
 			log.Error("ToFastBlock InsertSAccount", "error", err)
 		}
-		statedb.AddBalance(types.StakingAddress, big.NewInt(1000000000000000000))
+		statedb.AddBalance(types.StakingAddress, params.ElectionMinLimitForStaking)
 	}
 	_, err := impl.DoElections(1, 0)
 	if err != nil {
@@ -276,7 +276,7 @@ func (g *Genesis) ToFastBlock(db upsdb.Database) *types.Block {
 	err = impl.Save(statedb, types.StakingAddress)
 	if err != nil {
 		log.Error("ToFastBlock IMPL Save", "error", err)
-	}		
+	}
 
 	root := statedb.IntermediateRoot(false)
 
@@ -315,11 +315,13 @@ func (g *Genesis) MustFastCommit(db upsdb.Database) *types.Block {
 	}
 	return block
 }
+
 // GenesisBlockForTesting creates and writes a block in which addr has the given wei balance.
 func GenesisBlockForTesting(db upsdb.Database, addr common.Address, balance *big.Int) *types.Block {
 	g := Genesis{Alloc: types.GenesisAlloc{addr: {Balance: balance}}, Config: params.AllMinervaProtocolChanges}
 	return g.MustFastCommit(db)
 }
+
 // DefaultGenesisBlock returns the Upschain main net snail block.
 func DefaultGenesisBlock() *Genesis {
 	i, _ := new(big.Int).SetString("65750000000000000000000000", 10)
@@ -407,6 +409,7 @@ func GenesisFastBlockForTesting(db upsdb.Database, addr common.Address, balance 
 	g := Genesis{Alloc: types.GenesisAlloc{addr: {Balance: balance}}, Config: params.AllMinervaProtocolChanges}
 	return g.MustFastCommit(db)
 }
+
 // DefaultDevGenesisBlock returns the Rinkeby network genesis block.
 func DefaultDevGenesisBlock() *Genesis {
 	i, _ := new(big.Int).SetString("90000000000000000000000", 10)
