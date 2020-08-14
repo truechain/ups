@@ -94,17 +94,131 @@ func addProvider(evm *EVM, contract *Contract, input []byte) (ret []byte, err er
 	logN(evm, contract, topics, logData)
 	return nil, nil
 }
-// PostRequestKey
-func PostRequestKey(evm *EVM, contract *Contract, input []byte) (ret []byte, err error) {
-	return nil,nil
+// postRequestKey
+func postRequestKey(evm *EVM, contract *Contract, input []byte) (ret []byte, err error) {
+	args := struct {
+		Key	 []byte
+		Pk   []byte
+	}{}
+	method, _ := abiStaking.Methods["postRequestKey"]
+
+	err = method.Inputs.Unpack(&args, input)
+	if err != nil {
+		log.Error("Unpack postRequestKey error", "err", err)
+		return nil, ErrStakingInvalidInput
+	}
+
+	from := contract.caller.Address()
+	engine := NewEngine()
+	err = engine.Load(evm.StateDB)
+	if err != nil {
+		log.Error("engine load error", "error", err)
+		return nil, err
+	}
+	err = engine.tryAddConsumer(newConsumer(string(args.Key),contract.Value(),args.Pk), evm.Context.BlockNumber.Uint64())
+	if err != nil {
+		log.Error("postRequestKey", "address", from,"Key",string(args.Key), "pk", args.Pk, "error", err)
+		return nil, err
+	}
+
+	err = engine.Save(evm.StateDB)
+	if err != nil {
+		log.Error("engine save state error", "error", err)
+		return nil, err
+	}
+
+	event := abiStaking.Events["PostRequestKey"]
+	logData, err := event.Inputs.PackNonIndexed(args.Key, args.Pk)
+	if err != nil {
+		log.Error("Pack PostRequestKey log error", "error", err)
+		return nil, err
+	}
+	topics := []common.Hash{
+		event.ID(),
+		common.BytesToHash(from[:]),
+	}
+	logN(evm, contract, topics, logData)
+	return nil, nil
+}
+// getPubKeyFromDeal
+func getPubKeyFromDeal(evm *EVM, contract *Contract, input []byte) (ret []byte, err error) {
+	args := struct {
+		Key	 	 []byte
+		Addr 	 common.Address
+	}{}
+	method, _ := abiStaking.Methods["getPubKeyFromDeal"]
+
+	err = method.Inputs.Unpack(&args, input)
+	if err != nil {
+		log.Error("Unpack getPubKeyFromDeal error", "err", err)
+		return nil, ErrStakingInvalidInput
+	}
+
+	from := contract.caller.Address()
+	engine := NewEngine()
+	err = engine.Load(evm.StateDB)
+	if err != nil {
+		log.Error("engine load error", "error", err)
+		return nil, err
+	}
+	if pk,err := engine.GetPubKeyByProvider(string(args.Key),args.Addr,from); err != nil {
+		log.Error("getPubKeyFromDeal", "address", from,"Key",string(args.Key), "consumerAddr", args.Addr, "error", err)
+		return nil, err
+	} else {
+		return method.Outputs.Pack(pk)
+	}
 }
 // SetFileKey
 func SetFileKey(evm *EVM, contract *Contract, input []byte) (ret []byte, err error) {
-	return nil,nil
+	args := struct {
+		Key	 	 []byte
+		EcPass   []byte
+		Addr 	 common.Address
+	}{}
+	method, _ := abiStaking.Methods["SetFileKey"]
+
+	err = method.Inputs.Unpack(&args, input)
+	if err != nil {
+		log.Error("Unpack SetFileKey error", "err", err)
+		return nil, ErrStakingInvalidInput
+	}
+
+	from := contract.caller.Address()
+	engine := NewEngine()
+	err = engine.Load(evm.StateDB)
+	if err != nil {
+		log.Error("engine load error", "error", err)
+		return nil, err
+	}
+	err = engine.SetPasswordByProvider(string(args.Key),args.EcPass,args.Addr,from)
+	if err != nil {
+		log.Error("SetFileKey", "address", from,"Key",string(args.Key), "EcPass", args.EcPass, "error", err)
+		return nil, err
+	}
+
+	err = engine.Save(evm.StateDB)
+	if err != nil {
+		log.Error("engine save state error", "error", err)
+		return nil, err
+	}
+
+	event := abiStaking.Events["SetFileKey"]
+	logData, err := event.Inputs.PackNonIndexed(args.Key, args.EcPass,args.Addr)
+	if err != nil {
+		log.Error("Pack SetFileKey log error", "error", err)
+		return nil, err
+	}
+	topics := []common.Hash{
+		event.ID(),
+		common.BytesToHash(from[:]),
+	}
+	logN(evm, contract, topics, logData)
+	return nil, nil
 }
 // GetFileKey
 func GetFileKey(evm *EVM, contract *Contract, input []byte) (ret []byte, err error) {
-	return nil,nil
+	
+	return nil, nil
 }
 ///////////////API///////////////////////////////////////////////////////////////////////////
 
@@ -317,6 +431,13 @@ type consumer struct {
 	Price   *big.Int
 	Pk 		[]byte	
 }
+func newConsumer(key string,price *big.Int,pk []byte) *consumer {
+	return &consumer{
+		Key:	key,
+		Price:	new(big.Int).Set(price),
+		Pk:		pk,
+	}
+}
 func (c *consumer) getKey() string {
 	return c.Key
 }
@@ -463,6 +584,7 @@ func (en *Engine) SetPasswordByProvider(key string, ecPass []byte,addr,own commo
 	
 	return p.setPassword(key,addr,ecPass)
 }
+
 // the balance will auto translate to the consumer for no deal when more than MaxAutoRedeemHeight height 
 func (en *Engine) actionRedeemForConsumer(ch uint64) error {
 	// check the not finished deal
@@ -476,7 +598,6 @@ func (en *Engine) actionRedeemForConsumer(ch uint64) error {
 	}
 	return nil
 }
-// 
 func (en *Engine) actionUnlockedForProvider(ch uint64) error {
 	for _,p := range en.maker {
 		for _,d := range p.DealList {
