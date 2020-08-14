@@ -175,11 +175,11 @@ func SetFileKey(evm *EVM, contract *Contract, input []byte) (ret []byte, err err
 		EcPass   []byte
 		Addr 	 common.Address
 	}{}
-	method, _ := abiStaking.Methods["SetFileKey"]
+	method, _ := abiStaking.Methods["setFileKey"]
 
 	err = method.Inputs.Unpack(&args, input)
 	if err != nil {
-		log.Error("Unpack SetFileKey error", "err", err)
+		log.Error("Unpack setFileKey error", "err", err)
 		return nil, ErrStakingInvalidInput
 	}
 
@@ -192,7 +192,7 @@ func SetFileKey(evm *EVM, contract *Contract, input []byte) (ret []byte, err err
 	}
 	err = engine.SetPasswordByProvider(string(args.Key),args.EcPass,args.Addr,from)
 	if err != nil {
-		log.Error("SetFileKey", "address", from,"Key",string(args.Key), "EcPass", args.EcPass, "error", err)
+		log.Error("setFileKey", "address", from,"Key",string(args.Key), "EcPass", args.EcPass, "error", err)
 		return nil, err
 	}
 
@@ -216,9 +216,32 @@ func SetFileKey(evm *EVM, contract *Contract, input []byte) (ret []byte, err err
 	return nil, nil
 }
 // GetFileKey
-func GetFileKey(evm *EVM, contract *Contract, input []byte) (ret []byte, err error) {
-	
-	return nil, nil
+func GetFileKey(evm *EVM, contract *Contract, input []byte) (ret []byte, err error) {	
+	args := struct {
+		Key	 	 []byte
+		Addr 	 common.Address
+	}{}
+	method, _ := abiStaking.Methods["getFileKey"]
+
+	err = method.Inputs.Unpack(&args, input)
+	if err != nil {
+		log.Error("Unpack setFileKey error", "err", err)
+		return nil, ErrStakingInvalidInput
+	}
+
+	from := contract.caller.Address()
+	engine := NewEngine()
+	err = engine.Load(evm.StateDB)
+	if err != nil {
+		log.Error("engine load error", "error", err)
+		return nil, err
+	}
+	if ec,err := engine.GetPasswordByConsumer(string(args.Key),args.Addr,from); err != nil {
+		log.Error("setFileKey", "address", from,"Key",string(args.Key), "providerAddress", args.Addr, "error", err)
+		return nil, err
+	} else {
+		return method.Outputs.Pack(ec)
+	}
 }
 ///////////////API///////////////////////////////////////////////////////////////////////////
 
@@ -288,6 +311,11 @@ type deal struct {
 func (d *deal) setPassword(ec []byte) {
 	d.password = make([]byte,len(ec))
 	copy(d.password,ec)
+}
+func (d *deal) getPassword() []byte {
+	ps := make([]byte,len(d.password))
+	copy(ps,d.password)
+	return ps
 }
 func (d *deal) getPk() []byte{
 	if len(d.buyerPk) > 0 {
@@ -584,7 +612,17 @@ func (en *Engine) SetPasswordByProvider(key string, ecPass []byte,addr,own commo
 	
 	return p.setPassword(key,addr,ecPass)
 }
-
+func (en *Engine) GetPasswordByConsumer(key string, addr, own common.Address) ([]byte,error) {
+	p := en.getProviderByAddr(addr)
+	if p == nil {
+		return nil,ErrNotFoundProvider
+	}
+	d := p.getDealResult(key,own)
+	if d == nil {
+		return nil,ErrNotFoundDeal
+	}
+	return d.getPassword(),nil
+}
 // the balance will auto translate to the consumer for no deal when more than MaxAutoRedeemHeight height 
 func (en *Engine) actionRedeemForConsumer(ch uint64) error {
 	// check the not finished deal
