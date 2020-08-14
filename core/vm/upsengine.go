@@ -376,6 +376,23 @@ func (e *Entry) getPrice() *big.Int {
 	return e.price
 }
 
+type StoreService struct {
+	Key  	string
+	En      *Entry
+}
+type SortStoreService []*StoreService
+func (vs SortStoreService) Len() int {
+	return len(vs)
+}
+func (vs SortStoreService) Less(i, j int) bool {
+	return bytes.Compare([]byte(vs[i].Key), []byte(vs[j].Key)) == -1
+}
+func (vs SortStoreService) Swap(i, j int) {
+	it := vs[i]
+	vs[i] = vs[j]
+	vs[j] = it
+}
+
 type provider struct {
 	Addr 		common.Address
 	Service 	map[string]*Entry
@@ -455,6 +472,51 @@ func (p *provider) clearDealList() {
 	}
 	p.DealList = tmp
 }
+func (p *provider) serviceToSlice() SortStoreService {
+	v1 := make([]*StoreService, 0, 0)
+	for k, v := range p.Service {
+		v1 = append(v1, &StoreService{
+			Key: 		k,
+			En:      	v,
+		})
+	}
+	sort.Sort(SortStoreService(v1))
+	return SortStoreService(v1)
+}
+func (p *provider) serviceFromSlice(v1 SortStoreService) {
+	enInfos := make(map[string]*Entry)
+	for _, v := range v1 {
+		enInfos[v.Key] = v.En
+	}
+	p.Service = enInfos
+}
+func (p *provider) DecodeRLP(s *rlp.Stream) error {
+	eb := struct {
+		Addr 		common.Address
+		Value1 		SortStoreService
+		DealList 	[]*deal
+	}{}
+	if err := s.Decode(&eb); err != nil {
+		return err
+	}
+	p.serviceFromSlice(eb.Value1)
+	p.Addr,p.DealList = eb.Addr,eb.DealList
+	return nil
+}
+
+func (p *provider) EncodeRLP(w io.Writer) error {
+	tmp := struct {
+		Addr 		common.Address
+		Value1 		SortStoreService
+		DealList 	[]*deal
+	}{ 
+		Addr:		p.Addr,
+		Value1:		p.serviceToSlice(),
+		DealList:	p.DealList,
+	 }
+
+	return rlp.Encode(w, &tmp)
+}
 
 type consumer struct {
 	Key 	string
@@ -482,9 +544,7 @@ type StoreEngine struct {
 	Address common.Address
 	Pov      *provider
 }
-
 type SortStoreEngine []*StoreEngine
-
 func (vs SortStoreEngine) Len() int {
 	return len(vs)
 }
