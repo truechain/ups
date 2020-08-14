@@ -1,11 +1,13 @@
 package vm
 
 import (
-	// "fmt"
+	"fmt"
 	"math/big"
 	"crypto/rand"
 	"strings"
+	"io"
 	"bytes"
+	"sort"
 	"errors"
 	"github.com/truechain/ups/common"
 	"github.com/truechain/ups/accounts/abi"
@@ -15,7 +17,7 @@ import (
 	"github.com/truechain/ups/crypto/ecies"
 	"github.com/truechain/ups/log"
 	// "github.com/truechain/ups/params"
-	// "github.com/truechain/ups/rlp"
+	"github.com/truechain/ups/rlp"
 )
 
 // 交互式密钥交互过程,卖方设置价格,买方出价，卖方给出加密密钥(以买方公钥加密)，验证该加密密钥。
@@ -475,6 +477,25 @@ func (c *consumer) getPrice() *big.Int {
 func (c *consumer) getAddr() common.Address {
 	return common.BytesToAddress(crypto.Keccak256(c.Pk[1:])[12:])
 }
+////////////////////////////////////////////////////////////////////////////////////////////////
+type StoreEngine struct {
+	Address common.Address
+	Pov      *provider
+}
+
+type SortStoreEngine []*StoreEngine
+
+func (vs SortStoreEngine) Len() int {
+	return len(vs)
+}
+func (vs SortStoreEngine) Less(i, j int) bool {
+	return bytes.Compare(vs[i].Address[:], vs[j].Address[:]) == -1
+}
+func (vs SortStoreEngine) Swap(i, j int) {
+	it := vs[i]
+	vs[i] = vs[j]
+	vs[j] = it
+}
 
 type Engine struct {
 	maker  map[common.Address]*provider
@@ -484,12 +505,70 @@ func NewEngine() *Engine {
 		maker: 	make(map[common.Address]*provider),
 	}
 }
+
 func (en *Engine) Load(state StateDB) error {
+	key := common.BytesToHash(UpsEngineAddress[:])
+	data := state.GetPOSState(UpsEngineAddress, key)
+	lenght := len(data)
+	if lenght == 0 {
+		return errors.New("Load data = 0")
+	}
+	var temp Engine
+	if err := rlp.DecodeBytes(data, &temp); err != nil {
+		log.Error("Invalid Engine entry RLP", "err", err)
+		return errors.New(fmt.Sprintf("Invalid Engine entry RLP %s", err.Error()))
+	}
+	en.maker = temp.maker
 	return nil
 }
 func (en *Engine) Save(state StateDB) error {
+	key := common.BytesToHash(UpsEngineAddress[:])
+	data, err := rlp.EncodeToBytes(en)
+	if err != nil {
+		log.Crit("Failed to RLP encode Engine", "err", err)
+	}
+	state.SetPOSState(UpsEngineAddress, key, data)
+	return err
+}
+/////////////////////////////////////////////////////////////////
+func (en *Engine) toSlice() SortStoreEngine {
+	v1 := make([]*StoreEngine, 0, 0)
+	for k, v := range en.maker {
+		v1 = append(v1, &StoreEngine{
+			Address: 	k,
+			Pov:      	v,
+		})
+	}
+	sort.Sort(SortStoreEngine(v1))
+	return SortStoreEngine(v1)
+}
+func (en *Engine) fromSlice(v1 SortStoreEngine) {
+	enInfos := make(map[common.Address]*provider)
+	for _, v := range v1 {
+		enInfos[v.Address] = v.Pov
+	}
+	en.maker = enInfos
+}
+func (en *Engine) DecodeRLP(s *rlp.Stream) error {
+	eb := struct {
+		Value1 SortStoreEngine
+	}{}
+	if err := s.Decode(&eb); err != nil {
+		return err
+	}
+	en.fromSlice(eb.Value1)
 	return nil
 }
+func (en *Engine) EncodeRLP(w io.Writer) error {
+	tmp := struct {
+		Value1 SortStoreEngine
+	}{ en.toSlice() }
+
+	return rlp.Encode(w, &tmp)
+}
+
+/////////////////////////////////////////////////////////////////
+
 func (en *Engine) getProviderByKey(key string) *provider {
 	for _,v := range en.maker {
 		if v.isSuppy(key) {
