@@ -11,7 +11,7 @@ import (
 	"errors"
 	"github.com/truechain/ups/common"
 	"github.com/truechain/ups/accounts/abi"
-	// "github.com/truechain/ups/core/state"
+	// "github.com/truechain/ups/core/State"
 	// "github.com/truechain/ups/core/types"
 	"github.com/truechain/ups/crypto"
 	"github.com/truechain/ups/crypto/ecies"
@@ -30,9 +30,9 @@ var (
 	MaxAutoUnlockedHieght = 500
 )
 var (
-	ErrNotFoundProvider = errors.New("not found the provider from the key")
+	ErrNotFoundProvider = errors.New("not found the provider from the Key")
 	ErrNotFoundDeal = errors.New("not found the deal in the provider")
-	ErrNotMatchPrice = errors.New("not match the price from the provider")
+	ErrNotMatchPrice = errors.New("not match the Price from the provider")
 	ErrInvalidParams = errors.New("invalid params")
 	ErrInvalidPk = errors.New("uninitialized pubkey in deal")
 )
@@ -79,7 +79,7 @@ func addProvider(evm *EVM, contract *Contract, input []byte) (ret []byte, err er
 
 	err = engine.Save(evm.StateDB)
 	if err != nil {
-		log.Error("engine save state error", "error", err)
+		log.Error("engine save State error", "error", err)
 		return nil, err
 	}
 
@@ -125,7 +125,7 @@ func postRequestKey(evm *EVM, contract *Contract, input []byte) (ret []byte, err
 
 	err = engine.Save(evm.StateDB)
 	if err != nil {
-		log.Error("engine save state error", "error", err)
+		log.Error("engine save State error", "error", err)
 		return nil, err
 	}
 
@@ -200,7 +200,7 @@ func SetFileKey(evm *EVM, contract *Contract, input []byte) (ret []byte, err err
 
 	err = engine.Save(evm.StateDB)
 	if err != nil {
-		log.Error("engine save state error", "error", err)
+		log.Error("engine save State error", "error", err)
 		return nil, err
 	}
 
@@ -261,9 +261,9 @@ func matchPrice(p *provider,c *consumer) error {
 		 return ErrNotMatchPrice
 	}
 }
-// will be store to state
+// will be store to State
 func storeBalance(val *big.Int) error {
-	// add balance to state
+	// add balance to State
 	return nil
 }
 func transToProvider(val *big.Int,addr common.Address) error {
@@ -302,27 +302,27 @@ func Decrypt(priv,msg []byte) ([]byte,error) {
 }
 
 type deal struct {
-	key string
-	buyer common.Address
-	buyerPk []byte
-	password []byte
+	Key string
+	Buyer common.Address
+	BuyerPk []byte
+	Password []byte
 	Height 	uint64
-	price 	*big.Int
-	state byte
+	Price 	*big.Int
+	State byte
 }
 func (d *deal) setPassword(ec []byte) {
-	d.password = make([]byte,len(ec))
-	copy(d.password,ec)
+	d.Password = make([]byte,len(ec))
+	copy(d.Password,ec)
 }
 func (d *deal) getPassword() []byte {
-	ps := make([]byte,len(d.password))
-	copy(ps,d.password)
+	ps := make([]byte,len(d.Password))
+	copy(ps,d.Password)
 	return ps
 }
 func (d *deal) getPk() []byte{
-	if len(d.buyerPk) > 0 {
-		pk := make([]byte,len(d.buyerPk))
-		copy(pk,d.buyerPk)
+	if len(d.BuyerPk) > 0 {
+		pk := make([]byte,len(d.BuyerPk))
+		copy(pk,d.BuyerPk)
 		return pk
 	}
 	return nil
@@ -331,49 +331,49 @@ func (d *deal) getHeight() uint64 {
 	return d.Height
 }
 func (d *deal) getPrice() *big.Int {
-	return new(big.Int).Set(d.price)
+	return new(big.Int).Set(d.Price)
 }
 func (d *deal) isPayed() bool {
-	return d.state == DealPayed
+	return d.State == DealPayed
 }
 func (d *deal) canRedeem(ch uint64) bool {
-	if int64(ch - d.Height) > int64(MaxAutoRedeemHeight) && d.state == DealUnPaid {
+	if int64(ch - d.Height) > int64(MaxAutoRedeemHeight) && d.State == DealUnPaid {
 		return true
 	}
 	return false
 }
 func (d *deal) canClear() bool {
-	if d.state == DealRedeem || d.state == DealFinish {
+	if d.State == DealRedeem || d.State == DealFinish {
 		return true
 	}
 	return false
 }
 func (d *deal) redeemed() {
-	d.state = DealRedeem
+	d.State = DealRedeem
 }
 func (d *deal) payed() {
-	d.state = DealPayed
+	d.State = DealPayed
 }
 func (d *deal) finish() {
-	d.state = DealFinish
+	d.State = DealFinish
 }
 func (d *deal) doRedeem() error {
-	return redeemToConsumer(d.price,d.buyer)
+	return redeemToConsumer(d.Price,d.Buyer)
 }
 
 type Entry struct {
-	key string
-	price *big.Int
-	buyer bool
+	Key string
+	Price *big.Int
+	Buyer bool
 }
-func newEntry(key string, price *big.Int) *Entry {
+func newEntry(Key string, Price *big.Int) *Entry {
 	return &Entry{
-		key:	key,
-		price: new(big.Int).Set(price),
+		Key:	Key,
+		Price: new(big.Int).Set(Price),
 	}
 }
 func (e *Entry) getPrice() *big.Int {
-	return e.price
+	return e.Price
 }
 
 type StoreService struct {
@@ -398,45 +398,45 @@ type provider struct {
 	Service 	map[string]*Entry
 	DealList 	[]*deal
 }
-func (p *provider) getService(key string) *Entry {
-	v,ok := p.Service[key]
+func (p *provider) getService(Key string) *Entry {
+	v,ok := p.Service[Key]
 	if !ok {
 		return nil
 	}
 	return v
 }
-func (p *provider) getPrice(key string) *big.Int {
-	e := p.getService(key)
+func (p *provider) getPrice(Key string) *big.Int {
+	e := p.getService(Key)
 	if e == nil {
 		return nil
 	}
 	return e.getPrice()
 }
-func (p *provider) getDealResult(key string,addr common.Address) *deal {
+func (p *provider) getDealResult(Key string,addr common.Address) *deal {
 	for _,v := range p.DealList {
-		if key == v.key && bytes.Equal(addr[:],v.buyer[:]) {
+		if Key == v.Key && bytes.Equal(addr[:],v.Buyer[:]) {
 			return v
 		}
 	}
 	return nil
 }
-func (p *provider) addDealResult(height uint64,key string,addr common.Address,pk []byte,price *big.Int) {
-	d := p.getDealResult(key,addr)
+func (p *provider) addDealResult(height uint64,Key string,addr common.Address,pk []byte,Price *big.Int) {
+	d := p.getDealResult(Key,addr)
 	if d != nil {
 		return 
 	}
 	p.DealList = append(p.DealList,&deal{
-		key:	key,
-		buyer:	addr,
-		buyerPk:	pk,
+		Key:	Key,
+		Buyer:	addr,
+		BuyerPk:	pk,
 		Height:	height,
-		price:	new(big.Int).Set(price),
-		state:	DealUnPaid,
+		Price:	new(big.Int).Set(Price),
+		State:	DealUnPaid,
 	})
 	return 
 }
-func (p *provider) setPassword(key string, addr common.Address,ec []byte) error {
-	d := p.getDealResult(key,addr)
+func (p *provider) setPassword(Key string, addr common.Address,ec []byte) error {
+	d := p.getDealResult(Key,addr)
 	if d == nil {
 		return ErrNotFoundDeal
 	}
@@ -444,20 +444,20 @@ func (p *provider) setPassword(key string, addr common.Address,ec []byte) error 
 	d.payed()
 	return nil
 }
-func (p *provider) addEntry(key string,price *big.Int) error {
-	// disable to change the price 
-	_,ok := p.Service[key]
+func (p *provider) addEntry(Key string,Price *big.Int) error {
+	// disable to change the Price 
+	_,ok := p.Service[Key]
 	if !ok {
-		p.Service[key] = newEntry(key,price)
+		p.Service[Key] = newEntry(Key,Price)
 	}
 	return nil
 }
 func (p *provider) getAddress() common.Address {
 	return p.Addr
 }
-func (p *provider) isSuppy(key string) bool {
+func (p *provider) isSuppy(Key string) bool {
 	for k := range p.Service {
-		if k == key {
+		if k == Key {
 			return true
 		}
 	}
@@ -523,10 +523,10 @@ type consumer struct {
 	Price   *big.Int
 	Pk 		[]byte	
 }
-func newConsumer(key string,price *big.Int,pk []byte) *consumer {
+func newConsumer(Key string,Price *big.Int,pk []byte) *consumer {
 	return &consumer{
-		Key:	key,
-		Price:	new(big.Int).Set(price),
+		Key:	Key,
+		Price:	new(big.Int).Set(Price),
 		Pk:		pk,
 	}
 }
@@ -566,9 +566,9 @@ func NewEngine() *Engine {
 	}
 }
 
-func (en *Engine) Load(state StateDB) error {
-	key := common.BytesToHash(UpsEngineAddress[:])
-	data := state.GetPOSState(UpsEngineAddress, key)
+func (en *Engine) Load(State StateDB) error {
+	Key := common.BytesToHash(UpsEngineAddress[:])
+	data := State.GetPOSState(UpsEngineAddress, Key)
 	lenght := len(data)
 	if lenght == 0 {
 		return errors.New("Load data = 0")
@@ -581,13 +581,13 @@ func (en *Engine) Load(state StateDB) error {
 	en.maker = temp.maker
 	return nil
 }
-func (en *Engine) Save(state StateDB) error {
-	key := common.BytesToHash(UpsEngineAddress[:])
+func (en *Engine) Save(State StateDB) error {
+	Key := common.BytesToHash(UpsEngineAddress[:])
 	data, err := rlp.EncodeToBytes(en)
 	if err != nil {
 		log.Crit("Failed to RLP encode Engine", "err", err)
 	}
-	state.SetPOSState(UpsEngineAddress, key, data)
+	State.SetPOSState(UpsEngineAddress, Key, data)
 	return err
 }
 /////////////////////////////////////////////////////////////////
@@ -629,9 +629,9 @@ func (en *Engine) EncodeRLP(w io.Writer) error {
 
 /////////////////////////////////////////////////////////////////
 
-func (en *Engine) getProviderByKey(key string) *provider {
+func (en *Engine) getProviderByKey(Key string) *provider {
 	for _,v := range en.maker {
-		if v.isSuppy(key) {
+		if v.isSuppy(Key) {
 			return v
 		}
 	}
@@ -662,7 +662,7 @@ func (en *Engine) matchByConsumer(c *consumer) (*provider,error) {
 func (en *Engine) tryAddConsumer(c *consumer,height uint64) error {
 	// 1. add consumer and match the provider
 	// 2. the consumer store the money to the contract and locked it
-	// 3. the provider set the password encrypted by consumer's pk
+	// 3. the provider set the Password encrypted by consumer's pk
 	p,err := en.matchByConsumer(c)
 	if err != nil {
 		return err
@@ -671,11 +671,11 @@ func (en *Engine) tryAddConsumer(c *consumer,height uint64) error {
 	return nil
 }
 // make sure the caller match the provider
-func (en *Engine) tryAddProvider(key string,own common.Address,price *big.Int) error {
+func (en *Engine) tryAddProvider(Key string,own common.Address,Price *big.Int) error {
 	p := en.getProviderByAddr(own)
 	if p == nil {
 		service := make(map[string]*Entry)
-		service[key] = newEntry(key,price)
+		service[Key] = newEntry(Key,Price)
 		en.addProvider(&provider{
 			Addr: own,
 			Service: service,
@@ -683,7 +683,7 @@ func (en *Engine) tryAddProvider(key string,own common.Address,price *big.Int) e
 		})
 		return nil
 	} 
-	return p.addEntry(key,price)
+	return p.addEntry(Key,Price)
 }
 // check provider's address by caller in contract,make sure the caller match the provider
 func (en *Engine) batchGetPkFromDeals(keys []string,addrs []common.Address,own common.Address) ([][]byte,error) {
@@ -728,12 +728,12 @@ func (en *Engine) batchSetPassword(keys []string,addrs []common.Address,ecPass [
 	return 0,nil
 }
 
-func (en *Engine) GetPubKeyByProvider(key string, addr,own common.Address) ([]byte,error) {
+func (en *Engine) GetPubKeyByProvider(Key string, addr,own common.Address) ([]byte,error) {
 	p := en.getProviderByAddr(own)
 	if p == nil {
 		return nil,ErrNotFoundProvider
 	}
-	d := p.getDealResult(key,addr)
+	d := p.getDealResult(Key,addr)
 	if d == nil {
 		return nil,ErrNotFoundDeal
 	}
@@ -743,20 +743,20 @@ func (en *Engine) GetPubKeyByProvider(key string, addr,own common.Address) ([]by
 	}
 	return pk,nil
 }
-func (en *Engine) SetPasswordByProvider(key string, ecPass []byte,addr,own common.Address) error {
+func (en *Engine) SetPasswordByProvider(Key string, ecPass []byte,addr,own common.Address) error {
 	p := en.getProviderByAddr(own) 
 	if p == nil {
 		return ErrNotFoundProvider
 	}
 	
-	return p.setPassword(key,addr,ecPass)
+	return p.setPassword(Key,addr,ecPass)
 }
-func (en *Engine) GetPasswordByConsumer(key string, addr, own common.Address) ([]byte,error) {
+func (en *Engine) GetPasswordByConsumer(Key string, addr, own common.Address) ([]byte,error) {
 	p := en.getProviderByAddr(addr)
 	if p == nil {
 		return nil,ErrNotFoundProvider
 	}
-	d := p.getDealResult(key,own)
+	d := p.getDealResult(Key,own)
 	if d == nil {
 		return nil,ErrNotFoundDeal
 	}
