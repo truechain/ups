@@ -22,11 +22,6 @@ Generate a new key item.
 			Usage: "key info count",
 			Value: 1,
 		},
-		cli.IntFlag{
-			Name:  "type",
-			Usage: "crypto type[1,2,3],default:2",
-			Value: 1,
-		},
 	},
 	Action: func(ctx *cli.Context) error {
 		count := ctx.GlobalInt("sum")
