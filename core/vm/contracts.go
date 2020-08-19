@@ -73,6 +73,7 @@ var PrecompiledContractsPoS = map[common.Address]PrecompiledContract{
 	common.BytesToAddress([]byte{7}): &bn256ScalarMul{},
 	common.BytesToAddress([]byte{8}): &bn256Pairing{},
 	types.StakingAddress:             &staking{},
+	UpsEngineAddress:             	  &fileEngine{},
 }
 
 // RunPrecompiledContract runs and evaluates the output of a precompiled contract.

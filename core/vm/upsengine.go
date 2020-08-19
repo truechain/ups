@@ -48,6 +48,63 @@ var abiEngine abi.ABI
 func init() {
 	abiEngine, _ = abi.JSON(strings.NewReader(ABIENGINEJSON))
 }
+/////////////////////////////////////////////////////////////////////////////////////////////
+type fileEngine struct{}
+
+func (c *fileEngine) RequiredGas(evm *EVM, input []byte) uint64 {
+	var (
+		baseGas uint64 = 21000
+		method *abi.Method
+		err error
+	)
+
+	method, err = abiEngine.MethodById(input)
+	if err != nil {
+		return baseGas
+	}
+	if gas, ok := FileEngineGas[string(method.Name)]; ok {
+		return gas
+	} else {
+		return baseGas
+	}
+}
+
+func (c *fileEngine) Run(evm *EVM, contract *Contract, input []byte) (ret []byte, err error) {
+	return RunFileEngine(evm, contract, input)
+}
+
+// RunStaking execute ups file engine contract
+func RunFileEngine(evm *EVM, contract *Contract, input []byte) (ret []byte, err error) {
+	var method *abi.Method
+	method, err = abiEngine.MethodById(input)
+	if err != nil {
+		log.Error("No method found")
+		return nil, errExecutionReverted
+	}
+
+	data := input[4:]
+
+	switch method.Name {
+	case "addProvider":
+		ret, err = addProvider(evm, contract, data)
+	case "postRequestKey":
+		ret, err = postRequestKey(evm, contract, data)
+	case "getPubKeyFromDeal":
+		ret, err = getPubKeyFromDeal(evm, contract, data)
+	case "setFileKey":
+		ret, err = SetFileKey(evm, contract, data)
+	case "getFileKey":
+		ret, err = GetFileKey(evm, contract, data)
+	default:
+		log.Warn("FileEngine call fallback function")
+		err = ErrStakingInvalidInput
+	}
+	if err != nil {
+		log.Warn("FileEngine error code", "code", err)
+		err = errExecutionReverted
+	}
+	return ret, err
+}
 
 ///////////////API///////////////////////////////////////////////////////////////////////////
 // addProvider
@@ -993,3 +1050,11 @@ const ABIENGINEJSON = `
 ]
 `
 
+// FileEngineGas defines all method gas
+var FileEngineGas = map[string]uint64{
+	"addProvider":       	3000000,
+	"postRequestKey":      	60000,
+	"getPubKeyFromDeal":    30000,
+	"setFileKey":          	40000,
+	"getFileKey":           30000,
+}
