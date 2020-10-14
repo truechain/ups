@@ -39,7 +39,6 @@ Generate a new key item.
 				fmt.Println("address:", crypto.AddressToHex(addr))
 				fmt.Println("-------------------------------------------------------")
 			}
-
 		}
 		return nil
 	},

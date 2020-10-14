@@ -300,15 +300,20 @@ func (m *Minerva) Prepare(chain consensus.ChainReader, header *types.Header) err
 // Finalize implements consensus.Engine, accumulating the block fruit and uncle rewards,
 // setting the final state and assembling the block.
 func (m *Minerva) Finalize(chain consensus.ChainReader, header *types.Header, state *state.StateDB,
-	txs []*types.Transaction, receipts []*types.Receipt, feeAmount *big.Int) (*types.Block, *types.ChainReward,error) {
+	txs []*types.Transaction, receipts []*types.Receipt, feeAmount *big.Int) (*types.Block, *types.ChainReward, error) {
 
-	infos,err := accumulateRewardsFast(state, header.Number.Uint64(),header.Time.Uint64())
-	if err != nil {
-		log.Error("Finalize Error", "accumulateRewardsFast", err.Error())
-		return nil,nil, err
+	var infos *types.ChainReward
+	if header.CommitteeHash == types.EmptySignHash || header.CommitteeHash == (common.Hash{}) {
+		var err error
+		infos, err = accumulateRewardsFast(state, header.Number.Uint64(), header.Time.Uint64())
+		if err != nil {
+			log.Error("Finalize Error", "accumulateRewardsFast", err.Error())
+			return nil, nil, err
+		}
 	}
+
 	if err := m.finalizeFastGas(state, header.Number, header.Hash(), feeAmount); err != nil {
-		return nil,nil, err
+		return nil, nil, err
 	}
 
 	if err := m.finalizeValidators(chain, state, header.Number); err != nil {
@@ -398,6 +403,9 @@ func accumulateRewardsFast(stateDB *state.StateDB, fast,btime uint64) (*types.Ch
 	impawn := vm.NewImpawnImpl()
 	impawn.Load(stateDB, types.StakingAddress)
 	defer impawn.Save(stateDB, types.StakingAddress)
+	if impawn.Accounts() == 0 {
+		return nil, nil
+	}
 	//committee reward
 	infos, err := impawn.Reward(fast, committeeCoin)
 	if err != nil {
